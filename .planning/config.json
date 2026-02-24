@@ -1,0 +1,14 @@
+{
+  "mode": "yolo",
+  "depth": "standard",
+  "model_profile": "quality",
+  "parallelization": true,
+  "commit_docs": true,
+  "branching_strategy": "none",
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
+    "auto_advance": true
+  }
+}
