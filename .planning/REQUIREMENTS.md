@@ -72,37 +72,37 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEDUP-01 | — | Pending |
-| DEDUP-02 | — | Pending |
-| DEDUP-03 | — | Pending |
-| DEDUP-04 | — | Pending |
-| DEDUP-05 | — | Pending |
-| DEDUP-06 | — | Pending |
-| DEDUP-07 | — | Pending |
-| DEDUP-08 | — | Pending |
-| DEDUP-09 | — | Pending |
-| DEDUP-10 | — | Pending |
-| ADULT-01 | — | Pending |
-| ADULT-02 | — | Pending |
-| ADULT-03 | — | Pending |
-| ADULT-04 | — | Pending |
-| ADULT-05 | — | Pending |
-| ADULT-06 | — | Pending |
-| SCRIPT-01 | — | Pending |
-| SCRIPT-02 | — | Pending |
-| SCRIPT-03 | — | Pending |
-| SCRIPT-04 | — | Pending |
-| SCRIPT-05 | — | Pending |
-| URL-01 | — | Pending |
-| URL-02 | — | Pending |
-| URL-03 | — | Pending |
-| URL-04 | — | Pending |
+| DEDUP-01 | Phase 2 | Pending |
+| DEDUP-02 | Phase 2 | Pending |
+| DEDUP-03 | Phase 2 | Pending |
+| DEDUP-04 | Phase 2 | Pending |
+| DEDUP-05 | Phase 1 | Pending |
+| DEDUP-06 | Phase 2 | Pending |
+| DEDUP-07 | Phase 2 | Pending |
+| DEDUP-08 | Phase 1 | Pending |
+| DEDUP-09 | Phase 1 | Pending |
+| DEDUP-10 | Phase 1 | Pending |
+| ADULT-01 | Phase 3 | Pending |
+| ADULT-02 | Phase 3 | Pending |
+| ADULT-03 | Phase 3 | Pending |
+| ADULT-04 | Phase 3 | Pending |
+| ADULT-05 | Phase 3 | Pending |
+| ADULT-06 | Phase 3 | Pending |
+| SCRIPT-01 | Phase 5 | Pending |
+| SCRIPT-02 | Phase 5 | Pending |
+| SCRIPT-03 | Phase 5 | Pending |
+| SCRIPT-04 | Phase 5 | Pending |
+| SCRIPT-05 | Phase 5 | Pending |
+| URL-01 | Phase 4 | Pending |
+| URL-02 | Phase 4 | Pending |
+| URL-03 | Phase 4 | Pending |
+| URL-04 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 25 total
-- Mapped to phases: 0
-- Unmapped: 25
+- Mapped to phases: 25
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after initial definition*
+*Last updated: 2026-02-25 after roadmap creation*
