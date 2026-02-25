@@ -974,13 +974,6 @@ rule-providers:
     url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/cdn77_ips.list
     path: ./rule-sets/cdn77_ips.list
     interval: 86400
-  cloudflare_ips:
-    type: http
-    behavior: classical
-    format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/cloudflare_ips.list
-    path: ./rule-sets/cloudflare_ips.list
-    interval: 86400
   digitalocean_ips:
     type: http
     behavior: classical
@@ -1370,24 +1363,6 @@ rules:
   - RULE-SET,discord_vc,Discord
   - RULE-SET,discord_domains,Discord
   - PROCESS-NAME-REGEX,(?i).*discord.*,Discord
-
-  - DOMAIN-SUFFIX,cloudflare-ech.com,Cloudflare
-  - DOMAIN-SUFFIX,encryptedsni.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflareaccess.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflareapps.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflarebolt.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflareclient.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflareinsights.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflareok.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflarepartners.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflareportal.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflarepreview.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflareresolve.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflaressl.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflarestatus.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflarestorage.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflarestream.com,Cloudflare
-  - DOMAIN-SUFFIX,cloudflaretest.com,Cloudflare
   - DOMAIN-SUFFIX,dis.gd,Discord
   - DOMAIN-SUFFIX,discord-attachments-uploads-prd.storage.googleapis.com,Discord
   - DOMAIN-SUFFIX,discord.app,Discord
@@ -1496,7 +1471,7 @@ rules:
   - RULE-SET,ai,AI
   - RULE-SET,google-deepmind,AI
   - RULE-SET,speedtest-net,Speedtest
-  # 🟠 Cloudflare
+  # --- Cloudflare: консолидировано из 17 inline-правил ---
   - RULE-SET,cloudflare-ips,Cloudflare
   - RULE-SET,cloudflare-domains,Cloudflare
   # ⚪🔵🔴 RU сайты
