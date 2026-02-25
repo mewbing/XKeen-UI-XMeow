@@ -1282,9 +1282,10 @@ rules:
   - PROCESS-NAME-REGEX,(?i).*Tarkov.*,Tarkov
   # Пускаем эти домены твича в директ, чтобы избавиться от рекламы (опционально)
   - OR,((DOMAIN-SUFFIX,ads.twitch.tv),(DOMAIN-SUFFIX,playlist.ttvnw.net)),DIRECT
-    # Торрент-клиенты и трекеры → DIRECT
+  # --- Торренты ---
   - OR,((RULE-SET,torrent-clients),(RULE-SET,torrent-trackers)),DIRECT
   - PROCESS-NAME-REGEX,(?i).*torrent.*,DIRECT
+  - RULE-SET,torrent-websites,🌍VPN
     # Сервисные правила (переключаемые группы)
   # --- YouTube: консолидировано из 21 правила ---
   - RULE-SET,youtube,YouTube
@@ -1485,7 +1486,6 @@ rules:
     # Русский бандл и re-filter → по умолчанию VPN (как в нижнем)
   - RULE-SET,ru-bundle,Комьюнити
   - RULE-SET,refilter_domains,Комьюнити
-  - RULE-SET,refilter_ipsum,Комьюнити
 
   # 0. ОБЯЗАТЕЛЬНЫЕ ИСКЛЮЧЕНИЯ (Локальный и системный трафик)
   - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
@@ -1499,8 +1499,6 @@ rules:
   - RULE-SET,oisd_big,Ad-Filter
   - RULE-SET,oisd_nsfw_small,Ad-Filter
   - RULE-SET,oisd_nsfw_big,Ad-Filter
-  - OR,((RULE-SET,torrent-clients),(RULE-SET,torrent-trackers)),DIRECT
-  - RULE-SET,torrent-websites,🌍VPN
 
   # 2. ПРАВИЛА ДЛЯ РОССИЙСКОГО ТРАФФИКА
   - RULE-SET,ru-app-list,RU трафик
@@ -1512,12 +1510,11 @@ rules:
   - RULE-SET,other_domains,🌍VPN
   - RULE-SET,politic_domains,🌍VPN
 
-  # 4. РЕФИЛЬТР (ЛОГИКА ECH) - Обработка трафика с ECH
+  # --- Refilter ECH-логика ---
   - DOMAIN,cloudflare-ech.com,🌍VPN
   - RULE-SET,refilter_ech,DIRECT
-  # Рефильтр ECH/No-ECH теперь управляется через группу ECH-Refilter
   - RULE-SET,refilter_noech,ECH-Refilter
-  - RULE-SET,refilter_ipsum,ECH-Refilter
+  - RULE-SET,refilter_ipsum,ECH-Refilter   # консолидировано: был дубль в Комьюнити
 
   # 5. ОСТАЛЬНЫЕ IP/CLOUD-СЕТИ
   - RULE-SET,meta_ips,Facebook
