@@ -11,11 +11,11 @@
 - [ ] **DEDUP-02**: Все дублирующиеся правила Discord удалены (4+ определения: discord_vc, discord_voiceips, discord_ips, discord_domains), с проверкой покрытия
 - [ ] **DEDUP-03**: Все дублирующиеся правила Telegram удалены (8+ определений), с проверкой покрытия
 - [ ] **DEDUP-04**: Все дублирующиеся правила Cloudflare удалены (17 inline DOMAIN-SUFFIX при наличии RULE-SET)
-- [ ] **DEDUP-05**: OISD small удалён (big является надмножеством small), подтверждено что big покрывает small
+- [x] **DEDUP-05**: OISD small удалён (big является надмножеством small), подтверждено что big покрывает small
 - [ ] **DEDUP-06**: Дублирующиеся торрент-правила удалены (определены дважды в rules-секции)
 - [ ] **DEDUP-07**: Дублирующийся refilter_ipsum консолидирован (используется в двух секциях)
-- [ ] **DEDUP-08**: Ошибка DST-PORT,53,53 исправлена на корректное правило
-- [ ] **DEDUP-09**: bongacams.ru удалён из категории "Other" (уже есть в adult-блоке BG)
+- [x] **DEDUP-08**: Ошибка DST-PORT,53,53 исправлена на корректное правило
+- [x] **DEDUP-09**: bongacams.ru удалён из категории "Other" (уже есть в adult-блоке BG)
 - [ ] **DEDUP-10**: Дублирующиеся правила Logitech консолидированы (KEYWORD + GEOSITE)
 
 ### Adult-контент изоляция (ADULT)
@@ -76,11 +76,11 @@
 | DEDUP-02 | Phase 2 | Pending |
 | DEDUP-03 | Phase 2 | Pending |
 | DEDUP-04 | Phase 2 | Pending |
-| DEDUP-05 | Phase 1 | Pending |
+| DEDUP-05 | Phase 1 | Complete |
 | DEDUP-06 | Phase 2 | Pending |
 | DEDUP-07 | Phase 2 | Pending |
-| DEDUP-08 | Phase 1 | Pending |
-| DEDUP-09 | Phase 1 | Pending |
+| DEDUP-08 | Phase 1 | Complete |
+| DEDUP-09 | Phase 1 | Complete |
 | DEDUP-10 | Phase 1 | Pending |
 | ADULT-01 | Phase 3 | Pending |
 | ADULT-02 | Phase 3 | Pending |

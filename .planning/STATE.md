@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 1 of 5 (Bugfixes)
-Plan: 0 of 2 in current phase
-Status: Context gathered, ready to plan
-Last activity: 2026-02-25 — Phase 1 context gathered
+Plan: 1 of 1 in current phase
+Status: Phase 1 complete -- all plans executed
+Last activity: 2026-02-25 — Plan 01-01 executed (3 bugfixes)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [##░░░░░░░░] 9%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 2min
+- Total execution time: 0.03 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-bugfixes | 1 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: -
+- Last 5 plans: 01-01 (2min)
 - Trend: -
 
 *Updated after each plan completion*
@@ -45,6 +45,8 @@ Recent decisions affecting current work:
 - Roadmap: geodata-mode остается включенным (не отключаем, вопреки рекомендации research Phase 5)
 - Roadmap: NAME-01..03 (именование) и ADV-01..03 (продвинутые фичи) отнесены к v2
 - Roadmap: Phase 3 (Adult) и Phase 4 (URL) независимы друг от друга, могут выполняться в любом порядке после Phase 2
+- 01-01: AND-wrapper для DST-PORT,53 вместо slash-разделителя -- соответствует существующим паттернам конфига
+- 01-01: BG_in провайдер не модифицирован -- bare DOMAIN-SUFFIX уже покрывает .ru TLD
 
 ### Pending Todos
 
@@ -57,5 +59,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-bugfixes/01-CONTEXT.md
+Stopped at: Completed 01-01-PLAN.md (Phase 1 complete)
+Resume file: .planning/phases/01-bugfixes/01-01-SUMMARY.md
