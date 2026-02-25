@@ -29,11 +29,11 @@
 
 ### Скрипт генерации (SCRIPT)
 
-- [ ] **SCRIPT-01**: Python-скрипт читает базовый config.yaml и генерирует два файла: config-personal.yaml и config-work.yaml
-- [ ] **SCRIPT-02**: Скрипт удаляет всё между маркерами `# >>> ADULT` и `# <<< ADULT` для work-варианта
-- [ ] **SCRIPT-03**: Скрипт валидирует выходной YAML (парсинг без ошибок)
-- [ ] **SCRIPT-04**: Скрипт проверяет work-конфиг на отсутствие adult-keywords (grep по списку доменов)
-- [ ] **SCRIPT-05**: Скрипт работает на Windows (Python 3.x)
+- [x] **SCRIPT-01**: Python-скрипт читает базовый config.yaml и генерирует два файла: config-personal.yaml и config-work.yaml
+- [x] **SCRIPT-02**: Скрипт удаляет всё между маркерами `# >>> ADULT` и `# <<< ADULT` для work-варианта
+- [x] **SCRIPT-03**: Скрипт валидирует выходной YAML (парсинг без ошибок)
+- [x] **SCRIPT-04**: Скрипт проверяет work-конфиг на отсутствие adult-keywords (grep по списку доменов)
+- [x] **SCRIPT-05**: Скрипт работает на Windows (Python 3.x)
 
 ### Актуализация URL-источников (URL)
 
@@ -88,11 +88,11 @@
 | ADULT-04 | Phase 3 | Complete |
 | ADULT-05 | Phase 3 | Complete |
 | ADULT-06 | Phase 3 | Complete |
-| SCRIPT-01 | Phase 5 | Pending |
-| SCRIPT-02 | Phase 5 | Pending |
-| SCRIPT-03 | Phase 5 | Pending |
-| SCRIPT-04 | Phase 5 | Pending |
-| SCRIPT-05 | Phase 5 | Pending |
+| SCRIPT-01 | Phase 5 | Complete |
+| SCRIPT-02 | Phase 5 | Complete |
+| SCRIPT-03 | Phase 5 | Complete |
+| SCRIPT-04 | Phase 5 | Complete |
+| SCRIPT-05 | Phase 5 | Complete |
 | URL-01 | Phase 4 | Complete |
 | URL-02 | Phase 4 | Complete |
 | URL-03 | Phase 4 | Complete |
@@ -105,4 +105,4 @@
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after roadmap creation*
+*Last updated: 2026-02-26 after Phase 5 completion*

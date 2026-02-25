@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Весь заблокированный в РФ трафик надежно проходит через прокси, российские сайты идут напрямую, а рабочая версия конфига не содержит следов adult-контента.
-**Current focus:** Phase 4 Complete -- Ready for Phase 5
+**Current focus:** Phase 5 Complete -- All v1 phases done
 
 ## Current Position
 
-Phase: 4 of 5 (URL Audit & Cleanup) -- COMPLETE
+Phase: 5 of 5 (Generation Script) -- COMPLETE
 Plan: 1 of 1 in current phase (all done)
-Status: Phase 4 Complete
-Last activity: 2026-02-25 -- Plan 04-01 completed (URL audit, update, verification)
+Status: Phase 5 Complete -- All v1 phases finished
+Last activity: 2026-02-26 -- Plan 05-01 completed (generate.py + .gitignore)
 
-Progress: [#########░] 80%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 5min
-- Total execution time: 0.48 hours
+- Total execution time: 0.57 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [#########░] 80%
 | 02-service-deduplication | 3 | 14min | 4.7min |
 | 03-adult-content-isolation | 1 | 8min | 8min |
 | 04-url-audit-cleanup | 1 | 5min | 5min |
+| 05-generation-script | 1 | 5min | 5min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (4min), 02-03 (7min), 03-01 (8min), 04-01 (5min)
+- Last 5 plans: 02-03 (7min), 03-01 (8min), 04-01 (5min), 05-01 (5min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -66,6 +67,10 @@ Recent decisions affecting current work:
 - 04-01: Anton111111 tag update -- simple find-replace, file names stable across releases
 - 04-01: Password not auto-changed per CONTEXT.md -- TODO comment added for user
 - 04-01: No other GitHub URLs use pinned tags (MetaCubeX on meta, legiz-ru on main)
+- 05-01: PyYAML для YAML-валидации (уже установлен 6.0.3)
+- 05-01: Бэкапы .yaml.bak (простой суффикс без timestamp)
+- 05-01: State machine с inside_adult флагом для маркерной фильтрации
+- 05-01: Выходные файлы в output/ (добавлен в .gitignore)
 
 ### Pending Todos
 
@@ -77,6 +82,6 @@ None currently.
 
 ## Session Continuity
 
-Last session: 2026-02-25
-Stopped at: Phase 4 complete, ready to plan Phase 5
+Last session: 2026-02-26
+Stopped at: All v1 phases complete
 Resume file: None
