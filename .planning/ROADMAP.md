@@ -46,7 +46,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- YouTube + Cloudflare deduplication (удаление 35 inline-дублей, 3 осиротевших провайдеров)
+- [x] 02-01-PLAN.md -- YouTube + Cloudflare deduplication (удаление 35 inline-дублей, 3 осиротевших провайдеров)
 - [ ] 02-02-PLAN.md -- Discord + Telegram deduplication (консолидация 30+ Discord правил, удаление дубля Telegram провайдера)
 - [ ] 02-03-PLAN.md -- Torrents + refilter + финальная перегруппировка по сервисам
 
