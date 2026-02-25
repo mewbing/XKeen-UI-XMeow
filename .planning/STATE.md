@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Весь заблокированный в РФ трафик надежно проходит через прокси, российские сайты идут напрямую, а рабочая версия конфига не содержит следов adult-контента.
-**Current focus:** Phase 2: Service Deduplication
+**Current focus:** Phase 2 Complete -- Ready for Phase 3 or 4
 
 ## Current Position
 
-Phase: 2 of 5 (Service Deduplication)
-Plan: 2 of 3 in current phase
-Status: Executing Phase 2
-Last activity: 2026-02-25 — Plan 02-02 completed (Discord + Telegram dedup)
+Phase: 2 of 5 (Service Deduplication) -- COMPLETE
+Plan: 3 of 3 in current phase (all done)
+Status: Phase 2 Complete
+Last activity: 2026-02-25 — Plan 02-03 completed (Torrent + Refilter dedup + final grouping)
 
-Progress: [####░░░░░░] 27%
+Progress: [#####░░░░░] 36%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 3min
-- Total execution time: 0.15 hours
+- Total plans completed: 4
+- Average duration: 4min
+- Total execution time: 0.27 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-bugfixes | 1 | 2min | 2min |
-| 02-service-deduplication | 2 | 7min | 3.5min |
+| 02-service-deduplication | 3 | 14min | 4.7min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2min), 02-01 (3min), 02-02 (4min)
-- Trend: -
+- Last 5 plans: 01-01 (2min), 02-01 (3min), 02-02 (4min), 02-03 (7min)
+- Trend: stable
 
 *Updated after each plan completion*
 
@@ -54,6 +54,9 @@ Recent decisions affecting current work:
 - 02-02: discord_vc сохранён консервативно -- MRS discord_voiceips не проверен на полное покрытие IP
 - 02-02: telegram-domains провайдер (дефис) удалён, оставлен telegram_domains (подчёркивание)
 - 02-02: 3 Discord inline-домена сохранены (discord.app, discord.status, discordsez.com) -- не в geosite
+- 02-03: refilter_ipsum осознанно перемаршрутизирован Комьюнити -> ECH-Refilter (per RESEARCH.md)
+- 02-03: 4 осиротевших провайдера удалены (hagezi_pro, geoip-ru, gaming-ips, steam-domain)
+- 02-03: Все 6 сервисов сгруппированы, санитарная проверка: 62 провайдера = 62 ссылки
 
 ### Pending Todos
 
@@ -61,10 +64,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- Research Phase 4 (Rules Restructuring) помечена как v2, но порядок правил может влиять на корректность после дедупликации в Phase 2. Следить при выполнении Phase 2.
+None currently.
 
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 02-02-PLAN.md (Discord + Telegram dedup)
-Resume file: .planning/phases/02-service-deduplication/02-02-SUMMARY.md
+Stopped at: Completed 02-03-PLAN.md (Phase 2 complete -- torrent + refilter dedup + final grouping)
+Resume file: .planning/phases/02-service-deduplication/02-03-SUMMARY.md

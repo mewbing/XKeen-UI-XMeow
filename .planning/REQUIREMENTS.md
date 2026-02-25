@@ -12,8 +12,8 @@
 - [x] **DEDUP-03**: Все дублирующиеся правила Telegram удалены (8+ определений), с проверкой покрытия
 - [x] **DEDUP-04**: Все дублирующиеся правила Cloudflare удалены (17 inline DOMAIN-SUFFIX при наличии RULE-SET)
 - [x] **DEDUP-05**: OISD small удалён (big является надмножеством small), подтверждено что big покрывает small
-- [ ] **DEDUP-06**: Дублирующиеся торрент-правила удалены (определены дважды в rules-секции)
-- [ ] **DEDUP-07**: Дублирующийся refilter_ipsum консолидирован (используется в двух секциях)
+- [x] **DEDUP-06**: Дублирующиеся торрент-правила удалены (определены дважды в rules-секции)
+- [x] **DEDUP-07**: Дублирующийся refilter_ipsum консолидирован (используется в двух секциях)
 - [x] **DEDUP-08**: Ошибка DST-PORT,53,53 исправлена на корректное правило
 - [x] **DEDUP-09**: bongacams.ru удалён из категории "Other" (уже есть в adult-блоке BG)
 - [ ] **DEDUP-10**: Дублирующиеся правила Logitech консолидированы (KEYWORD + GEOSITE)
@@ -77,8 +77,8 @@
 | DEDUP-03 | Phase 2 | Complete |
 | DEDUP-04 | Phase 2 | Complete |
 | DEDUP-05 | Phase 1 | Complete |
-| DEDUP-06 | Phase 2 | Pending |
-| DEDUP-07 | Phase 2 | Pending |
+| DEDUP-06 | Phase 2 | Complete |
+| DEDUP-07 | Phase 2 | Complete |
 | DEDUP-08 | Phase 1 | Complete |
 | DEDUP-09 | Phase 1 | Complete |
 | DEDUP-10 | Phase 1 | Pending |
