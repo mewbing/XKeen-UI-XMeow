@@ -1218,13 +1218,6 @@ rule-providers:
     url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/oisd/big.mrs
     path: ./oisd/big.mrs
     interval: 86400
-  oisd_small:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/oisd/small.mrs
-    path: ./oisd/small.mrs
-    interval: 86400
   oisd_nsfw_small:
     type: http
     behavior: domain
@@ -1604,7 +1597,6 @@ rules:
 
   # 1. БЛОКИРОВКА И ТОРРЕНТЫ
   # Блокировка OISD теперь управляется через группу Ad-Filter
-  - RULE-SET,oisd_small,Ad-Filter
   - RULE-SET,oisd_big,Ad-Filter
   - RULE-SET,oisd_nsfw_small,Ad-Filter
   - RULE-SET,oisd_nsfw_big,Ad-Filter
