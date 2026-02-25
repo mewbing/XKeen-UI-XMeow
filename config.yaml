@@ -659,13 +659,6 @@ rule-providers:
       - DOMAIN-SUFFIX,chaturbate.com
     behavior: classical
 
-  hagezi_pro:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://github.com/zxc-rv/ad-filter/releases/latest/download/adlist.mrs
-    path: ./adblock/adlist.mrs
-    interval: 86400
   ru-inline-banned:
     type: inline
     payload:
@@ -784,13 +777,6 @@ rule-providers:
     format: mrs
     url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/drweb.mrs
     path: ./rule-sets/drweb.mrs
-    interval: 86400
-  geoip-ru:
-    type: http
-    behavior: ipcidr
-    format: mrs
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/ru.mrs
-    path: ./rule-sets/geoip-ru.mrs
     interval: 86400
   geoip-by:
     type: http
@@ -1091,13 +1077,6 @@ rule-providers:
     behavior: classical
 
   # Игровые и Российские Приложения
-  gaming-ips:
-    type: http
-    behavior: ipcidr
-    format: yaml
-    url: https://raw.githubusercontent.com/OMchik33/custom-rules/main/mihomo/gaming-ips.yaml
-    path: ./rule-sets/gaming-ips.yaml
-    interval: 86400
   games-direct:
     type: http
     behavior: classical
@@ -1111,13 +1090,6 @@ rule-providers:
     format: yaml
     url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/other/ru-app-list.yaml
     path: ./rule-sets/ru-app-list.yaml
-    interval: 86400
-  steam-domain:
-    type: http
-    behavior: domain
-    format: yaml
-    url: https://raw.githubusercontent.com/OMchik33/custom-rules/refs/heads/main/mihomo/gaming-domains.yaml
-    path: ./rule-sets/steam-domain.yaml
     interval: 86400
 
   # РЕФИЛЬТР (ЛОГИКА ECH) - Правила для трафика с ECH (Encrypted Client Hello)
@@ -1249,7 +1221,6 @@ rules:
   - DOMAIN-SUFFIX,chaturbate,CB
   - DOMAIN-SUFFIX,bongamodels,BGP
   - DOMAIN-SUFFIX,tiktokw,TikTok
-  - DOMAIN-SUFFIX,antarcticwallet,Telegram
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?sinparty\\.com$,Sin
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?stripchat\\.com$,ST
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?bongacams\\.com$,BG
@@ -1293,8 +1264,6 @@ rules:
   - PROCESS-NAME-REGEX,(?i).*youtube.*,YouTube
   # YouTube: inline-дополнение (не покрыт geosite youtube)
   - DOMAIN-SUFFIX,jnn-pa.googleapis.com,YouTube
-  - OR,((RULE-SET,telegram_ips),(RULE-SET,telegram_domains)),Telegram
-  - OR,((RULE-SET,discord_domains),(RULE-SET,discord_voiceips),(PROCESS-NAME,Discord.exe)),Discord
   # ВПН и всякие Anydesk, Rustdesk, Teamviewer в директ (опционально, можно убрать)
   - PROCESS-NAME-REGEX,(?i).*tailscale.*,Remote
   - PROCESS-NAME-REGEX,(?i).*wireguard.*,Remote
@@ -1325,16 +1294,19 @@ rules:
   - GEOSITE,google-gemini,AI
   - GEOSITE,github,GitHub
   - GEOSITE,microsoft,Microsoft
-  - GEOSITE,telegram,Telegram
   - GEOSITE,amazon,Amazon
   - GEOSITE,cdn77,CDN77
   - GEOSITE,category-anticensorship,Комьюнити
   # --- Telegram: консолидировано из 10 правил ---
-  - GEOIP,telegram,Telegram
+  - DOMAIN-SUFFIX,antarcticwallet,Telegram
+  - OR,((RULE-SET,telegram_ips),(RULE-SET,telegram_domains)),Telegram
   - RULE-SET,telegram-ips,Telegram
+  - GEOSITE,telegram,Telegram
+  - GEOIP,telegram,Telegram
   - PROCESS-NAME-REGEX,(?i).*ayugram.*,Telegram
   - PROCESS-NAME-REGEX,(?i).*telegram.*,Telegram
   # --- Discord: консолидировано из 30+ правил ---
+  - OR,((RULE-SET,discord_domains),(RULE-SET,discord_voiceips),(PROCESS-NAME,Discord.exe)),Discord
   - RULE-SET,discord_vc,Discord
   - AND,((RULE-SET,cloudflare-ips),(NETWORK,udp),(DST-PORT,19200-19500)),Discord
   - PROCESS-NAME-REGEX,(?i).*discord.*,Discord
