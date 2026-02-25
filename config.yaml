@@ -1067,20 +1067,6 @@ rule-providers:
     url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/telegram_ips.list
     path: ./rule-sets/telegram-ips.list
     interval: 86400
-  youtube-domains:
-    type: http
-    behavior: domain
-    format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/youtube.list
-    path: ./rule-sets/youtube-domains.list
-    interval: 86400
-  youtube-ips:
-    type: http
-    behavior: classical
-    format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/youtube_ips.list
-    path: ./rule-sets/youtube-ips.list
-    interval: 86400
   ru-ips:
     type: http
     behavior: classical
@@ -1331,7 +1317,12 @@ rules:
   - OR,((RULE-SET,torrent-clients),(RULE-SET,torrent-trackers)),DIRECT
   - PROCESS-NAME-REGEX,(?i).*torrent.*,DIRECT
     # Сервисные правила (переключаемые группы)
+  # --- YouTube: консолидировано из 21 правила ---
   - RULE-SET,youtube,YouTube
+  - GEOSITE,youtube,YouTube
+  - PROCESS-NAME-REGEX,(?i).*youtube.*,YouTube
+  # YouTube: inline-дополнение (не покрыт geosite youtube)
+  - DOMAIN-SUFFIX,jnn-pa.googleapis.com,YouTube
   - OR,((RULE-SET,telegram_ips),(RULE-SET,telegram_domains)),Telegram
   - OR,((RULE-SET,discord_domains),(RULE-SET,discord_voiceips),(PROCESS-NAME,Discord.exe)),Discord
   # ВПН и всякие Anydesk, Rustdesk, Teamviewer в директ (опционально, можно убрать)
@@ -1357,7 +1348,6 @@ rules:
   - GEOSITE,ookla-speedtest,Speedtest
   - GEOSITE,instagram,Instagram
   - GEOSITE,steam,Steam
-  - GEOSITE,youtube,YouTube
   - GEOSITE,twitter,Twitter
   - GEOSITE,tiktok,TikTok
   - GEOSITE,intel,intel
@@ -1371,8 +1361,6 @@ rules:
   - GEOSITE,cdn77,CDN77
   - GEOSITE,category-anticensorship,Комьюнити
   - GEOIP,telegram,Telegram
-  - RULE-SET,youtube,YouTube
-  - PROCESS-NAME-REGEX,(?i).*youtube.*,YouTube
   - RULE-SET,telegram-ips,Telegram
   - RULE-SET,telegram-domains,Telegram
   - PROCESS-NAME-REGEX,(?i).*ayugram.*,Telegram
@@ -1382,24 +1370,6 @@ rules:
   - RULE-SET,discord_vc,Discord
   - RULE-SET,discord_domains,Discord
   - PROCESS-NAME-REGEX,(?i).*discord.*,Discord
-
-  - DOMAIN-SUFFIX,yt3.ggpht.com,YouTube
-  - DOMAIN-SUFFIX,yt4.ggpht.com,YouTube
-  - DOMAIN-SUFFIX,yt3.googleusercontent.com,YouTube
-  - DOMAIN-SUFFIX,googlevideo.com,YouTube
-  - DOMAIN-SUFFIX,jnn-pa.googleapis.com,YouTube
-  - DOMAIN-SUFFIX,stable.dl2.discordapp.net,YouTube
-  - DOMAIN-SUFFIX,wide-youtube.l.google.com,YouTube
-  - DOMAIN-SUFFIX,youtube-nocookie.com,YouTube
-  - DOMAIN-SUFFIX,youtube-ui.l.google.com,YouTube
-  - DOMAIN-SUFFIX,youtube.com,YouTube
-  - DOMAIN-SUFFIX,youtubeembeddedplayer.googleapis.com,YouTube
-  - DOMAIN-SUFFIX,youtubekids.com,YouTube
-  - DOMAIN-SUFFIX,youtubei.googleapis.com,YouTube
-  - DOMAIN-SUFFIX,youtu.be,YouTube
-  - DOMAIN-SUFFIX,yt-video-upload.l.google.com,YouTube
-  - DOMAIN-SUFFIX,ytimg.com,YouTube
-  - DOMAIN-SUFFIX,ytimg.l.google.com,YouTube
 
   - DOMAIN-SUFFIX,cloudflare-ech.com,Cloudflare
   - DOMAIN-SUFFIX,encryptedsni.com,Cloudflare
