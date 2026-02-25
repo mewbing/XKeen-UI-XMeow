@@ -458,6 +458,42 @@ proxy-groups:
       - DIRECT # ❌ НАПРЯМУЮ (Отключение проксирования для рефильтра)
       - 🌍VPN # ✅ ПРОКСИРОВАТЬ (Обход блокировки ECH через Proxy-Selector)
 
+  - name: 'NAS'
+    type: select
+    use:
+      - subscription
+    proxies:
+      - DIRECT
+      - 🌍VPN
+    icon: 'https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/ugreen-nas.png'
+
+  - name: 'Tarkov'
+    type: select
+    use:
+      - subscription
+    proxies:
+      - DIRECT
+      - 🌍VPN
+    icon: 'https://i.redd.it/gn1spzopl0c71.png'
+
+  - name: 'Игровые Сервера'
+    type: select
+    icon: 'https://img.icons8.com/external-vectorslab-outline-color-vectorslab/50/external-Game-Server-gaming-vectorslab-outline-color-vectorslab.png'
+    use:
+      - subscription
+    proxies:
+      - 🌍VPN # ✅ ПРОКСИРОВАТЬ (Обход блокировки ECH через Proxy-Selector)
+      - DIRECT # ❌ НАПРЯМУЮ (Отключение проксирования для рефильтра)
+
+  - name: 'Logitech'
+    type: select
+    proxies:
+      - DIRECT
+      - 🌍VPN
+    icon: "https://img.icons8.com/nolan/64/logitech.png"
+
+
+  # >>> ADULT
   - name: 'Sin'
     type: select
     use:
@@ -502,40 +538,7 @@ proxy-groups:
       - 🌍VPN
       - DIRECT
     icon: 'https://status.bongamodels.com/img/svg/logo/logo-94714.svg'
-
-  - name: 'NAS'
-    type: select
-    use:
-      - subscription
-    proxies:
-      - DIRECT
-      - 🌍VPN
-    icon: 'https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/ugreen-nas.png'
-
-  - name: 'Tarkov'
-    type: select
-    use:
-      - subscription
-    proxies:
-      - DIRECT
-      - 🌍VPN
-    icon: 'https://i.redd.it/gn1spzopl0c71.png'
-
-  - name: 'Игровые Сервера'
-    type: select
-    icon: 'https://img.icons8.com/external-vectorslab-outline-color-vectorslab/50/external-Game-Server-gaming-vectorslab-outline-color-vectorslab.png'
-    use:
-      - subscription
-    proxies:
-      - 🌍VPN # ✅ ПРОКСИРОВАТЬ (Обход блокировки ECH через Proxy-Selector)
-      - DIRECT # ❌ НАПРЯМУЮ (Отключение проксирования для рефильтра)
-
-  - name: 'Logitech'
-    type: select
-    proxies:
-      - DIRECT
-      - 🌍VPN
-    icon: "https://img.icons8.com/nolan/64/logitech.png"
+  # <<< ADULT
 
   - name: GLOBAL
     type: select
@@ -585,11 +588,13 @@ proxy-groups:
       - 'Остальной трафик'
       - 'Ad-Filter'
       - 'ECH-Refilter'
+      # >>> ADULT
       - 'Sin'
       - 'ST'
       - 'CB'
       - 'BG'
       - 'BGP'
+      # <<< ADULT
       - 'QUIC'
       - 'SAFE'
       - '53'
@@ -606,57 +611,6 @@ rule-providers:
       - DOMAIN-SUFFIX,ug
       - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*ug\.link$
       - DOMAIN-SUFFIX,ug.link
-    behavior: classical
-
-  Sin_in:
-    type: inline
-    payload:
-      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*sinparty\.com$
-      - DOMAIN-SUFFIX,sinparty
-      - DOMAIN-SUFFIX,sinparty.com
-      - DOMAIN-SUFFIX,digitaloceanspaces
-      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*digitaloceanspaces\.com$
-      - DOMAIN-SUFFIX,digitaloceanspaces.com
-    behavior: classical
-  ST_in:
-    type: inline
-    payload:
-      - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?stripchat\\.com$
-      - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?strpst\\.com$
-      - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?split\\.io$
-      - DOMAIN-SUFFIX,stripchat
-      - DOMAIN-SUFFIX,strpst
-      - DOMAIN-SUFFIX,split
-      - DOMAIN-SUFFIX,stripchat.com
-      - DOMAIN-SUFFIX,strpst.com
-      - DOMAIN-SUFFIX,split.io
-    behavior: classical
-  BG_in:
-    type: inline
-    payload:
-      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*bongacams\.com$
-      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*bongacams16\.com$
-      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*bongacam\.com$
-      - DOMAIN-SUFFIX,bongacams
-      - DOMAIN-SUFFIX,bongacams16
-      - DOMAIN-SUFFIX,bongacam
-      - DOMAIN-SUFFIX,bongacam.com
-      - DOMAIN-SUFFIX,bongacams.com
-      - DOMAIN-SUFFIX,bongacams16.com
-    behavior: classical
-  BGP_in:
-    type: inline
-    payload:
-      - DOMAIN-SUFFIX,bongamodels
-      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*bongamodels\.com$
-      - DOMAIN-SUFFIX,bongamodels.com
-    behavior: classical
-  CB_in:
-    type: inline
-    payload:
-      - DOMAIN-SUFFIX,chaturbate
-      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*chaturbate\.com$
-      - DOMAIN-SUFFIX,chaturbate.com
     behavior: classical
 
   ru-inline-banned:
@@ -763,13 +717,6 @@ rule-providers:
     format: mrs
     url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/mailru.mrs
     path: ./rule-sets/mailru.mrs
-    interval: 86400
-  category-porn:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-porn.mrs
-    path: ./rule-sets/category-porn.mrs
     interval: 86400
   drweb:
     type: http
@@ -1146,20 +1093,6 @@ rule-providers:
     url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/oisd/big.mrs
     path: ./oisd/big.mrs
     interval: 86400
-  oisd_nsfw_small:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/oisd/nsfw_small.mrs
-    path: ./oisd/nsfw_small.mrs
-    interval: 86400
-  oisd_nsfw_big:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/oisd/nsfw.mrs
-    path: ./oisd/nsfw_big.mrs
-    interval: 86400
 
   ru-outside:
     type: http
@@ -1208,11 +1141,87 @@ rule-providers:
     behavior: classical
     payload:
       - AND,((NETWORK,udp),(DST-PORT,443))
+
+  # >>> ADULT
+  Sin_in:
+    type: inline
+    payload:
+      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*sinparty\.com$
+      - DOMAIN-SUFFIX,sinparty
+      - DOMAIN-SUFFIX,sinparty.com
+      - DOMAIN-SUFFIX,digitaloceanspaces
+      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*digitaloceanspaces\.com$
+      - DOMAIN-SUFFIX,digitaloceanspaces.com
+    behavior: classical
+  ST_in:
+    type: inline
+    payload:
+      - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?stripchat\\.com$
+      - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?strpst\\.com$
+      - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?split\\.io$
+      - DOMAIN-SUFFIX,stripchat
+      - DOMAIN-SUFFIX,strpst
+      - DOMAIN-SUFFIX,split
+      - DOMAIN-SUFFIX,stripchat.com
+      - DOMAIN-SUFFIX,strpst.com
+      - DOMAIN-SUFFIX,split.io
+    behavior: classical
+  BG_in:
+    type: inline
+    payload:
+      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*bongacams\.com$
+      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*bongacams16\.com$
+      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*bongacam\.com$
+      - DOMAIN-SUFFIX,bongacams
+      - DOMAIN-SUFFIX,bongacams16
+      - DOMAIN-SUFFIX,bongacam
+      - DOMAIN-SUFFIX,bongacam.com
+      - DOMAIN-SUFFIX,bongacams.com
+      - DOMAIN-SUFFIX,bongacams16.com
+    behavior: classical
+  BGP_in:
+    type: inline
+    payload:
+      - DOMAIN-SUFFIX,bongamodels
+      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*bongamodels\.com$
+      - DOMAIN-SUFFIX,bongamodels.com
+    behavior: classical
+  CB_in:
+    type: inline
+    payload:
+      - DOMAIN-SUFFIX,chaturbate
+      - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*chaturbate\.com$
+      - DOMAIN-SUFFIX,chaturbate.com
+    behavior: classical
+  category-porn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-porn.mrs
+    path: ./rule-sets/category-porn.mrs
+    interval: 86400
+  oisd_nsfw_small:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/oisd/nsfw_small.mrs
+    path: ./oisd/nsfw_small.mrs
+    interval: 86400
+  oisd_nsfw_big:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/oisd/nsfw.mrs
+    path: ./oisd/nsfw_big.mrs
+    interval: 86400
+  # <<< ADULT
+
 # ==== ПРАВИЛА (нижний профиль + сервисные группы) ====
 rules:
   # Делаем REJECT QUIC
   - RULE-SET,quic,QUIC
   - AND,((NETWORK,UDP),(DST-PORT,135,137,138,139)),SAFE
+  # >>> ADULT
   - DOMAIN-SUFFIX,sinparty,Sin
   - DOMAIN-SUFFIX,stripchat,ST
   - DOMAIN-SUFFIX,bongacams,BG
@@ -1220,7 +1229,6 @@ rules:
   - DOMAIN-SUFFIX,bongacam,BG
   - DOMAIN-SUFFIX,chaturbate,CB
   - DOMAIN-SUFFIX,bongamodels,BGP
-  - DOMAIN-SUFFIX,tiktokw,TikTok
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?sinparty\\.com$,Sin
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?stripchat\\.com$,ST
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?bongacams\\.com$,BG
@@ -1231,13 +1239,30 @@ rules:
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?bongacam\\.ru$,BG
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?chaturbate\\.com$,CB
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?bongamodels\\.com$,BGP
-  - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?tiktokw\\.eu$,TikTok
-  - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?tiktokw\\.com$,TikTok
   - RULE-SET,Sin_in,Sin
   - RULE-SET,ST_in,ST
   - RULE-SET,BG_in,BG
   - RULE-SET,BGP_in,BGP
   - RULE-SET,CB_in,CB
+  - DOMAIN-SUFFIX,onlyfans.com,Other
+  - DOMAIN-SUFFIX,fansly.com,Other
+  - DOMAIN-SUFFIX,pornhub.org,Other
+  - DOMAIN-SUFFIX,pornhub.com,Other
+  - DOMAIN-KEYWORD,pornhub,Other
+  - DOMAIN-SUFFIX,hanime1.me,Other
+  - DOMAIN-KEYWORD,hanime1,Other
+  - DOMAIN-SUFFIX,hembed.com,Other
+  - DOMAIN-KEYWORD,hembed,Other
+  - DOMAIN-KEYWORD,e-hentai,Other
+  - DOMAIN-SUFFIX,e-hentai.org,Other
+  - DOMAIN-KEYWORD,rule34,Other
+  - RULE-SET,category-porn,Other
+  - RULE-SET,oisd_nsfw_small,Ad-Filter
+  - RULE-SET,oisd_nsfw_big,Ad-Filter
+  # <<< ADULT
+  - DOMAIN-SUFFIX,tiktokw,TikTok
+  - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?tiktokw\\.eu$,TikTok
+  - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?tiktokw\\.com$,TikTok
   - RULE-SET,UG_NAS,NAS
   - DOMAIN-SUFFIX,ugnas,NAS
   - DOMAIN-SUFFIX,ug,NAS
@@ -1348,22 +1373,13 @@ rules:
   - DOMAIN-SUFFIX,2ip.io,2IP.IO
   - DOMAIN-SUFFIX,ipwho.is,2IP.IO
     # ПРАВИЛО №6: Необходимые сервисы с выбором
-  - DOMAIN-SUFFIX,onlyfans.com,Other
-  - DOMAIN-SUFFIX,fansly.com,Other
   - DOMAIN-SUFFIX,patreon.com,Other
-  - DOMAIN-SUFFIX,pornhub.org,Other
-  - DOMAIN-SUFFIX,pornhub.com,Other
 
   - DOMAIN-SUFFIX,elgato.com,Other
   - DOMAIN-SUFFIX,web.tribute.tg,Other
   - DOMAIN-KEYWORD,creatify,Other
-  - DOMAIN-KEYWORD,pornhub,Other
   - DOMAIN-SUFFIX,creatify.ai,AI
   - DOMAIN-SUFFIX,elgato.com,Other
-  - DOMAIN-SUFFIX,hanime1.me,Other
-  - DOMAIN-KEYWORD,hanime1,Other
-  - DOMAIN-SUFFIX,hembed.com,Other
-  - DOMAIN-KEYWORD,hembed,Other
   - DOMAIN-KEYWORD,noctua,Other
   - DOMAIN-SUFFIX,noctua.at,Other
   - DOMAIN-KEYWORD,noctua,Other
@@ -1372,8 +1388,6 @@ rules:
   - DOMAIN-SUFFIX,anker.com,Other
   - DOMAIN-KEYWORD,eufy,Other
   - DOMAIN-SUFFIX,eufy.com,Other
-  - DOMAIN-KEYWORD,e-hentai,Other
-  - DOMAIN-SUFFIX,e-hentai.org,Other
   - DOMAIN-KEYWORD,eufylife,Other
   - DOMAIN-SUFFIX,eufylife.com,Other
   - DOMAIN-KEYWORD,myshopify,Other
@@ -1383,7 +1397,6 @@ rules:
   - DOMAIN-KEYWORD,logi,Logitech
   - DOMAIN-KEYWORD,logitechg,Logitech
   - DOMAIN-KEYWORD,evergage,Logitech
-  - DOMAIN-KEYWORD,rule34,Other
   - DOMAIN-KEYWORD,beyerdynamic,Other
   - DOMAIN-KEYWORD,nikon,Other
   - DOMAIN-KEYWORD,newegg,Other
@@ -1394,7 +1407,6 @@ rules:
   - RULE-SET,ru-inside,Комьюнити
   - RULE-SET,ru-inline-banned,TV
   - RULE-SET,inline-blocked-ips,Комьюнити
-  - RULE-SET,category-porn,Other
   - RULE-SET,ai,AI
   - RULE-SET,google-deepmind,AI
   - RULE-SET,speedtest-net,Speedtest
@@ -1469,8 +1481,6 @@ rules:
   # 1. БЛОКИРОВКА И ТОРРЕНТЫ
   # Блокировка OISD теперь управляется через группу Ad-Filter
   - RULE-SET,oisd_big,Ad-Filter
-  - RULE-SET,oisd_nsfw_small,Ad-Filter
-  - RULE-SET,oisd_nsfw_big,Ad-Filter
 
   # 2. ПРАВИЛА ДЛЯ РОССИЙСКОГО ТРАФФИКА
   - RULE-SET,ru-app-list,RU трафик
