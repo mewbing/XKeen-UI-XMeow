@@ -1076,13 +1076,6 @@ rule-providers:
     url: https://raw.githubusercontent.com/legiz-ru/mihomo-rule-sets/main/other/discord-voice-ip-list.mrs
     path: ./rule-sets/discord-voice-ip-list.mrs
     interval: 86400
-  discord_ips:
-    type: http
-    behavior: classical
-    format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/discord_ips.list
-    path: ./rule-sets/discord_ips.list
-    interval: 86400
   discord_domains:
     type: http
     behavior: domain
@@ -1103,15 +1096,6 @@ rule-providers:
       - AND,((IP-CIDR,5.200.14.128/25),(NETWORK,udp),(DST-PORT,50000-50100))
       - AND,((IP-CIDR,66.22.192.0/18),(NETWORK,udp),(DST-PORT,50000-50100))
     behavior: classical
-  discord:
-    type: inline
-    behavior: classical
-    format: text
-    payload:
-      - AND,((DOMAIN-KEYWORD,discord),(NOT,((DOMAIN-SUFFIX,ru))))
-      - AND,((IP-CIDR,34.0.192.0/18,no-resolve),(NETWORK,UDP),(DST-PORT,50000-50100))
-      - AND,((IP-CIDR,35.192.0.0/11,no-resolve),(NETWORK,UDP),(DST-PORT,50000-50100))
-      - AND,((IP-CIDR,66.22.192.0/18,no-resolve),(NETWORK,UDP),(DST-PORT,50000-50100))
 
   # Игровые и Российские Приложения
   gaming-ips:
@@ -1331,7 +1315,6 @@ rules:
   - GEOSITE,openai,AI
   - GEOSITE,anthropic,AI
   - GEOSITE,logitech,Logitech
-  - RULE-SET,discord,Discord
   - GEOSITE,tidal,Tidal
   - GEOSITE,linkedin,Linkedin
   - GEOSITE,facebook,Facebook
@@ -1358,35 +1341,14 @@ rules:
   - RULE-SET,telegram-domains,Telegram
   - PROCESS-NAME-REGEX,(?i).*ayugram.*,Telegram
   - PROCESS-NAME-REGEX,(?i).*telegram.*,Telegram
-  - AND,((RULE-SET,cloudflare-ips),(NETWORK,udp),(DST-PORT,19200-19500)),Discord
-  - AND,((RULE-SET,discord_voiceips),(NETWORK,udp),(DST-PORT,50000-50100)),Discord
+  # --- Discord: консолидировано из 30+ правил ---
   - RULE-SET,discord_vc,Discord
-  - RULE-SET,discord_domains,Discord
+  - AND,((RULE-SET,cloudflare-ips),(NETWORK,udp),(DST-PORT,19200-19500)),Discord
   - PROCESS-NAME-REGEX,(?i).*discord.*,Discord
-  - DOMAIN-SUFFIX,dis.gd,Discord
-  - DOMAIN-SUFFIX,discord-attachments-uploads-prd.storage.googleapis.com,Discord
+  # Discord: inline-дополнения (не покрыты geosite discord):
   - DOMAIN-SUFFIX,discord.app,Discord
-  - DOMAIN-SUFFIX,discord.co,Discord
-  - DOMAIN-SUFFIX,discord.com,Discord
-  - DOMAIN-SUFFIX,discord.design,Discord
-  - DOMAIN-SUFFIX,discord.dev,Discord
-  - DOMAIN-SUFFIX,discord.gift,Discord
-  - DOMAIN-SUFFIX,discord.gifts,Discord
-  - DOMAIN-SUFFIX,discord.gg,Discord
-  - DOMAIN-SUFFIX,discord.media,Discord
-  - DOMAIN-SUFFIX,discord.new,Discord
-  - DOMAIN-SUFFIX,discord.store,Discord
   - DOMAIN-SUFFIX,discord.status,Discord
-  - DOMAIN-SUFFIX,discord-activities.com,Discord
-  - DOMAIN-SUFFIX,discordactivities.com,Discord
-  - DOMAIN-SUFFIX,discordapp.com,Discord
-  - DOMAIN-SUFFIX,discordapp.net,Discord
-  - DOMAIN-SUFFIX,discordcdn.com,Discord
-  - DOMAIN-SUFFIX,discordmerch.com,Discord
-  - DOMAIN-SUFFIX,discordpartygames.com,Discord
-  - DOMAIN-SUFFIX,discordsays.com,Discord
   - DOMAIN-SUFFIX,discordsez.com,Discord
-  - DOMAIN-SUFFIX,discordstatus.com,Discord
   - DOMAIN-SUFFIX,frankerfacez.com,Other
   - DOMAIN-SUFFIX,ffzap.com,Other
   - DOMAIN-SUFFIX,betterttv.net,Other
