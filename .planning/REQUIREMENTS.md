@@ -20,12 +20,12 @@
 
 ### Adult-контент изоляция (ADULT)
 
-- [ ] **ADULT-01**: Все adult proxy-groups (Sin, ST, CB, BG, BGP) перенесены в маркированный блок `# >>> ADULT` / `# <<< ADULT` в секции proxy-groups
-- [ ] **ADULT-02**: Все adult rule-providers (Sin_in, ST_in, BG_in, BGP_in, CB_in, category-porn) перенесены в маркированный блок в секции rule-providers
-- [ ] **ADULT-03**: Все inline adult-правила (18 строк DOMAIN-SUFFIX/REGEX) перенесены в маркированный блок в секции rules
-- [ ] **ADULT-04**: OnlyFans, Fansly, PornHub, hanime1, e-hentai, rule34 перенесены из "Other" в adult-блок
-- [ ] **ADULT-05**: Ссылки на adult-группы в GLOBAL select-group тоже маркированы для удаления
-- [ ] **ADULT-06**: В work-конфиге ноль упоминаний adult-сайтов (проверено grep-ом)
+- [x] **ADULT-01**: Все adult proxy-groups (Sin, ST, CB, BG, BGP) перенесены в маркированный блок `# >>> ADULT` / `# <<< ADULT` в секции proxy-groups
+- [x] **ADULT-02**: Все adult rule-providers (Sin_in, ST_in, BG_in, BGP_in, CB_in, category-porn, oisd_nsfw_small, oisd_nsfw_big) перенесены в маркированный блок в секции rule-providers
+- [x] **ADULT-03**: Все inline adult-правила (17 строк DOMAIN-SUFFIX/REGEX) перенесены в маркированный блок в секции rules
+- [x] **ADULT-04**: OnlyFans, Fansly, PornHub, hanime1, hembed, e-hentai, rule34 перенесены из "Other" в adult-блок
+- [x] **ADULT-05**: Ссылки на adult-группы в GLOBAL select-group тоже маркированы для удаления
+- [x] **ADULT-06**: В work-конфиге ноль упоминаний adult-сайтов (проверено grep-ом по 16 keywords)
 
 ### Скрипт генерации (SCRIPT)
 
@@ -82,12 +82,12 @@
 | DEDUP-08 | Phase 1 | Complete |
 | DEDUP-09 | Phase 1 | Complete |
 | DEDUP-10 | Phase 1 | Pending |
-| ADULT-01 | Phase 3 | Pending |
-| ADULT-02 | Phase 3 | Pending |
-| ADULT-03 | Phase 3 | Pending |
-| ADULT-04 | Phase 3 | Pending |
-| ADULT-05 | Phase 3 | Pending |
-| ADULT-06 | Phase 3 | Pending |
+| ADULT-01 | Phase 3 | Complete |
+| ADULT-02 | Phase 3 | Complete |
+| ADULT-03 | Phase 3 | Complete |
+| ADULT-04 | Phase 3 | Complete |
+| ADULT-05 | Phase 3 | Complete |
+| ADULT-06 | Phase 3 | Complete |
 | SCRIPT-01 | Phase 5 | Pending |
 | SCRIPT-02 | Phase 5 | Pending |
 | SCRIPT-03 | Phase 5 | Pending |
