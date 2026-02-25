@@ -22,7 +22,7 @@ tproxy-port: 7893 # Порт для TPROXY/UDP (используется Keeneti
 
 # --- НАСТРОЙКИ WEB-ИНТЕРФЕЙСА И ПРОФИЛЯ ---
 external-controller: '0.0.0.0:9090' # Порт для доступа к Web-интерфейсу (Dashboard)
-secret: 'admin' # Пароль для доступа к Web-интерфейсу. Рекомендуется использовать сложный пароль.
+secret: 'admin' # TODO: Сменить пароль! Задайте сложный пароль вручную (не 'admin').
 external-ui: ui # Название папки с Web-интерфейсом
 external-ui-url: 'https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip' # URL для автоматической загрузки интерфейса
 profile:
@@ -883,84 +883,84 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/akamai_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/akamai_ips.list
     path: ./rule-sets/akamai_ips.list
     interval: 86400
   amazon_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/amazon_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/amazon_ips.list
     path: ./rule-sets/amazon_ips.list
     interval: 86400
   cdn77_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/cdn77_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/cdn77_ips.list
     path: ./rule-sets/cdn77_ips.list
     interval: 86400
   digitalocean_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/digitalocean_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/digitalocean_ips.list
     path: ./rule-sets/digitalocean_ips.list
     interval: 86400
   fastly_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/fastly_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/fastly_ips.list
     path: ./rule-sets/fastly_ips.list
     interval: 86400
   google_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/google_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/google_ips.list
     path: ./rule-sets/google_ips.list
     interval: 86400
   hetzner_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/hetzner_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/hetzner_ips.list
     path: ./rule-sets/hetzner_ips.list
     interval: 86400
   mega_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/mega_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/mega_ips.list
     path: ./rule-sets/mega_ips.list
     interval: 86400
   meta_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/meta_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/meta_ips.list
     path: ./rule-sets/meta_ips.list
     interval: 86400
   oracle_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/oracle_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/oracle_ips.list
     path: ./rule-sets/oracle_ips.list
     interval: 86400
   ovh_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/ovh_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/ovh_ips.list
     path: ./rule-sets/ovh_ips.list
     interval: 86400
   vultr_ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/vultr_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/vultr_ips.list
     path: ./rule-sets/vultr_ips.list
     interval: 86400
 
@@ -969,28 +969,28 @@ rule-providers:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/other.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/other.list
     path: ./rule-sets/other.list
     interval: 86400
   politic_domains:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/politic.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/politic.list
     path: ./rule-sets/politic.list
     interval: 86400
   telegram-ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/telegram_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/telegram_ips.list
     path: ./rule-sets/telegram-ips.list
     interval: 86400
   ru-ips:
     type: http
     behavior: classical
     format: text
-    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20251102-014123-835e3fe/ru_ips.list
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/ru_ips.list
     path: ./rule-sets/ru-ips.list
     interval: 86400
 
