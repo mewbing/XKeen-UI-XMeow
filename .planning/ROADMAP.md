@@ -105,7 +105,7 @@ Note: Phase 3 and Phase 4 зависят от Phase 2, но не друг от �
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Bugfixes | 1/1 | Complete | 2026-02-25 |
+| 1. Bugfixes | 1/1 | Complete    | 2026-02-25 |
 | 2. Service Deduplication | 0/3 | Not started | - |
 | 3. Adult Content Isolation | 0/3 | Not started | - |
 | 4. URL Audit & Cleanup | 0/2 | Not started | - |
