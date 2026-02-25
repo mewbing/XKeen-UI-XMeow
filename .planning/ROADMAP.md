@@ -74,11 +74,10 @@ Plans:
   2. Каждый rule-provider из секции rule-providers используется хотя бы в одном правиле в секции rules (нет сирот)
   3. Все URL rule-providers возвращают HTTP 200 (проверено скриптом или вручную)
   4. Пароль web-dashboard заменен с 'admin' на сгенерированный
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md -- URL audit: update Anton111111 to latest, verify all URLs HTTP 200, orphan check, password TODO
 
 ### Phase 5: Generation Script
 **Goal**: Автоматическая генерация двух вариантов конфига (personal и work) из единого базового файла
