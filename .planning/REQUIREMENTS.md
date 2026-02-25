@@ -37,10 +37,10 @@
 
 ### Актуализация URL-источников (URL)
 
-- [ ] **URL-01**: URL-ы Anton111111/rule-lists проверены на актуальность и обновлены до свежего тега/latest
-- [ ] **URL-02**: Неиспользуемые rule-providers идентифицированы и удалены (hagezi_pro, gaming-ips и др. — если не используются в rules)
-- [ ] **URL-03**: Все rule-provider URL-ы проверены на доступность (HTTP 200)
-- [ ] **URL-04**: Пароль web-dashboard изменён с 'admin' на сгенерированный
+- [x] **URL-01**: URL-ы Anton111111/rule-lists проверены на актуальность и обновлены до свежего тега/latest
+- [x] **URL-02**: Неиспользуемые rule-providers идентифицированы и удалены (hagezi_pro, gaming-ips и др. — если не используются в rules)
+- [x] **URL-03**: Все rule-provider URL-ы проверены на доступность (HTTP 200)
+- [x] **URL-04**: Пароль web-dashboard изменён с 'admin' на сгенерированный
 
 ## v2 Requirements
 
@@ -93,10 +93,10 @@
 | SCRIPT-03 | Phase 5 | Pending |
 | SCRIPT-04 | Phase 5 | Pending |
 | SCRIPT-05 | Phase 5 | Pending |
-| URL-01 | Phase 4 | Pending |
-| URL-02 | Phase 4 | Pending |
-| URL-03 | Phase 4 | Pending |
-| URL-04 | Phase 4 | Pending |
+| URL-01 | Phase 4 | Complete |
+| URL-02 | Phase 4 | Complete |
+| URL-03 | Phase 4 | Complete |
+| URL-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 25 total

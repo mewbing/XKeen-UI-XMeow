@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Весь заблокированный в РФ трафик надежно проходит через прокси, российские сайты идут напрямую, а рабочая версия конфига не содержит следов adult-контента.
-**Current focus:** Phase 3 Complete -- Ready for Phase 4 or 5
+**Current focus:** Phase 4 Complete -- Ready for Phase 5
 
 ## Current Position
 
-Phase: 3 of 5 (Adult Content Isolation) -- COMPLETE
+Phase: 4 of 5 (URL Audit & Cleanup) -- COMPLETE
 Plan: 1 of 1 in current phase (all done)
-Status: Phase 3 Complete
-Last activity: 2026-02-25 -- Plan 03-01 completed (Adult content isolation into marker blocks)
+Status: Phase 4 Complete
+Last activity: 2026-02-25 -- Plan 04-01 completed (URL audit, update, verification)
 
-Progress: [########░░] 55%
+Progress: [#########░] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 5min
-- Total execution time: 0.40 hours
+- Total execution time: 0.48 hours
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [########░░] 55%
 | 01-bugfixes | 1 | 2min | 2min |
 | 02-service-deduplication | 3 | 14min | 4.7min |
 | 03-adult-content-isolation | 1 | 8min | 8min |
+| 04-url-audit-cleanup | 1 | 5min | 5min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (3min), 02-02 (4min), 02-03 (7min), 03-01 (8min)
-- Trend: stable (slightly increasing due to larger scope per plan)
+- Last 5 plans: 02-02 (4min), 02-03 (7min), 03-01 (8min), 04-01 (5min)
+- Trend: stable
 
 *Updated after each plan completion*
 
@@ -62,10 +63,13 @@ Recent decisions affecting current work:
 - 03-01: oisd_nsfw_small/big маркированы как adult (содержат "nsfw") -- auto-approved
 - 03-01: patreon.com и kemono.su НЕ включены в adult (не adult по основной функции)
 - 03-01: Маршрутизация правил из Other/Ad-Filter сохранена при переносе в adult-блок
+- 04-01: Anton111111 tag update -- simple find-replace, file names stable across releases
+- 04-01: Password not auto-changed per CONTEXT.md -- TODO comment added for user
+- 04-01: No other GitHub URLs use pinned tags (MetaCubeX on meta, legiz-ru on main)
 
 ### Pending Todos
 
-None yet.
+- User: change dashboard password from 'admin' to a strong password (config.yaml line 25)
 
 ### Blockers/Concerns
 
@@ -74,5 +78,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 03-01-PLAN.md (Phase 3 complete -- adult content isolation)
-Resume file: .planning/phases/03-adult-content-isolation/03-01-SUMMARY.md
+Stopped at: Completed 04-01-PLAN.md (Phase 4 complete -- URL audit & cleanup)
+Resume file: .planning/phases/04-url-audit-cleanup/04-01-SUMMARY.md
