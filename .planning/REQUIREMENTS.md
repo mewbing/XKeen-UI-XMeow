@@ -8,8 +8,8 @@
 ### Дубликаты и ошибки (DEDUP)
 
 - [x] **DEDUP-01**: Все дублирующиеся правила YouTube удалены (17 inline DOMAIN-SUFFIX при наличии GEOSITE + RULE-SET), с подтверждением что это реальные дубли
-- [ ] **DEDUP-02**: Все дублирующиеся правила Discord удалены (4+ определения: discord_vc, discord_voiceips, discord_ips, discord_domains), с проверкой покрытия
-- [ ] **DEDUP-03**: Все дублирующиеся правила Telegram удалены (8+ определений), с проверкой покрытия
+- [x] **DEDUP-02**: Все дублирующиеся правила Discord удалены (4+ определения: discord_vc, discord_voiceips, discord_ips, discord_domains), с проверкой покрытия
+- [x] **DEDUP-03**: Все дублирующиеся правила Telegram удалены (8+ определений), с проверкой покрытия
 - [x] **DEDUP-04**: Все дублирующиеся правила Cloudflare удалены (17 inline DOMAIN-SUFFIX при наличии RULE-SET)
 - [x] **DEDUP-05**: OISD small удалён (big является надмножеством small), подтверждено что big покрывает small
 - [ ] **DEDUP-06**: Дублирующиеся торрент-правила удалены (определены дважды в rules-секции)
@@ -73,8 +73,8 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | DEDUP-01 | Phase 2 | Complete |
-| DEDUP-02 | Phase 2 | Pending |
-| DEDUP-03 | Phase 2 | Pending |
+| DEDUP-02 | Phase 2 | Complete |
+| DEDUP-03 | Phase 2 | Complete |
 | DEDUP-04 | Phase 2 | Complete |
 | DEDUP-05 | Phase 1 | Complete |
 | DEDUP-06 | Phase 2 | Pending |

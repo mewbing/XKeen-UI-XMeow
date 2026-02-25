@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 2 of 5 (Service Deduplication)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Executing Phase 2
-Last activity: 2026-02-25 — Plan 02-01 completed (YouTube + Cloudflare dedup)
+Last activity: 2026-02-25 — Plan 02-02 completed (Discord + Telegram dedup)
 
-Progress: [###░░░░░░░] 18%
+Progress: [####░░░░░░] 27%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 2.5min
-- Total execution time: 0.08 hours
+- Total plans completed: 3
+- Average duration: 3min
+- Total execution time: 0.15 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-bugfixes | 1 | 2min | 2min |
-| 02-service-deduplication | 1 | 3min | 3min |
+| 02-service-deduplication | 2 | 7min | 3.5min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2min), 02-01 (3min)
+- Last 5 plans: 01-01 (2min), 02-01 (3min), 02-02 (4min)
 - Trend: -
 
 *Updated after each plan completion*
@@ -51,6 +51,9 @@ Recent decisions affecting current work:
 - 02-01: jnn-pa.googleapis.com сохранен как inline-дополнение YouTube (не покрыт geosite напрямую)
 - 02-01: stable.dl2.discordapp.net удален из YouTube (ошибочная привязка Discord-домена)
 - 02-01: ECH-секция (DOMAIN,cloudflare-ech.com,VPN) не тронута -- Phase 4 scope
+- 02-02: discord_vc сохранён консервативно -- MRS discord_voiceips не проверен на полное покрытие IP
+- 02-02: telegram-domains провайдер (дефис) удалён, оставлен telegram_domains (подчёркивание)
+- 02-02: 3 Discord inline-домена сохранены (discord.app, discord.status, discordsez.com) -- не в geosite
 
 ### Pending Todos
 
@@ -63,5 +66,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 02-01-PLAN.md (YouTube + Cloudflare dedup)
-Resume file: .planning/phases/02-service-deduplication/02-01-SUMMARY.md
+Stopped at: Completed 02-02-PLAN.md (Discord + Telegram dedup)
+Resume file: .planning/phases/02-service-deduplication/02-02-SUMMARY.md
