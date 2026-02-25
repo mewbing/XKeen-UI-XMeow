@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Весь заблокированный в РФ трафик надежно проходит через прокси, российские сайты идут напрямую, а рабочая версия конфига не содержит следов adult-контента.
-**Current focus:** Phase 1: Bugfixes
+**Current focus:** Phase 2: Service Deduplication
 
 ## Current Position
 
-Phase: 1 of 5 (Bugfixes)
-Plan: 1 of 1 in current phase
-Status: Phase 1 complete -- all plans executed
-Last activity: 2026-02-25 — Plan 01-01 executed (3 bugfixes)
+Phase: 2 of 5 (Service Deduplication)
+Plan: 0 of 3 in current phase
+Status: Context gathered, ready for planning
+Last activity: 2026-02-25 — Phase 2 context gathered
 
 Progress: [##░░░░░░░░] 9%
 
@@ -59,5 +59,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 01-01-PLAN.md (Phase 1 complete)
-Resume file: .planning/phases/01-bugfixes/01-01-SUMMARY.md
+Stopped at: Phase 2 context gathered
+Resume file: .planning/phases/02-service-deduplication/02-CONTEXT.md
