@@ -853,13 +853,6 @@ rule-providers:
     interval: 86400
     url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google-gemini.mrs
     path: ./rule-sets/gooogle-deepmind.mrs
-  telegram-domains:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs
-    path: ./rule-sets/telegram-domains.mrs
   ru-inside:
     type: http
     behavior: classical
@@ -1269,7 +1262,6 @@ rules:
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?bongamodels\\.com$,BGP
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?tiktokw\\.eu$,TikTok
   - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?tiktokw\\.com$,TikTok
-  - DOMAIN-REGEX,^([\\w\\-\\.]+\\.)?antarcticwallet\\.com$,Telegram
   - RULE-SET,Sin_in,Sin
   - RULE-SET,ST_in,ST
   - RULE-SET,BG_in,BG
@@ -1336,9 +1328,9 @@ rules:
   - GEOSITE,amazon,Amazon
   - GEOSITE,cdn77,CDN77
   - GEOSITE,category-anticensorship,Комьюнити
+  # --- Telegram: консолидировано из 10 правил ---
   - GEOIP,telegram,Telegram
   - RULE-SET,telegram-ips,Telegram
-  - RULE-SET,telegram-domains,Telegram
   - PROCESS-NAME-REGEX,(?i).*ayugram.*,Telegram
   - PROCESS-NAME-REGEX,(?i).*telegram.*,Telegram
   # --- Discord: консолидировано из 30+ правил ---
