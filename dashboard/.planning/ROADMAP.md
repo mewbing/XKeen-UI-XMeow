@@ -33,7 +33,13 @@
   2. Flask backend отвечает на GET/PUT /api/config
   3. Setup wizard определяет тип установки (локальный/CDN) и сохраняет настройки
   4. Config API создаёт backup перед перезаписью конфига
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md -- Scaffold Vite + React + TypeScript + Tailwind v4 + shadcn/ui + Flask skeleton
+- [ ] 01-02-PLAN.md -- Layout (collapsible sidebar), routing, 11 страниц-заглушек, Settings page, Zustand store
+- [ ] 01-03-PLAN.md -- Flask Config API (GET/PUT config, xkeen files, YAML validation, backup)
+- [ ] 01-04-PLAN.md -- Setup Wizard (3 шага: тип установки, тест подключения, экран успеха)
 
 ### Phase 2: Overview + Service Management
 **Goal**: Главная страница с мониторингом и управлением сервисом xkeen
@@ -150,7 +156,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold + Config API + Setup | 0/? | Not started | - |
+| 1. Scaffold + Config API + Setup | 0/4 | Planning complete | - |
 | 2. Overview + Service Mgmt | 0/? | Not started | - |
 | 3. Proxies Page | 0/? | Not started | - |
 | 4. Connections + Logs | 0/? | Not started | - |
