@@ -7,7 +7,7 @@
 
 ### Scaffold & Setup
 
-- [ ] **SETUP-01**: SPA loads in browser and displays setup wizard on first launch
+- [x] **SETUP-01**: SPA loads in browser and displays setup wizard on first launch
 - [ ] **SETUP-02**: User can configure mihomo API address and Config API address
 - [ ] **SETUP-03**: Setup wizard tests connections to both APIs and shows success/error
 - [ ] **SETUP-04**: Config saved to localStorage, changeable in Settings page
@@ -130,7 +130,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | Phase 1 | Pending |
+| SETUP-01 | Phase 1 | Complete |
 | SETUP-02 | Phase 1 | Pending |
 | SETUP-03 | Phase 1 | Pending |
 | SETUP-04 | Phase 1 | Pending |

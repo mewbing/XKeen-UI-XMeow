@@ -156,7 +156,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold + Config API + Setup | 0/4 | Planning complete | - |
+| 1. Scaffold + Config API + Setup | 1/4 | In Progress | - |
 | 2. Overview + Service Mgmt | 0/? | Not started | - |
 | 3. Proxies Page | 0/? | Not started | - |
 | 4. Connections + Logs | 0/? | Not started | - |
