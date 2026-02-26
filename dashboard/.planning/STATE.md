@@ -20,12 +20,13 @@ Progress: [####░░░░░░] 9% (5/55 requirements)
 
 **Velocity:**
 - Total plans completed: 3
-- Average duration: 5 min
-- Total execution time: 0.25 hours
+- Average duration: 6 min
+- Total execution time: 0.28 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 01 | 01 | 9min | 2 | 16 |
+| 01 | 02 | 5min | 2 | 27 |
 | 01 | 03 | 3min | 1 | 1 |
 
 ## Accumulated Context
@@ -38,6 +39,9 @@ Progress: [####░░░░░░] 9% (5/55 requirements)
 - Backup extension included in filename at creation time (not via rename) to avoid race conditions
 - Xkeen file not found returns 200 with empty content (not 404) for graceful handling
 - _create_backup helper extracted as reusable function for config and xkeen backups
+- Settings page uses shadcn/ui Select instead of RadioGroup for start page -- cleaner with 11+ options
+- Wizard gate renders null during Zustand hydration to prevent flash of wrong UI
+- LocationTracker as separate component inside BrowserRouter for proper useLocation hook usage
 
 ### Pending Todos
 
