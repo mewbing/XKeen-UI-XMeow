@@ -9,25 +9,26 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 
 ## Current Position
 
-Phase: 1 of 11 (Scaffold + Config API + Setup Wizard) -- IN PROGRESS
-Plan: 3 of 4 in current phase
-Status: Plan 01-03 complete, ready for Plan 01-04
-Last activity: 2026-02-27 -- Plan 01-03 executed
+Phase: 1 of 11 (Scaffold + Config API + Setup Wizard) -- COMPLETE
+Plan: 4 of 4 in current phase
+Status: Phase 1 complete, ready for Phase 2
+Last activity: 2026-02-27 -- Plan 01-04 executed
 
-Progress: [####░░░░░░] 9% (5/55 requirements)
+Progress: [#####░░░░░] 15% (8/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 6 min
-- Total execution time: 0.28 hours
+- Total plans completed: 4
+- Average duration: 5 min
+- Total execution time: 0.35 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 01 | 01 | 9min | 2 | 16 |
 | 01 | 02 | 5min | 2 | 27 |
 | 01 | 03 | 3min | 1 | 1 |
+| 01 | 04 | 4min | 2 | 8 |
 
 ## Accumulated Context
 
@@ -42,6 +43,10 @@ Progress: [####░░░░░░] 9% (5/55 requirements)
 - Settings page uses shadcn/ui Select instead of RadioGroup for start page -- cleaner with 11+ options
 - Wizard gate renders null during Zustand hydration to prevent flash of wrong UI
 - LocationTracker as separate component inside BrowserRouter for proper useLocation hook usage
+- Kept existing Zustand hydration pattern (onFinishHydration + hasHydrated) instead of custom _hasHydrated field
+- Mihomo 401 fallback: try without secret first, then retry with 'admin' as default
+- 5-second AbortSignal.timeout for all API calls
+- Auto-advance to success step after 1.5s delay when both tests pass
 
 ### Pending Todos
 
@@ -54,5 +59,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 01-03-PLAN.md
-Resume file: .planning/phases/01-scaffold-config-api-setup-wizard/01-03-SUMMARY.md
+Stopped at: Completed 01-04-PLAN.md (Phase 1 complete)
+Resume file: .planning/phases/01-scaffold-config-api-setup-wizard/01-04-SUMMARY.md

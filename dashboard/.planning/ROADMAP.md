@@ -10,7 +10,7 @@
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Scaffold + Config API + Setup Wizard** - React проект, Flask backend с CRUD для конфига, мастер настройки
+- [x] **Phase 1: Scaffold + Config API + Setup Wizard** - React проект, Flask backend с CRUD для конфига, мастер настройки
 - [ ] **Phase 2: Overview + Service Management** - Главная страница со статистикой, управление xkeen, обновление ядра
 - [ ] **Phase 3: Proxies Page** - Карточки proxy-groups, переключение прокси, тест задержки
 - [ ] **Phase 4: Connections + Logs** - Таблица подключений в реальном времени, лог-стрим через WebSocket
@@ -36,10 +36,10 @@
 **Plans:** 4 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Scaffold Vite + React + TypeScript + Tailwind v4 + shadcn/ui + Flask skeleton
-- [ ] 01-02-PLAN.md -- Layout (collapsible sidebar), routing, 11 страниц-заглушек, Settings page, Zustand store
-- [ ] 01-03-PLAN.md -- Flask Config API (GET/PUT config, xkeen files, YAML validation, backup)
-- [ ] 01-04-PLAN.md -- Setup Wizard (3 шага: тип установки, тест подключения, экран успеха)
+- [x] 01-01-PLAN.md -- Scaffold Vite + React + TypeScript + Tailwind v4 + shadcn/ui + Flask skeleton
+- [x] 01-02-PLAN.md -- Layout (collapsible sidebar), routing, 11 страниц-заглушек, Settings page, Zustand store
+- [x] 01-03-PLAN.md -- Flask Config API (GET/PUT config, xkeen files, YAML validation, backup)
+- [x] 01-04-PLAN.md -- Setup Wizard (3 шага: тип установки, тест подключения, экран успеха)
 
 ### Phase 2: Overview + Service Management
 **Goal**: Главная страница с мониторингом и управлением сервисом xkeen
@@ -156,7 +156,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold + Config API + Setup | 1/4 | In Progress | - |
+| 1. Scaffold + Config API + Setup | 4/4 | Complete | 2026-02-27 |
 | 2. Overview + Service Mgmt | 0/? | Not started | - |
 | 3. Proxies Page | 0/? | Not started | - |
 | 4. Connections + Logs | 0/? | Not started | - |
