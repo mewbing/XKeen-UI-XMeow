@@ -50,7 +50,12 @@ Plans:
   2. Кнопки Start/Stop/Restart работают через Config API
   3. Версия mihomo и дашборда отображаются
   4. Кнопка обновления ядра проверяет и устанавливает обновления
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md -- Backend API (service management endpoints) + frontend API clients, format utils, shadcn/ui components
+- [ ] 02-02-PLAN.md -- Overview page: WebSocket hook, Zustand store, metrics cards, traffic chart, version display
+- [ ] 02-03-PLAN.md -- Service control: Header status badge, start/stop/restart dropdown, kernel update overlay, sidebar versions
 
 ### Phase 3: Proxies Page
 **Goal**: Управление прокси-группами как в zashboard
@@ -124,7 +129,7 @@ Plans:
   1. Список geodata файлов из директории mihomo на роутере
   2. GeoSite: категории раскрываются, показывая домены/правила
   3. GeoIP: коды стран раскрываются, показывая IP-диапазоны
-  4. Поиск находит записи по всем категориям (например, "discord" → все совпадения)
+  4. Поиск находит записи по всем категориям (например, "discord" -> все совпадения)
   5. Копирование в формате mihomo-правила работает
 **Plans**: TBD
 
@@ -151,13 +156,13 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases 1 → 2 → 3/4/8 (parallel) → 5 → 6/7 (parallel) → 9 → 10 → 11
+Phases 1 -> 2 -> 3/4/8 (parallel) -> 5 -> 6/7 (parallel) -> 9 -> 10 -> 11
 Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Config API + Setup | 4/4 | Complete | 2026-02-27 |
-| 2. Overview + Service Mgmt | 0/? | Not started | - |
+| 2. Overview + Service Mgmt | 0/3 | Planning | - |
 | 3. Proxies Page | 0/? | Not started | - |
 | 4. Connections + Logs | 0/? | Not started | - |
 | 5. Config Raw Editor | 0/? | Not started | - |
