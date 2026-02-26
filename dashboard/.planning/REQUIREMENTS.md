@@ -14,10 +14,10 @@
 
 ### Config API Backend
 
-- [ ] **API-01**: Backend serves config.yaml via GET/PUT endpoints
-- [ ] **API-02**: Backend creates backup before overwriting config
-- [ ] **API-03**: Backend serves xkeen files (ip_exclude, port_exclude, port_proxying)
-- [ ] **API-04**: Backend validates YAML before saving
+- [x] **API-01**: Backend serves config.yaml via GET/PUT endpoints
+- [x] **API-02**: Backend creates backup before overwriting config
+- [x] **API-03**: Backend serves xkeen files (ip_exclude, port_exclude, port_proxying)
+- [x] **API-04**: Backend validates YAML before saving
 - [ ] **API-05**: Backend controls xkeen service (start/stop/restart)
 - [ ] **API-06**: Backend reports service status and versions
 - [ ] **API-07**: Backend lists and parses geodata files (.dat, .mmdb)
@@ -134,10 +134,10 @@
 | SETUP-02 | Phase 1 | Pending |
 | SETUP-03 | Phase 1 | Pending |
 | SETUP-04 | Phase 1 | Pending |
-| API-01 | Phase 1 | Pending |
-| API-02 | Phase 1 | Pending |
-| API-03 | Phase 1 | Pending |
-| API-04 | Phase 1 | Pending |
+| API-01 | Phase 1 | Complete |
+| API-02 | Phase 1 | Complete |
+| API-03 | Phase 1 | Complete |
+| API-04 | Phase 1 | Complete |
 | API-05 | Phase 2 | Pending |
 | API-06 | Phase 2 | Pending |
 | API-07 | Phase 9 | Pending |
