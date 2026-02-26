@@ -1,0 +1,9 @@
+{
+  "project_name": "Mihomo Dashboard",
+  "created": "2026-02-27",
+  "planning_dir": ".planning",
+  "phases_dir": ".planning/phases",
+  "skip_research": false,
+  "auto_commit": true,
+  "model_profile": "quality"
+}

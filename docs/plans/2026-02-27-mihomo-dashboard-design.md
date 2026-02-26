@@ -99,14 +99,25 @@ Browser (SPA)
 - When "Apply" pressed, logs show if config accepted or error
 - Buttons: Apply | Save | Format
 
-### 8. Logs
+### 8. Geodata Viewer
+- Browse GeoSite (.dat) and GeoIP (.dat/.mmdb) files from mihomo directory on router
+- File list: auto-detect all geodata files in mihomo folder
+- **GeoSite viewer**: list of categories (e.g., youtube, telegram, google), expand to see all domains/rules inside
+- **GeoIP viewer**: list of country codes, expand to see IP ranges
+- **Search**: instant search across all categories and entries (e.g., type "discord" → shows all categories containing discord domains)
+- **Copy to clipboard**: click entry or category name to copy as mihomo rule format (GEOSITE, GEOIP)
+- Pagination for large datasets (10/25/50/100 per page)
+- Summary stats: total categories, total entries per file
+- Backend parses .dat files using protobuf (v2ray geosite/geoip format) and serves as JSON
+
+### 9. Logs
 - Full mihomo log stream (WebSocket)
 - Filter by level (info/warning/error)
 - Search
 - Auto-scroll toggle
 - Clear / Export
 
-### 9. Settings
+### 10. Settings
 - mihomo API address + secret
 - Config API address
 - Theme toggle (dark/light)
@@ -142,6 +153,9 @@ GET    /api/service/status            # Service status + versions
 POST   /api/update/check              # Check for updates (kernel + dashboard)
 POST   /api/update/kernel             # Update mihomo kernel
 POST   /api/update/dashboard          # Self-update dashboard + backend
+GET    /api/geodata                   # List geodata files (.dat, .mmdb) in mihomo dir
+GET    /api/geodata/:filename         # Parse and return geodata file as JSON (categories + entries)
+GET    /api/geodata/:filename/search  # Search entries within geodata file (?q=discord)
 ```
 
 ## Self-Update Mechanism
@@ -151,6 +165,16 @@ POST   /api/update/dashboard          # Self-update dashboard + backend
 - Downloads new `dist.zip` + updated backend script
 - Extracts to external-ui folder, restarts backend
 - All via `POST /api/update/dashboard`
+
+## Geodata Parsing
+
+GeoSite and GeoIP .dat files use v2ray protobuf format:
+- **GeoSite**: `domain.proto` — list of categories, each containing domain rules (plain, regex, domain, full)
+- **GeoIP**: `geoip.proto` — list of country codes, each containing CIDR entries
+- Backend uses `protobuf` Python library to parse .dat files into JSON on-demand
+- Results are cached in memory (geodata files rarely change, only on kernel update)
+- MMDB files (MaxMind format) parsed with `maxminddb` Python library
+- Large files (geosite.dat ~5MB) parsed once, served paginated via API
 
 ## Keenetic Resource Constraints
 
@@ -171,8 +195,9 @@ POST   /api/update/dashboard          # Self-update dashboard + backend
 6. **Phase 6**: Rules visual editor with drag-and-drop
 7. **Phase 7**: Groups editor with drag-and-drop + GLOBAL sync
 8. **Phase 8**: Providers page
-9. **Phase 9**: Self-update mechanism
-10. **Phase 10**: Polish, themes, testing
+9. **Phase 9**: Geodata Viewer (GeoSite/GeoIP browser with search)
+10. **Phase 10**: Self-update mechanism
+11. **Phase 11**: Polish, themes, testing
 
 ## File Structure
 
