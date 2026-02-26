@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useSettingsStore } from '@/stores/settings'
+import SetupWizard from '@/components/wizard/SetupWizard'
 import OverviewPage from '@/pages/OverviewPage'
 import ProxiesPage from '@/pages/ProxiesPage'
 import ConnectionsPage from '@/pages/ConnectionsPage'
@@ -13,32 +14,6 @@ import ProvidersPage from '@/pages/ProvidersPage'
 import GeodataPage from '@/pages/GeodataPage'
 import UpdatesPage from '@/pages/UpdatesPage'
 import SettingsPage from '@/pages/SettingsPage'
-import { Card, CardContent } from '@/components/ui/card'
-import { Wand2 } from 'lucide-react'
-
-/** Wizard placeholder -- replaced in Plan 04 */
-function WizardPlaceholder() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-6">
-      <Card className="w-full max-w-md border-dashed">
-        <CardContent className="flex flex-col items-center text-center gap-4 pt-2">
-          <div className="rounded-xl bg-muted p-4">
-            <Wand2 className="size-10 text-muted-foreground" strokeWidth={1.5} />
-          </div>
-          <div className="space-y-1.5">
-            <h2 className="text-xl font-semibold tracking-tight">Мастер настройки</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Пошаговая настройка подключения к mihomo
-            </p>
-          </div>
-          <span className="inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
-            Plan 04
-          </span>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
 
 /** Resolves start page path from settings store value */
 function resolveStartPage(startPage: string, lastVisitedPage: string): string {
@@ -94,9 +69,9 @@ function App() {
     return null
   }
 
-  // Wizard gate: if not configured, show wizard placeholder
+  // Wizard gate: if not configured, show Setup Wizard
   if (!isConfigured) {
-    return <WizardPlaceholder />
+    return <SetupWizard />
   }
 
   return (
