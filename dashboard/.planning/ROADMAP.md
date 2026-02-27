@@ -11,7 +11,7 @@
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Scaffold + Config API + Setup Wizard** - React проект, Flask backend с CRUD для конфига, мастер настройки
-- [ ] **Phase 2: Overview + Service Management** - Главная страница со статистикой, управление xkeen, обновление ядра
+- [x] **Phase 2: Overview + Service Management** - Главная страница со статистикой, управление xkeen, обновление ядра (completed 2026-02-27)
 - [x] **Phase 3: Proxies Page** - Карточки proxy-groups, переключение прокси, тест задержки (completed 2026-02-27)
 - [ ] **Phase 4: Connections + Logs** - Таблица подключений в реальном времени, лог-стрим через WebSocket
 - [ ] **Phase 5: Config Raw Editor** - Monaco Editor с табами (config, ip_exclude, port_exclude, port_proxying), live-лог
@@ -50,7 +50,7 @@ Plans:
   2. Кнопки Start/Stop/Restart работают через Config API
   3. Версия mihomo и дашборда отображаются
   4. Кнопка обновления ядра проверяет и устанавливает обновления
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 
 Plans:
 - [x] 02-01-PLAN.md -- Backend API (service management endpoints) + frontend API clients, format utils, shadcn/ui components
@@ -168,7 +168,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Config API + Setup | 4/4 | Complete | 2026-02-27 |
-| 2. Overview + Service Mgmt | 3/5 | Gap closure | - |
+| 2. Overview + Service Mgmt | 3/5 | Complete    | 2026-02-27 |
 | 3. Proxies Page | 2/2 | Complete    | 2026-02-27 |
 | 4. Connections + Logs | 0/? | Not started | - |
 | 5. Config Raw Editor | 0/? | Not started | - |

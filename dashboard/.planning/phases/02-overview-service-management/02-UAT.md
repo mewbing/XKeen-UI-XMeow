@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: resolved
 phase: 02-overview-service-management
 source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md
 started: 2026-02-27T12:00:00Z
@@ -59,7 +59,7 @@ skipped: 0
 ## Gaps
 
 - truth: "Overview page shows live metrics cards with real-time updates, uptime counter, and traffic speed chart with lines"
-  status: failed
+  status: resolved
   reason: "User reported: блоки выходят за грани метрики при обновлении аптайм обнуляется скорость трафика просто пустая шкала"
   severity: major
   test: 1
@@ -76,7 +76,7 @@ skipped: 0
     - "Persist startTime in store or remove key={pathname} from layout"
   debug_session: ".planning/debug/overview-metrics-overflow-uptime.md"
 - truth: "Toggle switches between compact row and 2x2 panels grid without layout overflow"
-  status: failed
+  status: resolved
   reason: "User reported: да, но все так же выходит за границы и кривое"
   severity: major
   test: 2
@@ -88,7 +88,7 @@ skipped: 0
     - "Add overflow-hidden to PanelCard and grid containers"
   debug_session: ".planning/debug/overview-metrics-overflow-uptime.md"
 - truth: "Traffic chart shows upload/download speed lines updating in real-time over ~60 seconds"
-  status: failed
+  status: resolved
   reason: "User reported: график ничего не показывает просто пустой блок со шкалой, ничего не обновляется"
   severity: major
   test: 3
@@ -102,7 +102,7 @@ skipped: 0
     - "Use var(--chart-1) directly without hsl() wrapper, or use Tailwind color classes"
   debug_session: ".planning/debug/traffic-chart-empty.md"
 - truth: "Service status badge reflects actual state (green=active), and Start action executes service start"
-  status: failed
+  status: resolved
   reason: "User reported: xkeen запушен но не отображается зеленой точкой не запускает при нажатии запустить поэтому не могу проверить подтверждение"
   severity: major
   test: 5
