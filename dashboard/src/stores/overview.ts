@@ -104,9 +104,9 @@ export const useOverviewStore = create<OverviewState>()((set) => ({
   setMetricsMode: (mode) => set({ metricsMode: mode }),
 
   setVersions: (v) =>
-    set((state) => ({
+    set({
       ...(v.mihomo !== undefined && { mihomoVersion: v.mihomo }),
       ...(v.dashboard !== undefined && { dashboardVersion: v.dashboard }),
       ...(v.xkeen !== undefined && { xkeenVersion: v.xkeen }),
-    })),
+    }),
 }))
