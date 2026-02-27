@@ -12,10 +12,35 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
+      // Flask Config API (service management, config, xkeen files, versions, health)
+      '/api/service': {
+        target: 'http://172.16.10.1:5000',
         changeOrigin: true,
-      }
-    }
+      },
+      '/api/versions': {
+        target: 'http://172.16.10.1:5000',
+        changeOrigin: true,
+      },
+      '/api/config': {
+        target: 'http://172.16.10.1:5000',
+        changeOrigin: true,
+      },
+      '/api/xkeen': {
+        target: 'http://172.16.10.1:5000',
+        changeOrigin: true,
+      },
+      '/api/health': {
+        target: 'http://172.16.10.1:5000',
+        changeOrigin: true,
+      },
+      // Mihomo REST API (all other /api/* goes to mihomo)
+      '/api': {
+        target: 'http://172.16.10.1:9090',
+        changeOrigin: true,
+        headers: {
+          'Authorization': 'Bearer admin',
+        },
+      },
+    },
   }
 })

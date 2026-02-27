@@ -89,10 +89,10 @@ def service_action(action):
 
 @app.route('/api/service/status', methods=['GET'])
 def service_status():
-    """Check if the mihomo process is running."""
+    """Check if the xkeen (xray) service is running."""
     try:
         result = subprocess.run(
-            ['pidof', 'mihomo'],
+            ['pidof', 'xray'],
             capture_output=True, text=True, timeout=5
         )
         if result.returncode == 0:
