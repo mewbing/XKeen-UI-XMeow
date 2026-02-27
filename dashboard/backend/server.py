@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 from datetime import datetime
 from io import StringIO
 
@@ -19,6 +20,7 @@ MIHOMO_CONFIG_PATH = os.environ.get(
 )
 XKEEN_DIR = os.environ.get('XKEEN_DIR', '/opt/etc/xkeen')
 BACKUP_DIR = os.environ.get('BACKUP_DIR', '/opt/etc/xkeen/backups')
+XKEEN_INIT = os.environ.get('XKEEN_INIT_SCRIPT', '/opt/etc/init.d/S24xray')
 
 # Allowed xkeen files mapping: route name -> actual filename
 XKEEN_FILES = {
@@ -55,6 +57,75 @@ def _create_backup(source_path, backup_name, extension):
 def health():
     """Health check endpoint."""
     return jsonify({'status': 'ok'}), 200
+
+
+# ---------------------------------------------------------------------------
+# Service Management
+# ---------------------------------------------------------------------------
+
+@app.route('/api/service/<action>', methods=['POST'])
+def service_action(action):
+    """Start, stop, or restart the xkeen service."""
+    if action not in ('start', 'stop', 'restart'):
+        return jsonify({'error': 'Invalid action. Must be start, stop, or restart'}), 400
+
+    try:
+        result = subprocess.run(
+            [XKEEN_INIT, action],
+            capture_output=True, text=True, timeout=30
+        )
+        if result.returncode != 0:
+            error_msg = result.stderr.strip() or 'Command failed'
+            app.logger.error('Service %s failed: %s', action, error_msg)
+            return jsonify({'error': error_msg}), 500
+        return jsonify({'status': 'ok'}), 200
+    except subprocess.TimeoutExpired:
+        app.logger.error('Service %s timed out', action)
+        return jsonify({'error': 'Command timed out'}), 500
+    except Exception as exc:
+        app.logger.error('Service %s error: %s', action, exc)
+        return jsonify({'error': str(exc)}), 500
+
+
+@app.route('/api/service/status', methods=['GET'])
+def service_status():
+    """Check if the mihomo process is running."""
+    try:
+        result = subprocess.run(
+            ['pidof', 'mihomo'],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            pid = int(result.stdout.strip())
+            return jsonify({'running': True, 'pid': pid}), 200
+        return jsonify({'running': False, 'pid': None}), 200
+    except Exception as exc:
+        app.logger.error('Service status error: %s', exc)
+        return jsonify({'running': False, 'pid': None, 'error': str(exc)}), 200
+
+
+@app.route('/api/versions', methods=['GET'])
+def get_versions():
+    """Return xkeen and dashboard versions."""
+    # xkeen version
+    xkeen_version = 'unknown'
+    try:
+        result = subprocess.run(
+            ['xkeen', '-v'],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            xkeen_version = result.stdout.strip().splitlines()[0]
+    except Exception as exc:
+        app.logger.error('Error getting xkeen version: %s', exc)
+
+    # Dashboard version (hardcoded, will be updated in Phase 10)
+    dashboard_version = '0.1.0'
+
+    return jsonify({
+        'xkeen': xkeen_version,
+        'dashboard': dashboard_version,
+    }), 200
 
 
 # ---------------------------------------------------------------------------
