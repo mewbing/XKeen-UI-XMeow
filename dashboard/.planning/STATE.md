@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 2 -- Overview + Service Management
+**Current focus:** Phase 3 -- Proxies Page
 
 ## Current Position
 
-Phase: 2 of 11 (Overview + Service Management)
-Plan: 3 of 3 in current phase
-Status: Plan 02-03 complete, Phase 2 finished
-Last activity: 2026-02-27 -- Plan 02-03 executed
+Phase: 3 of 11 (Proxies Page)
+Plan: 1 of 3 in current phase
+Status: Plan 03-01 complete
+Last activity: 2026-02-27 -- Plan 03-01 executed
 
-Progress: [#######░░░] 27% (15/55 requirements)
+Progress: [########░░] 33% (18/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 5 min
-- Total execution time: 0.57 hours
+- Total execution time: 0.64 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -32,6 +32,7 @@ Progress: [#######░░░] 27% (15/55 requirements)
 | 02 | 01 | 3min | 2 | 11 |
 | 02 | 02 | 4min | 2 | 5 |
 | 02 | 03 | 6min | 2 | 5 |
+| 03 | 01 | 4min | 2 | 11 |
 
 ## Accumulated Context
 
@@ -60,6 +61,11 @@ Progress: [#######░░░] 27% (15/55 requirements)
 - Stop/Restart require AlertDialog confirmation; Start does not (non-destructive)
 - VersionLine adds 'v' prefix if missing, shows '--' when version not loaded
 - Version info hidden in sidebar collapsed (icon) mode
+- Sonner component uses hardcoded dark theme instead of next-themes (Vite project, not Next.js)
+- Proxies store is volatile (no persist) -- proxy data fetched fresh on page visit
+- Delay cache TTL 15 seconds to prevent router overload
+- testAllGroups runs sequentially to avoid concurrent request overload
+- Optimistic proxy switching with rollback on API error
 
 ### Pending Todos
 
@@ -72,5 +78,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 02-03-PLAN.md
-Resume file: .planning/phases/02-overview-service-management/02-03-SUMMARY.md
+Stopped at: Completed 03-01-PLAN.md
+Resume file: .planning/phases/03-proxies-page/03-01-SUMMARY.md
