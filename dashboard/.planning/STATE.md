@@ -19,9 +19,9 @@ Progress: [########░░] 33% (18/55 requirements)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 4 min
-- Total execution time: 0.72 hours
+- Total execution time: 0.77 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -32,6 +32,7 @@ Progress: [########░░] 33% (18/55 requirements)
 | 02 | 01 | 3min | 2 | 11 |
 | 02 | 02 | 4min | 2 | 5 |
 | 02 | 03 | 6min | 2 | 5 |
+| 02 | 04 | 3min | 2 | 4 |
 | 02 | 05 | 2min | 2 | 3 |
 | 03 | 01 | 4min | 2 | 11 |
 | 03 | 02 | 3min | 2 | 6 |
@@ -72,6 +73,9 @@ Progress: [########░░] 33% (18/55 requirements)
 - Toggle component used for auto-info on/off instead of checkbox (no checkbox component installed)
 - Expanded card gets col-span-full to occupy full grid width
 - Pre-existing TS errors from Phase 03 do not block Phase 02 gap closure plans (out of scope)
+- [Phase 02]: Removed key={location.pathname} from AppLayout -- page-enter animation not worth losing component state on remount
+- [Phase 02]: Tailwind v4 color pattern: use var(--color) directly, never wrap in hsl() -- CSS vars contain complete oklch() values
+- [Phase 02]: Zustand guard pattern: setStartTime only sets if null to prevent overwrite on remount
 
 ### Pending Todos
 
@@ -84,5 +88,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 02-05-PLAN.md (gap closure)
-Resume file: .planning/phases/02-overview-service-management/02-05-SUMMARY.md
+Stopped at: Completed 02-04-PLAN.md (gap closure)
+Resume file: .planning/phases/02-overview-service-management/02-04-SUMMARY.md
