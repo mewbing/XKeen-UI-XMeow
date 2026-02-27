@@ -13,7 +13,8 @@ import { useSettingsStore } from '@/stores/settings'
 export function useMihomoWs<T>(
   path: string,
   onMessage: (data: T) => void,
-  interval?: number
+  interval?: number,
+  extraParams?: Record<string, string>
 ): void {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -31,6 +32,11 @@ export function useMihomoWs<T>(
     const params = new URLSearchParams()
     if (mihomoSecret) params.set('token', mihomoSecret)
     if (interval !== undefined) params.set('interval', String(interval))
+    if (extraParams) {
+      for (const [key, value] of Object.entries(extraParams)) {
+        params.set(key, value)
+      }
+    }
     const query = params.toString()
     const fullUrl = query ? `${wsUrl}${path}?${query}` : `${wsUrl}${path}`
 
@@ -54,7 +60,7 @@ export function useMihomoWs<T>(
     ws.onerror = () => {
       ws.close()
     }
-  }, [mihomoApiUrl, mihomoSecret, path, interval])
+  }, [mihomoApiUrl, mihomoSecret, path, interval, extraParams])
 
   useEffect(() => {
     if (!mihomoApiUrl) return
