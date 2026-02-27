@@ -37,7 +37,6 @@ type UpdateStatus = 'idle' | 'confirming' | 'updating' | 'success' | 'error'
 export function UpdateOverlay({ open, onClose }: UpdateOverlayProps) {
   const [status, setStatus] = useState<UpdateStatus>('idle')
   const [log, setLog] = useState<string[]>([])
-  const [error, setError] = useState<string | null>(null)
   const logContainerRef = useRef<HTMLPreElement>(null)
 
   const mihomoVersion = useOverviewStore((s) => s.mihomoVersion)
@@ -64,7 +63,6 @@ export function UpdateOverlay({ open, onClose }: UpdateOverlayProps) {
   async function handleConfirm() {
     setStatus('updating')
     setLog([])
-    setError(null)
 
     addLog('Начинаем обновление...')
     addLog('Отправлен запрос на обновление...')
@@ -85,7 +83,6 @@ export function UpdateOverlay({ open, onClose }: UpdateOverlayProps) {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error'
       addLog(`Ошибка: ${message}`)
-      setError(message)
       setStatus('error')
     }
   }
@@ -93,7 +90,6 @@ export function UpdateOverlay({ open, onClose }: UpdateOverlayProps) {
   function handleClose() {
     setStatus('idle')
     setLog([])
-    setError(null)
     onClose()
   }
 
