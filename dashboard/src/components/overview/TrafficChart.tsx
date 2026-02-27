@@ -44,7 +44,7 @@ export function TrafficChart() {
             <Line
               type="monotone"
               dataKey="up"
-              stroke="hsl(var(--chart-1))"
+              stroke="var(--chart-1)"
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}
@@ -53,7 +53,7 @@ export function TrafficChart() {
             <Line
               type="monotone"
               dataKey="down"
-              stroke="hsl(var(--chart-2))"
+              stroke="var(--chart-2)"
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}
