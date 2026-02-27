@@ -7,6 +7,42 @@
 
 import { useSettingsStore } from '@/stores/settings'
 
+// --- Connection types ---
+
+export interface ConnectionMetadata {
+  network: string
+  type: string
+  sourceIP: string
+  destinationIP: string
+  sourcePort: string
+  destinationPort: string
+  host: string
+  dnsMode: string
+  processPath: string
+  specialProxy: string
+  specialRules: string
+  remoteDestination: string
+  dscp: number
+  sniffHost: string
+}
+
+export interface Connection {
+  id: string
+  metadata: ConnectionMetadata
+  upload: number
+  download: number
+  start: string
+  chains: string[]
+  rule: string
+  rulePayload: string
+}
+
+export interface ConnectionsSnapshot {
+  downloadTotal: number
+  uploadTotal: number
+  connections: Connection[]
+}
+
 // --- Proxy types ---
 
 export interface ProxyHistory {
@@ -98,11 +134,7 @@ export async function restartMihomo(): Promise<void> {
  * Fetch current connections snapshot.
  * Used for active connections count on overview page.
  */
-export async function fetchConnectionsSnapshot(): Promise<{
-  downloadTotal: number
-  uploadTotal: number
-  connections: unknown[]
-}> {
+export async function fetchConnectionsSnapshot(): Promise<ConnectionsSnapshot> {
   const res = await fetch(`${getBaseUrl()}/connections`, {
     headers: getHeaders(),
     signal: AbortSignal.timeout(5000),
@@ -174,6 +206,80 @@ export async function fetchProxyDelay(
     throw new Error(data.error || 'Delay test failed')
   }
   return res.json()
+}
+
+/**
+ * Reload mihomo configuration from file.
+ */
+export async function reloadConfig(): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/configs?force=true`, {
+    method: 'PUT',
+    headers: {
+      ...getHeaders(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ path: '' }),
+    signal: AbortSignal.timeout(10000),
+  })
+  if (!res.ok) {
+    throw new Error('Failed to reload config')
+  }
+}
+
+/**
+ * Flush fake-IP cache.
+ */
+export async function flushFakeIP(): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/cache/fakeip/flush`, {
+    method: 'POST',
+    headers: getHeaders(),
+    signal: AbortSignal.timeout(5000),
+  })
+  if (!res.ok) {
+    throw new Error('Failed to flush fake-IP cache')
+  }
+}
+
+/**
+ * Update GeoIP and GeoSite databases.
+ */
+export async function updateGeoData(): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/configs/geo`, {
+    method: 'POST',
+    headers: getHeaders(),
+    signal: AbortSignal.timeout(60000),
+  })
+  if (!res.ok) {
+    throw new Error('Failed to update geodata')
+  }
+}
+
+/**
+ * Close a single connection by ID.
+ */
+export async function closeConnection(id: string): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/connections/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+    signal: AbortSignal.timeout(5000),
+  })
+  if (!res.ok && res.status !== 204) {
+    throw new Error('Failed to close connection')
+  }
+}
+
+/**
+ * Close all active connections.
+ */
+export async function closeAllConnections(): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/connections`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+    signal: AbortSignal.timeout(5000),
+  })
+  if (!res.ok && res.status !== 204) {
+    throw new Error('Failed to close all connections')
+  }
 }
 
 /**
