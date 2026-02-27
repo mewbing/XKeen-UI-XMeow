@@ -58,14 +58,18 @@ Plans:
 - [ ] 02-03-PLAN.md -- Service control: Header status badge, start/stop/restart dropdown, kernel update overlay, sidebar versions
 
 ### Phase 3: Proxies Page
-**Goal**: Управление прокси-группами как в zashboard
+**Goal**: Управление прокси-группами как в zashboard с настраиваемым отображением карточек, переключением прокси и тестом задержки
 **Depends on**: Phase 1
 **Requirements**: PROX-01, PROX-02, PROX-03
 **Success Criteria**:
   1. Все proxy-groups отображаются как карточки с текущим выбором
   2. Клик переключает прокси внутри группы
   3. Тест задержки работает для отдельных прокси
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md -- Инфраструктура: shadcn/ui компоненты, API-клиент прокси, Zustand stores, Toaster, formatDelay
+- [ ] 03-02-PLAN.md -- UI компоненты: карточки групп, inline expand, тулбар, поповер настроек, страница ProxiesPage
 
 ### Phase 4: Connections + Logs
 **Goal**: Мониторинг подключений в реальном времени и полный лог-стрим
@@ -163,7 +167,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Config API + Setup | 4/4 | Complete | 2026-02-27 |
 | 2. Overview + Service Mgmt | 2/3 | In Progress | - |
-| 3. Proxies Page | 0/? | Not started | - |
+| 3. Proxies Page | 0/2 | Not started | - |
 | 4. Connections + Logs | 0/? | Not started | - |
 | 5. Config Raw Editor | 0/? | Not started | - |
 | 6. Rules Visual Editor | 0/? | Not started | - |
