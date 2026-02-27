@@ -1,5 +1,5 @@
 /**
- * Formatting utilities for overview metrics display.
+ * Formatting utilities for metrics display.
  *
  * All functions are pure -- no side effects, no external imports.
  */
@@ -50,4 +50,18 @@ export function formatUptime(startTime: number | null): string {
   if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`
   if (minutes > 0) return `${minutes}m ${seconds}s`
   return `${seconds}s`
+}
+
+/**
+ * Format proxy delay in milliseconds to display string.
+ * undefined = not tested, 0 = timeout/unreachable.
+ *
+ * @example formatDelay(120)       -> "120ms"
+ * @example formatDelay(0)         -> "timeout"
+ * @example formatDelay(undefined) -> "--"
+ */
+export function formatDelay(delay: number | undefined): string {
+  if (delay === undefined) return '--'
+  if (delay === 0) return 'timeout'
+  return `${delay}ms`
 }

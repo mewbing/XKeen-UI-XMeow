@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useSettingsStore } from '@/stores/settings'
+import { Toaster } from '@/components/ui/sonner'
 import SetupWizard from '@/components/wizard/SetupWizard'
 import OverviewPage from '@/pages/OverviewPage'
 import ProxiesPage from '@/pages/ProxiesPage'
@@ -94,6 +95,7 @@ function App() {
           <Route path="*" element={<Navigate to="/overview" replace />} />
         </Route>
       </Routes>
+      <Toaster />
     </BrowserRouter>
   )
 }
