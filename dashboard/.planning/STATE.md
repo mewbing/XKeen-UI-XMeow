@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 1 -- Scaffold + Config API + Setup Wizard
+**Current focus:** Phase 2 -- Overview + Service Management
 
 ## Current Position
 
-Phase: 1 of 11 (Scaffold + Config API + Setup Wizard) -- COMPLETE
-Plan: 4 of 4 in current phase
-Status: Phase 1 complete, ready for Phase 2
-Last activity: 2026-02-27 -- Plan 01-04 executed
+Phase: 2 of 11 (Overview + Service Management)
+Plan: 1 of 3 in current phase
+Status: Plan 02-01 complete, continuing Phase 2
+Last activity: 2026-02-27 -- Plan 02-01 executed
 
-Progress: [#####░░░░░] 15% (8/55 requirements)
+Progress: [######░░░░] 18% (10/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 5 min
-- Total execution time: 0.35 hours
+- Total execution time: 0.40 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -29,6 +29,7 @@ Progress: [#####░░░░░] 15% (8/55 requirements)
 | 01 | 02 | 5min | 2 | 27 |
 | 01 | 03 | 3min | 1 | 1 |
 | 01 | 04 | 4min | 2 | 8 |
+| 02 | 01 | 3min | 2 | 11 |
 
 ## Accumulated Context
 
@@ -47,6 +48,9 @@ Progress: [#####░░░░░] 15% (8/55 requirements)
 - Mihomo 401 fallback: try without secret first, then retry with 'admin' as default
 - 5-second AbortSignal.timeout for all API calls
 - Auto-advance to success step after 1.5s delay when both tests pass
+- XKEEN_INIT_SCRIPT configurable via environment variable (default /opt/etc/init.d/S24xray)
+- Dashboard version hardcoded as 0.1.0 (will be dynamic in Phase 10)
+- formatBytes uses clamped index to prevent UNITS array overflow on very large values
 
 ### Pending Todos
 
@@ -59,5 +63,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 01-04-PLAN.md (Phase 1 complete)
-Resume file: .planning/phases/01-scaffold-config-api-setup-wizard/01-04-SUMMARY.md
+Stopped at: Completed 02-01-PLAN.md
+Resume file: .planning/phases/02-overview-service-management/02-01-SUMMARY.md
