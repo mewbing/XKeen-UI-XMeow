@@ -38,6 +38,9 @@ export async function fetchServiceStatus(): Promise<{
   const res = await fetch(`${getBaseUrl()}/api/service/status`, {
     signal: AbortSignal.timeout(5000),
   })
+  if (!res.ok) {
+    throw new Error(`Service status request failed: ${res.status}`)
+  }
   return res.json()
 }
 
@@ -51,5 +54,8 @@ export async function fetchVersions(): Promise<{
   const res = await fetch(`${getBaseUrl()}/api/versions`, {
     signal: AbortSignal.timeout(5000),
   })
+  if (!res.ok) {
+    throw new Error(`Versions request failed: ${res.status}`)
+  }
   return res.json()
 }
