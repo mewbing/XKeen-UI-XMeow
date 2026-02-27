@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 2 of 11 (Overview + Service Management)
-Plan: 2 of 3 in current phase
-Status: Plan 02-02 complete, continuing Phase 2
-Last activity: 2026-02-27 -- Plan 02-02 executed
+Plan: 3 of 3 in current phase
+Status: Plan 02-03 complete, Phase 2 finished
+Last activity: 2026-02-27 -- Plan 02-03 executed
 
-Progress: [######░░░░] 22% (12/55 requirements)
+Progress: [#######░░░] 27% (15/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 5 min
-- Total execution time: 0.47 hours
+- Total execution time: 0.57 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -31,6 +31,7 @@ Progress: [######░░░░] 22% (12/55 requirements)
 | 01 | 04 | 4min | 2 | 8 |
 | 02 | 01 | 3min | 2 | 11 |
 | 02 | 02 | 4min | 2 | 5 |
+| 02 | 03 | 6min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -55,6 +56,10 @@ Progress: [######░░░░] 22% (12/55 requirements)
 - useRef for onMessage callback in WebSocket hook to avoid stale closures and prevent WS re-creation
 - Connections polled every 5s via REST instead of WebSocket to avoid heavy data on overview
 - Client-side uptime tracking (Date.now on mount) since mihomo has no uptime endpoint
+- ServiceControl is self-contained (uses useServiceStatus + serviceAction internally, no required props)
+- Stop/Restart require AlertDialog confirmation; Start does not (non-destructive)
+- VersionLine adds 'v' prefix if missing, shows '--' when version not loaded
+- Version info hidden in sidebar collapsed (icon) mode
 
 ### Pending Todos
 
@@ -67,5 +72,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 02-02-PLAN.md
-Resume file: .planning/phases/02-overview-service-management/02-02-SUMMARY.md
+Stopped at: Completed 02-03-PLAN.md
+Resume file: .planning/phases/02-overview-service-management/02-03-SUMMARY.md
