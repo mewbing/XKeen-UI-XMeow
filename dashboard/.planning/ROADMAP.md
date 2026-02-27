@@ -12,7 +12,7 @@
 
 - [x] **Phase 1: Scaffold + Config API + Setup Wizard** - React проект, Flask backend с CRUD для конфига, мастер настройки
 - [ ] **Phase 2: Overview + Service Management** - Главная страница со статистикой, управление xkeen, обновление ядра
-- [ ] **Phase 3: Proxies Page** - Карточки proxy-groups, переключение прокси, тест задержки
+- [x] **Phase 3: Proxies Page** - Карточки proxy-groups, переключение прокси, тест задержки (completed 2026-02-27)
 - [ ] **Phase 4: Connections + Logs** - Таблица подключений в реальном времени, лог-стрим через WebSocket
 - [ ] **Phase 5: Config Raw Editor** - Monaco Editor с табами (config, ip_exclude, port_exclude, port_proxying), live-лог
 - [ ] **Phase 6: Rules Visual Editor** - Визуальные блоки правил с drag-and-drop приоритизацией
@@ -65,7 +65,7 @@ Plans:
   1. Все proxy-groups отображаются как карточки с текущим выбором
   2. Клик переключает прокси внутри группы
   3. Тест задержки работает для отдельных прокси
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 03-01-PLAN.md -- Инфраструктура: shadcn/ui компоненты, API-клиент прокси, Zustand stores, Toaster, formatDelay
@@ -167,7 +167,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Config API + Setup | 4/4 | Complete | 2026-02-27 |
 | 2. Overview + Service Mgmt | 3/3 | Complete | 2026-02-27 |
-| 3. Proxies Page | 1/2 | In Progress | - |
+| 3. Proxies Page | 2/2 | Complete   | 2026-02-27 |
 | 4. Connections + Logs | 0/? | Not started | - |
 | 5. Config Raw Editor | 0/? | Not started | - |
 | 6. Rules Visual Editor | 0/? | Not started | - |

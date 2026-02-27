@@ -32,9 +32,9 @@
 
 ### Proxies Page
 
-- [ ] **PROX-01**: Proxy-groups displayed as cards with current proxy selection
-- [ ] **PROX-02**: User can switch active proxy within a group
-- [ ] **PROX-03**: User can run latency test on individual proxies
+- [x] **PROX-01**: Proxy-groups displayed as cards with current proxy selection
+- [x] **PROX-02**: User can switch active proxy within a group
+- [x] **PROX-03**: User can run latency test on individual proxies
 
 ### Connections Page
 
@@ -146,9 +146,9 @@
 | OVER-03 | Phase 2 | Complete |
 | OVER-04 | Phase 2 | Complete |
 | OVER-05 | Phase 2 | Complete |
-| PROX-01 | Phase 3 | Pending |
-| PROX-02 | Phase 3 | Pending |
-| PROX-03 | Phase 3 | Pending |
+| PROX-01 | Phase 3 | Complete |
+| PROX-02 | Phase 3 | Complete |
+| PROX-03 | Phase 3 | Complete |
 | CONN-01 | Phase 4 | Pending |
 | CONN-02 | Phase 4 | Pending |
 | CONN-03 | Phase 4 | Pending |
