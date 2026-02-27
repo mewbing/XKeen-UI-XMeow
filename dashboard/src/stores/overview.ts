@@ -99,7 +99,9 @@ export const useOverviewStore = create<OverviewState>()((set) => ({
 
   updateConnections: (count) => set({ activeConnections: count }),
 
-  setStartTime: (time) => set({ startTime: time }),
+  setStartTime: (time) => set((state) =>
+    state.startTime === null ? { startTime: time } : {}
+  ),
 
   setMetricsMode: (mode) => set({ metricsMode: mode }),
 
