@@ -24,11 +24,11 @@
 
 ### Overview Page
 
-- [ ] **OVER-01**: Dashboard shows uptime, traffic stats, active connections count, speed
+- [x] **OVER-01**: Dashboard shows uptime, traffic stats, active connections count, speed
 - [ ] **OVER-02**: Service status badge (running/stopped) displayed
 - [ ] **OVER-03**: User can start/stop/restart xkeen from dashboard
 - [ ] **OVER-04**: User can check and install kernel updates
-- [ ] **OVER-05**: mihomo version and dashboard version displayed
+- [x] **OVER-05**: mihomo version and dashboard version displayed
 
 ### Proxies Page
 
@@ -141,11 +141,11 @@
 | API-05 | Phase 2 | Complete |
 | API-06 | Phase 2 | Complete |
 | API-07 | Phase 9 | Pending |
-| OVER-01 | Phase 2 | Pending |
+| OVER-01 | Phase 2 | Complete |
 | OVER-02 | Phase 2 | Pending |
 | OVER-03 | Phase 2 | Pending |
 | OVER-04 | Phase 2 | Pending |
-| OVER-05 | Phase 2 | Pending |
+| OVER-05 | Phase 2 | Complete |
 | PROX-01 | Phase 3 | Pending |
 | PROX-02 | Phase 3 | Pending |
 | PROX-03 | Phase 3 | Pending |

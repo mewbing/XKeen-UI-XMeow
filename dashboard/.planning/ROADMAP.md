@@ -53,8 +53,8 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Backend API (service management endpoints) + frontend API clients, format utils, shadcn/ui components
-- [ ] 02-02-PLAN.md -- Overview page: WebSocket hook, Zustand store, metrics cards, traffic chart, version display
+- [x] 02-01-PLAN.md -- Backend API (service management endpoints) + frontend API clients, format utils, shadcn/ui components
+- [x] 02-02-PLAN.md -- Overview page: WebSocket hook, Zustand store, metrics cards, traffic chart, version display
 - [ ] 02-03-PLAN.md -- Service control: Header status badge, start/stop/restart dropdown, kernel update overlay, sidebar versions
 
 ### Phase 3: Proxies Page
@@ -162,7 +162,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Config API + Setup | 4/4 | Complete | 2026-02-27 |
-| 2. Overview + Service Mgmt | 0/3 | Planning | - |
+| 2. Overview + Service Mgmt | 2/3 | In Progress | - |
 | 3. Proxies Page | 0/? | Not started | - |
 | 4. Connections + Logs | 0/? | Not started | - |
 | 5. Config Raw Editor | 0/? | Not started | - |

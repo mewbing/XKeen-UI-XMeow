@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 2 of 11 (Overview + Service Management)
-Plan: 1 of 3 in current phase
-Status: Plan 02-01 complete, continuing Phase 2
-Last activity: 2026-02-27 -- Plan 02-01 executed
+Plan: 2 of 3 in current phase
+Status: Plan 02-02 complete, continuing Phase 2
+Last activity: 2026-02-27 -- Plan 02-02 executed
 
-Progress: [######░░░░] 18% (10/55 requirements)
+Progress: [######░░░░] 22% (12/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 5 min
-- Total execution time: 0.40 hours
+- Total execution time: 0.47 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -30,6 +30,7 @@ Progress: [######░░░░] 18% (10/55 requirements)
 | 01 | 03 | 3min | 1 | 1 |
 | 01 | 04 | 4min | 2 | 8 |
 | 02 | 01 | 3min | 2 | 11 |
+| 02 | 02 | 4min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -51,6 +52,9 @@ Progress: [######░░░░] 18% (10/55 requirements)
 - XKEEN_INIT_SCRIPT configurable via environment variable (default /opt/etc/init.d/S24xray)
 - Dashboard version hardcoded as 0.1.0 (will be dynamic in Phase 10)
 - formatBytes uses clamped index to prevent UNITS array overflow on very large values
+- useRef for onMessage callback in WebSocket hook to avoid stale closures and prevent WS re-creation
+- Connections polled every 5s via REST instead of WebSocket to avoid heavy data on overview
+- Client-side uptime tracking (Date.now on mount) since mihomo has no uptime endpoint
 
 ### Pending Todos
 
@@ -63,5 +67,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 02-01-PLAN.md
-Resume file: .planning/phases/02-overview-service-management/02-01-SUMMARY.md
+Stopped at: Completed 02-02-PLAN.md
+Resume file: .planning/phases/02-overview-service-management/02-02-SUMMARY.md
