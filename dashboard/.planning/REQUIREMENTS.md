@@ -59,14 +59,14 @@
 
 ### Rules Visual Editor
 
-- [ ] **RULE-01**: Rules displayed as visual blocks (cards) grouped by service
-- [ ] **RULE-02**: Each block shows title, rule count, target proxy-group
+- [x] **RULE-01**: Rules displayed as visual blocks (cards) grouped by service
+- [x] **RULE-02**: Each block shows title, rule count, target proxy-group
 - [ ] **RULE-03**: Drag-and-drop to reorder blocks (change rule priority)
 - [ ] **RULE-04**: Click block to expand and see individual rules inside
 - [ ] **RULE-05**: Add/remove individual rules within a block
 - [ ] **RULE-06**: Change target proxy-group for a block
 - [ ] **RULE-07**: Create new rule block
-- [ ] **RULE-08**: Changes saved back to config.yaml rules section
+- [x] **RULE-08**: Changes saved back to config.yaml rules section
 
 ### Groups Editor
 
@@ -161,14 +161,14 @@
 | EDIT-03 | Phase 5 | Complete |
 | EDIT-04 | Phase 5 | Complete |
 | EDIT-05 | Phase 5 | Complete |
-| RULE-01 | Phase 6 | Pending |
-| RULE-02 | Phase 6 | Pending |
+| RULE-01 | Phase 6 | Complete |
+| RULE-02 | Phase 6 | Complete |
 | RULE-03 | Phase 6 | Pending |
 | RULE-04 | Phase 6 | Pending |
 | RULE-05 | Phase 6 | Pending |
 | RULE-06 | Phase 6 | Pending |
 | RULE-07 | Phase 6 | Pending |
-| RULE-08 | Phase 6 | Pending |
+| RULE-08 | Phase 6 | Complete |
 | GRPS-01 | Phase 7 | Pending |
 | GRPS-02 | Phase 7 | Pending |
 | GRPS-03 | Phase 7 | Pending |

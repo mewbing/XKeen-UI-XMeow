@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 5 -- Config Raw Editor
+**Current focus:** Phase 6 -- Rules Visual Editor
 
 ## Current Position
 
-Phase: 5 of 11 (Config Raw Editor)
-Plan: 3 of 3 in current phase (PHASE COMPLETE)
-Status: Phase 05 complete -- config raw editor fully functional
-Last activity: 2026-02-28 -- Plan 05-03 executed
+Phase: 6 of 11 (Rules Visual Editor)
+Plan: 2 of 4 in current phase
+Status: Plan 06-01 complete -- rules parser, editor store, settings extensions
+Last activity: 2026-03-01 -- Plan 06-01 executed
 
-Progress: [██████████] 56% (31/55 requirements)
+Progress: [███████████░░░░░░░░░] 62% (34/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: 4 min
-- Total execution time: 0.96 hours
+- Total execution time: 1.03 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -42,6 +42,7 @@ Progress: [██████████] 56% (31/55 requirements)
 | 05 | 01 | 3min | 2 | 5 |
 | 05 | 02 | 4min | 2 | 5 |
 | 05 | 03 | 4min | 2 | 4 |
+| 06 | 01 | 4min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -90,6 +91,10 @@ Progress: [██████████] 56% (31/55 requirements)
 - [Phase 05]: useRef for onSave callback to avoid stale closures in Monaco addCommand
 - [Phase 05]: Zustand-driven WS lifecycle: EditorLogPanel subscribes to logStreaming flag for connect/disconnect
 - [Phase 05]: react-resizable-panels v4 uses orientation prop (not direction) and PanelSize object (not number)
+- [Phase 06]: yaml (eemeli) for rules parsing, js-yaml stays for ConfigEditor validation -- no conflict
+- [Phase 06]: Module-level Document storage outside Zustand since YAML Document is not serializable
+- [Phase 06]: zundo partialize tracks only blocks state, not UI flags (dirty, loading, error, changeCount)
+- [Phase 06]: Rules editor store is volatile (no persist) -- rules loaded fresh from config on page visit
 
 ### Pending Todos
 
@@ -101,6 +106,6 @@ None currently.
 
 ## Session Continuity
 
-Last session: 2026-02-28
-Stopped at: Completed 05-03-PLAN.md (Phase 05 complete -- Config Raw Editor)
-Resume file: .planning/phases/05-config-raw-editor/05-03-SUMMARY.md
+Last session: 2026-03-01
+Stopped at: Completed 06-01-PLAN.md (Rules parser, editor store, settings)
+Resume file: .planning/phases/06-rules-visual-editor/06-01-SUMMARY.md
