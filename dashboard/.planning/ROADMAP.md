@@ -114,7 +114,13 @@ Plans:
   2. Drag-and-drop перемещение блоков меняет приоритет (отражается в config.yaml)
   3. Раскрытие блока показывает все правила внутри
   4. Добавление/удаление правил и смена целевой группы сохраняются в конфиг
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 06-01-PLAN.md -- Инфраструктура: установка yaml/dnd-kit/zundo, rules-parser с комментариями, Zustand store с undo/redo, настройки
+- [ ] 06-02-PLAN.md -- Core UI: карточки блоков, сортируемый список с DnD, тулбар с переключателями группировки/лейаута/плотности, RulesPage
+- [ ] 06-03-PLAN.md -- Редактирование: диалоги добавления/создания, смена proxy-group, удаление с подтверждением, DnD внутри блока
+- [ ] 06-04-PLAN.md -- Save/Apply/Undo: сохранение, diff-превью, Reset, Ctrl+Z, бейдж-счётчик, предупреждения, настройки
 
 ### Phase 7: Groups Editor
 **Goal**: Визуальное управление proxy-groups с синхронизацией GLOBAL
@@ -182,7 +188,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 | 3. Proxies Page | 2/2 | Complete    | 2026-02-27 |
 | 4. Connections + Logs | 3/3 | Complete | 2026-02-28 |
 | 5. Config Raw Editor | 0/3 | Complete    | 2026-02-28 |
-| 6. Rules Visual Editor | 0/? | Not started | - |
+| 6. Rules Visual Editor | 0/4 | Not started | - |
 | 7. Groups Editor | 0/? | Not started | - |
 | 8. Providers Page | 0/? | Not started | - |
 | 9. Geodata Viewer | 0/? | Not started | - |
