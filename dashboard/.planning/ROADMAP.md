@@ -14,7 +14,7 @@
 - [x] **Phase 2: Overview + Service Management** - Главная страница со статистикой, управление xkeen, обновление ядра (completed 2026-02-27)
 - [x] **Phase 3: Proxies Page** - Карточки proxy-groups, переключение прокси, тест задержки (completed 2026-02-27)
 - [x] **Phase 4: Connections + Logs** - Таблица подключений в реальном времени, лог-стрим через WebSocket
-- [ ] **Phase 5: Config Raw Editor** - Monaco Editor с табами (config, ip_exclude, port_exclude, port_proxying), live-лог
+- [x] **Phase 5: Config Raw Editor** - Monaco Editor с табами (config, ip_exclude, port_exclude, port_proxying), live-лог (completed 2026-02-28)
 - [ ] **Phase 6: Rules Visual Editor** - Визуальные блоки правил с drag-and-drop приоритизацией
 - [ ] **Phase 7: Groups Editor** - Редактор proxy-groups с drag-and-drop и синхронизацией GLOBAL
 - [ ] **Phase 8: Providers Page** - Список rule-providers и proxy-providers со статусом и обновлением
@@ -98,7 +98,7 @@ Plans:
   2. Табы переключают между config, ip_exclude, port_exclude, port_proxying
   3. Индикатор валидности YAML обновляется при редактировании
   4. При нажатии Apply в панели логов видна реакция mihomo
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 05-01-PLAN.md -- Инфраструктура: установка Monaco Editor, js-yaml, shadcn resizable, Zustand store, расширение API-клиента
@@ -181,7 +181,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 | 2. Overview + Service Mgmt | 3/5 | Complete    | 2026-02-27 |
 | 3. Proxies Page | 2/2 | Complete    | 2026-02-27 |
 | 4. Connections + Logs | 3/3 | Complete | 2026-02-28 |
-| 5. Config Raw Editor | 0/3 | Planned | - |
+| 5. Config Raw Editor | 0/3 | Complete    | 2026-02-28 |
 | 6. Rules Visual Editor | 0/? | Not started | - |
 | 7. Groups Editor | 0/? | Not started | - |
 | 8. Providers Page | 0/? | Not started | - |
