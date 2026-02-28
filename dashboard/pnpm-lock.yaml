@@ -93,6 +93,9 @@ importers:
       globals:
         specifier: ^16.5.0
         version: 16.5.0
+      monaco-editor:
+        specifier: ^0.55.1
+        version: 0.55.1
       shadcn:
         specifier: ^3.8.5
         version: 3.8.5(@types/node@24.10.15)(typescript@5.9.3)
