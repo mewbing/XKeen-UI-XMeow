@@ -55,7 +55,7 @@
 - [x] **EDIT-02**: Tabs for switching between config, ip_exclude, port_exclude, port_proxying
 - [x] **EDIT-03**: YAML validation indicator ("YAML valid" / "Error at line X")
 - [ ] **EDIT-04**: Live log panel below editor showing mihomo response on Apply
-- [ ] **EDIT-05**: Apply, Save, Format buttons
+- [x] **EDIT-05**: Apply, Save, Format buttons
 
 ### Rules Visual Editor
 
@@ -160,7 +160,7 @@
 | EDIT-02 | Phase 5 | Complete |
 | EDIT-03 | Phase 5 | Complete |
 | EDIT-04 | Phase 5 | Pending |
-| EDIT-05 | Phase 5 | Pending |
+| EDIT-05 | Phase 5 | Complete |
 | RULE-01 | Phase 6 | Pending |
 | RULE-02 | Phase 6 | Pending |
 | RULE-03 | Phase 6 | Pending |

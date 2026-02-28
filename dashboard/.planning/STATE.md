@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 5 of 11 (Config Raw Editor)
-Plan: 1 of 3 in current phase
-Status: Plan 05-01 complete -- infrastructure ready
-Last activity: 2026-02-28 -- Plan 05-01 executed
+Plan: 2 of 3 in current phase
+Status: Plan 05-02 complete -- editor core components ready
+Last activity: 2026-02-28 -- Plan 05-02 executed
 
 Progress: [██████████] 56% (31/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 4 min
-- Total execution time: 0.89 hours
+- Total execution time: 0.96 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -40,6 +40,7 @@ Progress: [██████████] 56% (31/55 requirements)
 | 04 | 02 | 8min | 2 | 6 |
 | 04 | 03 | 15min | 2 | 4 |
 | 05 | 01 | 3min | 2 | 5 |
+| 05 | 02 | 4min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -83,6 +84,9 @@ Progress: [██████████] 56% (31/55 requirements)
 - [Phase 04]: Fixed pre-existing TS errors from Phase 03 (unused cn imports, missing isDelayCacheValid) that blocked tsc -b build
 - [Phase 05]: Config editor store is volatile (no persist) -- content loaded fresh on page visit
 - [Phase 05]: Log ring buffer max 500 entries for apply-time streaming (separate from logs page 1000 limit)
+- [Phase 05]: monaco-editor added as dev dependency for TypeScript types (CDN loads at runtime)
+- [Phase 05]: Format shows warning toast before applying (comment loss) rather than confirmation dialog
+- [Phase 05]: useRef for onSave callback to avoid stale closures in Monaco addCommand
 
 ### Pending Todos
 
@@ -95,5 +99,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 05-01-PLAN.md (Config Editor Infrastructure)
-Resume file: .planning/phases/05-config-raw-editor/05-01-SUMMARY.md
+Stopped at: Completed 05-02-PLAN.md (Editor Core Components)
+Resume file: .planning/phases/05-config-raw-editor/05-02-SUMMARY.md
