@@ -13,7 +13,7 @@
 - [x] **Phase 1: Scaffold + Config API + Setup Wizard** - React проект, Flask backend с CRUD для конфига, мастер настройки
 - [x] **Phase 2: Overview + Service Management** - Главная страница со статистикой, управление xkeen, обновление ядра (completed 2026-02-27)
 - [x] **Phase 3: Proxies Page** - Карточки proxy-groups, переключение прокси, тест задержки (completed 2026-02-27)
-- [ ] **Phase 4: Connections + Logs** - Таблица подключений в реальном времени, лог-стрим через WebSocket
+- [x] **Phase 4: Connections + Logs** - Таблица подключений в реальном времени, лог-стрим через WebSocket
 - [ ] **Phase 5: Config Raw Editor** - Monaco Editor с табами (config, ip_exclude, port_exclude, port_proxying), live-лог
 - [ ] **Phase 6: Rules Visual Editor** - Визуальные блоки правил с drag-and-drop приоритизацией
 - [ ] **Phase 7: Groups Editor** - Редактор proxy-groups с drag-and-drop и синхронизацией GLOBAL
@@ -82,12 +82,12 @@ Plans:
   2. Поиск и фильтрация по source/destination/rule/proxy работают
   3. Кнопка закрытия соединения работает
   4. Лог-стрим показывает все уровни с фильтрацией
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 04-01-PLAN.md -- Инфраструктура: @tanstack/react-virtual, shadcn Tabs, Zustand stores (connections + logs), API, табовая страница с WebSocket
-- [ ] 04-02-PLAN.md -- Connections tab: виртуализированная таблица, тулбар с фильтрами, раскрывающиеся строки, закрытие соединений
-- [ ] 04-03-PLAN.md -- Logs tab: мини-карточки логов, бейджи уровней, авто-скролл, очистка, экспорт TXT/JSON
+- [x] 04-01-PLAN.md -- Инфраструктура: @tanstack/react-virtual, shadcn Tabs, Zustand stores (connections + logs), API, табовая страница с WebSocket
+- [x] 04-02-PLAN.md -- Connections tab: виртуализированная таблица, тулбар с фильтрами, раскрывающиеся строки, закрытие соединений
+- [x] 04-03-PLAN.md -- Logs tab: мини-карточки логов, бейджи уровней, авто-скролл, очистка, экспорт TXT/JSON
 
 ### Phase 5: Config Raw Editor
 **Goal**: Полноценный YAML-редактор с валидацией и live-логом
@@ -175,7 +175,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 | 1. Scaffold + Config API + Setup | 4/4 | Complete | 2026-02-27 |
 | 2. Overview + Service Mgmt | 3/5 | Complete    | 2026-02-27 |
 | 3. Proxies Page | 2/2 | Complete    | 2026-02-27 |
-| 4. Connections + Logs | 0/3 | Planned | - |
+| 4. Connections + Logs | 3/3 | Complete | 2026-02-28 |
 | 5. Config Raw Editor | 0/? | Not started | - |
 | 6. Rules Visual Editor | 0/? | Not started | - |
 | 7. Groups Editor | 0/? | Not started | - |
