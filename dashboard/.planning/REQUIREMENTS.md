@@ -38,16 +38,16 @@
 
 ### Connections Page
 
-- [ ] **CONN-01**: Real-time table of active connections with source, destination, rule, proxy, speed
-- [ ] **CONN-02**: User can search and filter connections
-- [ ] **CONN-03**: User can close individual connections
+- [x] **CONN-01**: Real-time table of active connections with source, destination, rule, proxy, speed
+- [x] **CONN-02**: User can search and filter connections
+- [x] **CONN-03**: User can close individual connections
 
 ### Logs Page
 
-- [ ] **LOGS-01**: Real-time log stream via WebSocket
-- [ ] **LOGS-02**: User can filter logs by level (info/warning/error)
-- [ ] **LOGS-03**: User can search within logs
-- [ ] **LOGS-04**: Auto-scroll toggle, clear, export functionality
+- [x] **LOGS-01**: Real-time log stream via WebSocket
+- [x] **LOGS-02**: User can filter logs by level (info/warning/error)
+- [x] **LOGS-03**: User can search within logs
+- [x] **LOGS-04**: Auto-scroll toggle, clear, export functionality
 
 ### Config Editor
 
@@ -149,13 +149,13 @@
 | PROX-01 | Phase 3 | Complete |
 | PROX-02 | Phase 3 | Complete |
 | PROX-03 | Phase 3 | Complete |
-| CONN-01 | Phase 4 | Pending |
-| CONN-02 | Phase 4 | Pending |
-| CONN-03 | Phase 4 | Pending |
-| LOGS-01 | Phase 4 | Pending |
-| LOGS-02 | Phase 4 | Pending |
-| LOGS-03 | Phase 4 | Pending |
-| LOGS-04 | Phase 4 | Pending |
+| CONN-01 | Phase 4 | Complete |
+| CONN-02 | Phase 4 | Complete |
+| CONN-03 | Phase 4 | Complete |
+| LOGS-01 | Phase 4 | Complete |
+| LOGS-02 | Phase 4 | Complete |
+| LOGS-03 | Phase 4 | Complete |
+| LOGS-04 | Phase 4 | Complete |
 | EDIT-01 | Phase 5 | Pending |
 | EDIT-02 | Phase 5 | Pending |
 | EDIT-03 | Phase 5 | Pending |

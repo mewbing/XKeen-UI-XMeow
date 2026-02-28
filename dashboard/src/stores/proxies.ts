@@ -1,7 +1,7 @@
 /**
  * Zustand store for proxies page state.
  *
- * Holds proxy data from GET /proxies, delay test cache with 15s TTL,
+ * Holds proxy data from GET /proxies, delay test results,
  * UI state for expanded groups and testing indicators.
  *
  * NOT persisted -- all data is volatile real-time state.
@@ -12,7 +12,6 @@ import type { Proxy } from '@/lib/mihomo-api'
 import { fetchProxies, selectProxy, fetchProxyDelay, fetchGroupDelay } from '@/lib/mihomo-api'
 import { toast } from 'sonner'
 
-const DELAY_CACHE_TTL = 15_000 // 15 seconds
 
 interface DelayResult {
   delay: number      // ms, 0 = timeout
@@ -41,13 +40,25 @@ interface ProxiesState {
   isDelayCacheValid: (proxyName: string) => boolean
 }
 
+function loadExpandedGroups(): Set<string> {
+  try {
+    const saved = localStorage.getItem('expandedGroups')
+    if (saved) return new Set(JSON.parse(saved))
+  } catch { /* ignore */ }
+  return new Set()
+}
+
+function saveExpandedGroups(groups: Set<string>) {
+  localStorage.setItem('expandedGroups', JSON.stringify([...groups]))
+}
+
 export const useProxiesStore = create<ProxiesState>()((set, get) => ({
   // Initialize empty
   proxyMap: {},
   groupNames: [],
   delayCache: {},
 
-  expandedGroups: new Set<string>(),
+  expandedGroups: loadExpandedGroups(),
   loading: false,
   testingGroups: new Set<string>(),
   testingProxies: new Set<string>(),
@@ -58,18 +69,33 @@ export const useProxiesStore = create<ProxiesState>()((set, get) => ({
       const data = await fetchProxies()
       const proxies = data.proxies
 
-      // Extract groups: objects with `all` defined, exclude GLOBAL and hidden
-      const groupNames = Object.values(proxies)
-        .filter(
-          (p) =>
-            p.all !== undefined &&
-            p.name !== 'GLOBAL' &&
-            p.hidden !== true
-        )
-        .map((p) => p.name)
-        .sort((a, b) => a.localeCompare(b))
+      // Extract groups in GLOBAL config order
+      const globalOrder = proxies['GLOBAL']?.all ?? []
+      const groupSet = new Set(
+        Object.values(proxies)
+          .filter(
+            (p) =>
+              p.all !== undefined &&
+              p.name !== 'GLOBAL' &&
+              p.hidden !== true
+          )
+          .map((p) => p.name)
+      )
+      const groupNames = globalOrder.filter((name) => groupSet.has(name))
 
-      set({ proxyMap: proxies, groupNames, loading: false })
+      // Extract initial delays from proxy history
+      const initialCache: Record<string, DelayResult> = {}
+      const now = Date.now()
+      for (const proxy of Object.values(proxies)) {
+        if (proxy.history && proxy.history.length > 0) {
+          const latest = proxy.history[proxy.history.length - 1]
+          if (latest.delay > 0) {
+            initialCache[proxy.name] = { delay: latest.delay, testedAt: now }
+          }
+        }
+      }
+
+      set({ proxyMap: proxies, groupNames, delayCache: initialCache, loading: false })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to fetch proxies'
       toast.error(message)
@@ -84,6 +110,7 @@ export const useProxiesStore = create<ProxiesState>()((set, get) => ({
     } else {
       expanded.add(groupName)
     }
+    saveExpandedGroups(expanded)
     set({ expandedGroups: expanded })
   },
 
@@ -121,11 +148,7 @@ export const useProxiesStore = create<ProxiesState>()((set, get) => ({
   },
 
   testProxyDelay: async (proxyName) => {
-    // Check cache
-    const cached = get().delayCache[proxyName]
-    if (cached && Date.now() - cached.testedAt < DELAY_CACHE_TTL) {
-      return cached.delay
-    }
+    // Always test fresh — no cache check
 
     // Add to testing set
     set((state) => ({
@@ -201,19 +224,52 @@ export const useProxiesStore = create<ProxiesState>()((set, get) => ({
   },
 
   testAllGroups: async () => {
-    const { groupNames } = get()
+    const { groupNames, proxyMap } = get()
 
-    // Sequential to avoid overloading the router
+    // Collect all unique proxy names (non-group nodes)
+    const uniqueProxies = new Set<string>()
     for (const groupName of groupNames) {
-      await get().testGroupDelay(groupName)
+      const group = proxyMap[groupName]
+      if (group?.all) {
+        for (const name of group.all) {
+          // Skip if it's a group itself (groups can contain other groups)
+          if (!proxyMap[name]?.all) {
+            uniqueProxies.add(name)
+          }
+        }
+      }
     }
 
-    toast.success('All groups tested')
+    // Mark all as testing
+    set({ testingProxies: new Set(uniqueProxies) })
+
+    // Test all proxies in parallel
+    const newCache: Record<string, DelayResult> = { ...get().delayCache }
+    const now = Date.now()
+
+    await Promise.allSettled(
+      [...uniqueProxies].map(async (proxyName) => {
+        try {
+          const result = await fetchProxyDelay(proxyName)
+          newCache[proxyName] = { delay: result.delay, testedAt: now }
+        } catch {
+          newCache[proxyName] = { delay: 0, testedAt: now }
+        }
+      })
+    )
+
+    // Single batch update
+    set({
+      delayCache: newCache,
+      testingProxies: new Set<string>(),
+    })
+
+    toast.success('All proxies tested')
   },
 
-  isDelayCacheValid: (proxyName) => {
-    const cached = get().delayCache[proxyName]
-    if (!cached) return false
-    return Date.now() - cached.testedAt < DELAY_CACHE_TTL
+  isDelayCacheValid: (proxyName: string) => {
+    const entry = get().delayCache[proxyName]
+    if (!entry) return false
+    return Date.now() - entry.testedAt < 15_000
   },
 }))

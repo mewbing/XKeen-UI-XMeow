@@ -1,4 +1,5 @@
-import { Search, Zap } from 'lucide-react'
+import { Search, Zap, Loader2 } from 'lucide-react'
+
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -60,11 +61,15 @@ export function ProxiesToolbar({
       <Button
         variant="outline"
         size="sm"
+        className="active:scale-95 transition-transform"
         onClick={() => useProxiesStore.getState().testAllGroups()}
         disabled={testingGroups.size > 0}
       >
-        <Zap className="size-4" />
-        Тестировать все
+        {testingGroups.size > 0
+          ? <Loader2 className="size-4 animate-spin" />
+          : <Zap className="size-4" />
+        }
+        {testingGroups.size > 0 ? 'Тестирование...' : 'Тестировать все'}
       </Button>
 
       {/* Settings popover */}

@@ -1,17 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Search } from 'lucide-react'
-import { cn } from '@/lib/utils'
+
 import { Skeleton } from '@/components/ui/skeleton'
 import { useProxiesStore } from '@/stores/proxies'
 import { useSettingsStore } from '@/stores/settings'
 import { ProxiesToolbar } from '@/components/proxies/ProxiesToolbar'
 import { ProxyGroupCard } from '@/components/proxies/ProxyGroupCard'
-
-const GRID_COLS_CLASS: Record<number, string> = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-1 md:grid-cols-2',
-  3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-}
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 export default function ProxiesPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -25,7 +20,20 @@ export default function ProxiesPage() {
   const density = useSettingsStore((s) => s.proxiesDensity)
   const sort = useSettingsStore((s) => s.proxiesSort)
   const typeStyle = useSettingsStore((s) => s.proxiesTypeStyle)
-  const showAutoInfo = useSettingsStore((s) => s.proxiesShowAutoInfo)
+
+
+  // Responsive column count: on small screens always 1, md = up to 2, lg = up to 3
+  const isMd = useMediaQuery('(min-width: 768px)')
+  const isLg = useMediaQuery('(min-width: 1024px)')
+
+  const effectiveCols = useMemo(() => {
+    if (gridColumns === 1) return 1
+    if (gridColumns === 2) return isMd ? 2 : 1
+    // gridColumns === 3
+    if (isLg) return 3
+    if (isMd) return 2
+    return 1
+  }, [gridColumns, isMd, isLg])
 
   // Fetch proxies on mount
   useEffect(() => {
@@ -55,6 +63,15 @@ export default function ProxiesPage() {
     })
   }, [groupNames, proxyMap, typeFilter, searchQuery])
 
+  // Masonry: distribute items round-robin into columns (left-to-right order, no gaps)
+  const columns = useMemo(() => {
+    const cols: string[][] = Array.from({ length: effectiveCols }, () => [])
+    filteredGroups.forEach((name, i) => {
+      cols[i % effectiveCols].push(name)
+    })
+    return cols
+  }, [filteredGroups, effectiveCols])
+
   // Loading skeleton
   if (loading) {
     return (
@@ -66,9 +83,13 @@ export default function ProxiesPage() {
           <Skeleton className="h-8 w-36" />
           <Skeleton className="h-9 w-9" />
         </div>
-        <div className={cn('grid gap-4', GRID_COLS_CLASS[gridColumns])}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-[100px] rounded-xl" />
+        <div className="flex gap-4">
+          {Array.from({ length: effectiveCols }).map((_, col) => (
+            <div key={col} className="flex-1 flex flex-col gap-4">
+              {Array.from({ length: Math.ceil(6 / effectiveCols) }).map((_, i) => (
+                <Skeleton key={i} className="h-[100px] rounded-xl" />
+              ))}
+            </div>
           ))}
         </div>
       </div>
@@ -95,16 +116,19 @@ export default function ProxiesPage() {
           )}
         </div>
       ) : (
-        <div className={cn('grid gap-4', GRID_COLS_CLASS[gridColumns])}>
-          {filteredGroups.map((name) => (
-            <ProxyGroupCard
-              key={name}
-              groupName={name}
-              density={density}
-              typeStyle={typeStyle}
-              showAutoInfo={showAutoInfo}
-              sortBy={sort}
-            />
+        <div key={effectiveCols} className="flex gap-4 animate-in fade-in-0 duration-200">
+          {columns.map((col, colIdx) => (
+            <div key={colIdx} className="flex-1 flex flex-col gap-4 min-w-0">
+              {col.map((name) => (
+                <ProxyGroupCard
+                  key={name}
+                  groupName={name}
+                  density={density}
+                  typeStyle={typeStyle}
+                  sortBy={sort}
+                />
+              ))}
+            </div>
           ))}
         </div>
       )}
