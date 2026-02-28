@@ -13,11 +13,25 @@ interface SettingsState {
   startPage: 'overview' | 'last-visited' | string
   lastVisitedPage: string
 
+  // Appearance
+  reduceMotion: boolean
+
+  // Network latency targets
+  latencyTargets: Array<{ name: string; url: string }>
+
+  // Connections/Logs layout
+  splitMode: 'none' | 'vertical' | 'horizontal'
+  syncScroll: boolean
+  maxLogEntries: number
+
+  // Config editor
+  showDiffBeforeApply: boolean
+
   // Proxies page settings
   proxiesGridColumns: 1 | 2 | 3
   proxiesDensity: 'min' | 'mid' | 'max'
   proxiesSort: 'name' | 'delay' | 'default'
-  proxiesTypeStyle: 'badge' | 'border' | 'icon'
+  proxiesTypeStyle: 'badge' | 'border' | 'icon' | 'none'
   proxiesShowAutoInfo: boolean
 
   // Actions
@@ -32,10 +46,25 @@ interface SettingsState {
   setProxiesGridColumns: (cols: 1 | 2 | 3) => void
   setProxiesDensity: (d: 'min' | 'mid' | 'max') => void
   setProxiesSort: (s: 'name' | 'delay' | 'default') => void
-  setProxiesTypeStyle: (s: 'badge' | 'border' | 'icon') => void
+  setProxiesTypeStyle: (s: 'badge' | 'border' | 'icon' | 'none') => void
+  setReduceMotion: (v: boolean) => void
+  setShowDiffBeforeApply: (v: boolean) => void
   setProxiesShowAutoInfo: (v: boolean) => void
+  cycleSplitMode: () => void
+  toggleSyncScroll: () => void
+  setMaxLogEntries: (n: number) => void
+  setLatencyTargets: (targets: Array<{ name: string; url: string }>) => void
+  addLatencyTarget: (target: { name: string; url: string }) => void
+  removeLatencyTarget: (index: number) => void
   resetConfig: () => void
 }
+
+const defaultLatencyTargets = [
+  { name: 'Cloudflare', url: 'https://www.cloudflare.com/cdn-cgi/trace' },
+  { name: 'Google', url: 'https://www.gstatic.com/generate_204' },
+  { name: 'YouTube', url: 'https://www.youtube.com/generate_204' },
+  { name: 'GitHub', url: 'https://github.com' },
+]
 
 const initialState = {
   isConfigured: false,
@@ -45,11 +74,17 @@ const initialState = {
   configApiUrl: '',
   startPage: 'overview' as const,
   lastVisitedPage: '/overview',
+  reduceMotion: false,
+  latencyTargets: defaultLatencyTargets,
   proxiesGridColumns: 3 as 1 | 2 | 3,
   proxiesDensity: 'mid' as const,
   proxiesSort: 'default' as const,
   proxiesTypeStyle: 'badge' as const,
   proxiesShowAutoInfo: true,
+  showDiffBeforeApply: false,
+  splitMode: 'none' as const,
+  syncScroll: false,
+  maxLogEntries: 1000,
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -74,7 +109,26 @@ export const useSettingsStore = create<SettingsState>()(
       setProxiesDensity: (d) => set({ proxiesDensity: d }),
       setProxiesSort: (s) => set({ proxiesSort: s }),
       setProxiesTypeStyle: (s) => set({ proxiesTypeStyle: s }),
+      setReduceMotion: (v) => set({ reduceMotion: v }),
+      setShowDiffBeforeApply: (v) => set({ showDiffBeforeApply: v }),
       setProxiesShowAutoInfo: (v) => set({ proxiesShowAutoInfo: v }),
+      cycleSplitMode: () =>
+        set((state) => {
+          const next = { none: 'vertical', vertical: 'horizontal', horizontal: 'none' } as const
+          return { splitMode: next[state.splitMode] }
+        }),
+      toggleSyncScroll: () =>
+        set((state) => ({ syncScroll: !state.syncScroll })),
+      setMaxLogEntries: (n) => set({ maxLogEntries: Math.max(100, Math.min(10000, n)) }),
+      setLatencyTargets: (targets) => set({ latencyTargets: targets }),
+      addLatencyTarget: (target) =>
+        set((state) => ({
+          latencyTargets: [...state.latencyTargets, target],
+        })),
+      removeLatencyTarget: (index) =>
+        set((state) => ({
+          latencyTargets: state.latencyTargets.filter((_, i) => i !== index),
+        })),
 
       resetConfig: () => set({ ...initialState }),
     }),
