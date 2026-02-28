@@ -14,6 +14,7 @@ interface SettingsState {
   lastVisitedPage: string
 
   // Appearance
+  theme: 'light' | 'dark' | 'system'
   reduceMotion: boolean
 
   // Network latency targets
@@ -34,6 +35,14 @@ interface SettingsState {
   proxiesTypeStyle: 'badge' | 'border' | 'icon' | 'none'
   proxiesShowAutoInfo: boolean
 
+  // Rules editor
+  rulesGrouping: 'proxy-group' | 'sections' | 'two-level'
+  rulesLayout: 'list' | 'grid' | 'proxies'
+  rulesDensity: 'min' | 'detailed'
+  rulesConfirmDelete: boolean
+  rulesShowDiffBeforeApply: boolean
+  rulesNewBlockMode: 'dialog' | 'inline'
+
   // Actions
   setConfigured: (config: {
     type: 'local' | 'cdn'
@@ -47,6 +56,7 @@ interface SettingsState {
   setProxiesDensity: (d: 'min' | 'mid' | 'max') => void
   setProxiesSort: (s: 'name' | 'delay' | 'default') => void
   setProxiesTypeStyle: (s: 'badge' | 'border' | 'icon' | 'none') => void
+  setTheme: (t: 'light' | 'dark' | 'system') => void
   setReduceMotion: (v: boolean) => void
   setShowDiffBeforeApply: (v: boolean) => void
   setProxiesShowAutoInfo: (v: boolean) => void
@@ -56,6 +66,12 @@ interface SettingsState {
   setLatencyTargets: (targets: Array<{ name: string; url: string }>) => void
   addLatencyTarget: (target: { name: string; url: string }) => void
   removeLatencyTarget: (index: number) => void
+  setRulesGrouping: (v: 'proxy-group' | 'sections' | 'two-level') => void
+  setRulesLayout: (v: 'list' | 'grid' | 'proxies') => void
+  setRulesDensity: (v: 'min' | 'detailed') => void
+  setRulesConfirmDelete: (v: boolean) => void
+  setRulesShowDiffBeforeApply: (v: boolean) => void
+  setRulesNewBlockMode: (v: 'dialog' | 'inline') => void
   resetConfig: () => void
 }
 
@@ -74,6 +90,7 @@ const initialState = {
   configApiUrl: '',
   startPage: 'overview' as const,
   lastVisitedPage: '/overview',
+  theme: 'system' as const,
   reduceMotion: false,
   latencyTargets: defaultLatencyTargets,
   proxiesGridColumns: 3 as 1 | 2 | 3,
@@ -85,6 +102,12 @@ const initialState = {
   splitMode: 'none' as const,
   syncScroll: false,
   maxLogEntries: 1000,
+  rulesGrouping: 'proxy-group' as const,
+  rulesLayout: 'list' as const,
+  rulesDensity: 'min' as const,
+  rulesConfirmDelete: true,
+  rulesShowDiffBeforeApply: true,
+  rulesNewBlockMode: 'dialog' as const,
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -109,6 +132,7 @@ export const useSettingsStore = create<SettingsState>()(
       setProxiesDensity: (d) => set({ proxiesDensity: d }),
       setProxiesSort: (s) => set({ proxiesSort: s }),
       setProxiesTypeStyle: (s) => set({ proxiesTypeStyle: s }),
+      setTheme: (t) => set({ theme: t }),
       setReduceMotion: (v) => set({ reduceMotion: v }),
       setShowDiffBeforeApply: (v) => set({ showDiffBeforeApply: v }),
       setProxiesShowAutoInfo: (v) => set({ proxiesShowAutoInfo: v }),
@@ -129,6 +153,13 @@ export const useSettingsStore = create<SettingsState>()(
         set((state) => ({
           latencyTargets: state.latencyTargets.filter((_, i) => i !== index),
         })),
+
+      setRulesGrouping: (v) => set({ rulesGrouping: v }),
+      setRulesLayout: (v) => set({ rulesLayout: v }),
+      setRulesDensity: (v) => set({ rulesDensity: v }),
+      setRulesConfirmDelete: (v) => set({ rulesConfirmDelete: v }),
+      setRulesShowDiffBeforeApply: (v) => set({ rulesShowDiffBeforeApply: v }),
+      setRulesNewBlockMode: (v) => set({ rulesNewBlockMode: v }),
 
       resetConfig: () => set({ ...initialState }),
     }),
