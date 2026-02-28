@@ -98,7 +98,12 @@ Plans:
   2. Табы переключают между config, ip_exclude, port_exclude, port_proxying
   3. Индикатор валидности YAML обновляется при редактировании
   4. При нажатии Apply в панели логов видна реакция mihomo
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md -- Инфраструктура: установка Monaco Editor, js-yaml, shadcn resizable, Zustand store, расширение API-клиента
+- [ ] 05-02-PLAN.md -- Ядро редактора: Monaco Editor обёртка, тулбар с табами, Save/Apply/Format, YAML-валидация, диалоги
+- [ ] 05-03-PLAN.md -- Лог-панель, diff-превью, ресайзабельная раскладка, сборка ConfigEditorPage
 
 ### Phase 6: Rules Visual Editor
 **Goal**: Визуальное редактирование правил с drag-and-drop приоритизацией
@@ -176,7 +181,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 | 2. Overview + Service Mgmt | 3/5 | Complete    | 2026-02-27 |
 | 3. Proxies Page | 2/2 | Complete    | 2026-02-27 |
 | 4. Connections + Logs | 3/3 | Complete | 2026-02-28 |
-| 5. Config Raw Editor | 0/? | Not started | - |
+| 5. Config Raw Editor | 0/3 | Planned | - |
 | 6. Rules Visual Editor | 0/? | Not started | - |
 | 7. Groups Editor | 0/? | Not started | - |
 | 8. Providers Page | 0/? | Not started | - |
