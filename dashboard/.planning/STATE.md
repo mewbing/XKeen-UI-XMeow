@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 4 -- Connections & Logs
+**Current focus:** Phase 5 -- Config Raw Editor
 
 ## Current Position
 
-Phase: 4 of 11 (Connections & Logs)
-Plan: 3 of 3 in current phase (COMPLETE)
-Status: Phase 04 complete -- all plans executed
-Last activity: 2026-02-28 -- Plan 04-03 executed
+Phase: 5 of 11 (Config Raw Editor)
+Plan: 1 of 3 in current phase
+Status: Plan 05-01 complete -- infrastructure ready
+Last activity: 2026-02-28 -- Plan 05-01 executed
 
-Progress: [█████████░] 51% (28/55 requirements)
+Progress: [██████████] 56% (31/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: 4 min
-- Total execution time: 0.84 hours
+- Total execution time: 0.89 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -39,6 +39,7 @@ Progress: [█████████░] 51% (28/55 requirements)
 | 04 | 01 | 5min | 2 | 8 |
 | 04 | 02 | 8min | 2 | 6 |
 | 04 | 03 | 15min | 2 | 4 |
+| 05 | 01 | 3min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Progress: [█████████░] 51% (28/55 requirements)
 - [Phase 02]: Tailwind v4 color pattern: use var(--color) directly, never wrap in hsl() -- CSS vars contain complete oklch() values
 - [Phase 02]: Zustand guard pattern: setStartTime only sets if null to prevent overwrite on remount
 - [Phase 04]: Fixed pre-existing TS errors from Phase 03 (unused cn imports, missing isDelayCacheValid) that blocked tsc -b build
+- [Phase 05]: Config editor store is volatile (no persist) -- content loaded fresh on page visit
+- [Phase 05]: Log ring buffer max 500 entries for apply-time streaming (separate from logs page 1000 limit)
 
 ### Pending Todos
 
@@ -92,5 +95,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 04-03-PLAN.md (Logs Tab Components)
-Resume file: .planning/phases/04-connections-logs/04-03-SUMMARY.md
+Stopped at: Completed 05-01-PLAN.md (Config Editor Infrastructure)
+Resume file: .planning/phases/05-config-raw-editor/05-01-SUMMARY.md
