@@ -54,7 +54,7 @@
 - [x] **EDIT-01**: Monaco editor with YAML syntax highlighting for config.yaml
 - [x] **EDIT-02**: Tabs for switching between config, ip_exclude, port_exclude, port_proxying
 - [x] **EDIT-03**: YAML validation indicator ("YAML valid" / "Error at line X")
-- [ ] **EDIT-04**: Live log panel below editor showing mihomo response on Apply
+- [x] **EDIT-04**: Live log panel below editor showing mihomo response on Apply
 - [x] **EDIT-05**: Apply, Save, Format buttons
 
 ### Rules Visual Editor
@@ -159,7 +159,7 @@
 | EDIT-01 | Phase 5 | Complete |
 | EDIT-02 | Phase 5 | Complete |
 | EDIT-03 | Phase 5 | Complete |
-| EDIT-04 | Phase 5 | Pending |
+| EDIT-04 | Phase 5 | Complete |
 | EDIT-05 | Phase 5 | Complete |
 | RULE-01 | Phase 6 | Pending |
 | RULE-02 | Phase 6 | Pending |
