@@ -63,9 +63,9 @@
 - [x] **RULE-02**: Each block shows title, rule count, target proxy-group
 - [x] **RULE-03**: Drag-and-drop to reorder blocks (change rule priority)
 - [x] **RULE-04**: Click block to expand and see individual rules inside
-- [ ] **RULE-05**: Add/remove individual rules within a block
-- [ ] **RULE-06**: Change target proxy-group for a block
-- [ ] **RULE-07**: Create new rule block
+- [x] **RULE-05**: Add/remove individual rules within a block
+- [x] **RULE-06**: Change target proxy-group for a block
+- [x] **RULE-07**: Create new rule block
 - [x] **RULE-08**: Changes saved back to config.yaml rules section
 
 ### Groups Editor

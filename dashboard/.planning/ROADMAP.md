@@ -188,7 +188,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 | 3. Proxies Page | 2/2 | Complete    | 2026-02-27 |
 | 4. Connections + Logs | 3/3 | Complete | 2026-02-28 |
 | 5. Config Raw Editor | 0/3 | Complete    | 2026-02-28 |
-| 6. Rules Visual Editor | 2/4 | In Progress | - |
+| 6. Rules Visual Editor | 3/4 | In Progress | - |
 | 7. Groups Editor | 0/? | Not started | - |
 | 8. Providers Page | 0/? | Not started | - |
 | 9. Geodata Viewer | 0/? | Not started | - |

@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 6 of 11 (Rules Visual Editor)
-Plan: 3 of 4 in current phase
-Status: Plan 06-02 complete -- visual components (block cards, DnD, toolbar, page)
-Last activity: 2026-03-01 -- Plan 06-02 executed
+Plan: 4 of 4 in current phase
+Status: Plan 06-03 complete -- editing dialogs, inline controls, nested DnD
+Last activity: 2026-03-01 -- Plan 06-03 executed
 
-Progress: [████████████░░░░░░░░] 65% (36/55 requirements)
+Progress: [██████████████░░░░░░] 71% (39/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: 4 min
 - Total execution time: 1.03 hours
 
@@ -44,6 +44,7 @@ Progress: [████████████░░░░░░░░] 65% (36
 | 05 | 03 | 4min | 2 | 4 |
 | 06 | 01 | 4min | 2 | 5 |
 | 06 | 02 | 26min | 2 | 5 |
+| 06 | 03 | 8min | 2 | 6 |
 
 ## Accumulated Context
 
@@ -100,6 +101,11 @@ Progress: [████████████░░░░░░░░] 65% (36
 - [Phase 06]: PointerSensor distance:8 activation constraint prevents accidental drags
 - [Phase 06]: restrictToVerticalAxis modifier only in list layout
 - [Phase 06]: Russian plural function for rule counts (1/2-4/5+ forms)
+- [Phase 06]: Nested DndContext for intra-block rule reordering (independent from block-level DnD)
+- [Phase 06]: Delete confirmation with dont-ask-again Switch persisted to settings store
+- [Phase 06]: RuleRow target dropdown only shown when hasMixedTargets
+- [Phase 06]: AddRuleDialog no-resolve switch only for IP-based rule types
+- [Phase 06]: Block name and chevron are separate clickable elements for expand-collapse
 
 ### Pending Todos
 
@@ -112,5 +118,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 06-02-PLAN.md (Visual components, block cards, DnD, toolbar, page)
-Resume file: .planning/phases/06-rules-visual-editor/06-02-SUMMARY.md
+Stopped at: Completed 06-03-PLAN.md (Editing dialogs, inline controls, nested DnD)
+Resume file: .planning/phases/06-rules-visual-editor/06-03-SUMMARY.md
