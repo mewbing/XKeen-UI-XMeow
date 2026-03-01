@@ -2,17 +2,33 @@
  * Single rule row displayed inside an expanded block.
  *
  * Shows: position number, type badge (colored by category),
- * value text (truncated), and target proxy-group name.
+ * value text (truncated), target proxy-group dropdown,
+ * and delete button. Wrapped with useSortable for drag-reorder.
  */
 
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { Trash2, GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import type { ParsedRule } from '@/lib/rules-parser'
 
 interface RuleRowProps {
   rule: ParsedRule
   index: number
   showTarget: boolean
+  blockId: string
+  proxyGroups: string[]
+  onChangeTarget: (ruleId: string, newTarget: string) => void
+  onRemove: (ruleId: string) => void
 }
 
 /** Map rule type to color category for the badge */
@@ -33,9 +49,39 @@ function getTypeBadgeClass(type: string): string {
   return 'bg-muted text-muted-foreground border-border'
 }
 
-export function RuleRow({ rule, index, showTarget }: RuleRowProps) {
+export function RuleRow({ rule, index, showTarget, blockId: _blockId, proxyGroups, onChangeTarget, onRemove }: RuleRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: rule.id })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
   return (
-    <div className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-accent/30 transition-colors text-sm">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'flex items-center gap-2 px-2 py-1 rounded-md hover:bg-accent/30 transition-colors text-sm group',
+        isDragging && 'opacity-50',
+      )}
+    >
+      {/* Drag handle */}
+      <button
+        className="cursor-grab touch-none text-muted-foreground/40 hover:text-muted-foreground shrink-0"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="size-3.5" />
+      </button>
+
       {/* Position number */}
       <span className="text-[11px] tabular-nums text-muted-foreground w-7 text-right shrink-0 font-mono">
         #{index + 1}
@@ -57,19 +103,44 @@ export function RuleRow({ rule, index, showTarget }: RuleRowProps) {
         {rule.value || (rule.type === 'MATCH' ? '(fallback)' : '')}
       </span>
 
-      {/* Target proxy-group */}
-      {showTarget && (
-        <span className="text-xs text-muted-foreground shrink-0 truncate max-w-[120px]">
-          {rule.target}
-        </span>
-      )}
-
       {/* no-resolve flag */}
       {rule.noResolve && (
         <span className="text-[10px] text-muted-foreground/60 shrink-0">
           no-resolve
         </span>
       )}
+
+      {/* Target proxy-group dropdown */}
+      {showTarget && (
+        <Select
+          value={rule.target}
+          onValueChange={(v) => onChangeTarget(rule.id, v)}
+        >
+          <SelectTrigger className="h-7 text-xs w-auto min-w-[80px] max-w-[140px] shrink-0">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {proxyGroups.map((pg) => (
+              <SelectItem key={pg} value={pg}>
+                {pg}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
+      {/* Delete button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+        onClick={(e) => {
+          e.stopPropagation()
+          onRemove(rule.id)
+        }}
+      >
+        <Trash2 className="size-3.5" />
+      </Button>
     </div>
   )
 }

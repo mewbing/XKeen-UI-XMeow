@@ -56,6 +56,7 @@ interface SortableBlockCardProps {
   density: 'min' | 'detailed'
   isExpanded: boolean
   onToggleExpand: () => void
+  proxyGroups: string[]
 }
 
 function SortableBlockCard({
@@ -64,6 +65,7 @@ function SortableBlockCard({
   density,
   isExpanded,
   onToggleExpand,
+  proxyGroups,
 }: SortableBlockCardProps) {
   const {
     attributes,
@@ -94,6 +96,7 @@ function SortableBlockCard({
         isExpanded={isExpanded}
         onToggleExpand={onToggleExpand}
         isDragging={isDragging}
+        proxyGroups={proxyGroups}
       />
     </div>
   )
@@ -252,6 +255,7 @@ export function RuleBlockList({
               density={density}
               isExpanded={expandedBlocks.has(block.id)}
               onToggleExpand={() => onToggleExpand(block.id)}
+              proxyGroups={proxyGroups}
             />
           ))}
 
@@ -271,6 +275,7 @@ export function RuleBlockList({
             density={density}
             isExpanded={false}
             onToggleExpand={() => {}}
+            proxyGroups={proxyGroups}
           />
         )}
       </DragOverlay>
