@@ -10,7 +10,7 @@
 import { useState } from 'react'
 import {
   Layers, BookOpen, GitBranch, List, LayoutGrid, CreditCard,
-  AlignJustify, FileText, Search, Undo2, Redo2, RotateCcw, Save, Play,
+  AlignJustify, FileText, Search, Undo2, Redo2, RotateCcw, Save, Play, Plus,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -27,6 +27,8 @@ import { useRulesEditorStore } from '@/stores/rules-editor'
 import { saveConfig } from '@/lib/config-api'
 import { restartMihomo } from '@/lib/mihomo-api'
 import { RulesDiffPreview } from './RulesDiffPreview'
+import { NewBlockDialog } from './NewBlockDialog'
+
 interface RulesToolbarProps {
   searchQuery: string
   onSearchChange: (query: string) => void
@@ -41,13 +43,16 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
   const setLayout = useSettingsStore((s) => s.setRulesLayout)
   const setDensity = useSettingsStore((s) => s.setRulesDensity)
   const rulesShowDiffBeforeApply = useSettingsStore((s) => s.rulesShowDiffBeforeApply)
+  const rulesNewBlockMode = useSettingsStore((s) => s.rulesNewBlockMode)
 
   const dirty = useRulesEditorStore((s) => s.dirty)
   const changeCount = useRulesEditorStore((s) => s.changeCount)
   const originalYaml = useRulesEditorStore((s) => s.originalYaml)
   const currentYaml = useRulesEditorStore((s) => s.currentYaml)
+  const proxyGroups = useRulesEditorStore((s) => s.proxyGroups)
 
   const [diffOpen, setDiffOpen] = useState(false)
+  const [newBlockOpen, setNewBlockOpen] = useState(false)
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [applying, setApplying] = useState(false)
@@ -143,6 +148,12 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
 
         {/* Action buttons */}
         <div className="ml-auto flex items-center gap-1">
+          {rulesNewBlockMode === 'dialog' && (
+            <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => setNewBlockOpen(true)}>
+              <Plus className="size-4" />
+              Новый блок
+            </Button>
+          )}
           <Button variant="ghost" size="icon" className="size-8" title="Отменить (Ctrl+Z)" disabled={pastStates.length === 0} onClick={handleUndo}>
             <Undo2 className="size-4" />
           </Button>
@@ -186,6 +197,9 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
       {diffOpen && (
         <RulesDiffPreview open={diffOpen} onOpenChange={setDiffOpen} original={originalYaml} modified={currentYaml} onConfirmApply={executeApply} />
       )}
+
+      {/* New block dialog */}
+      <NewBlockDialog open={newBlockOpen} onOpenChange={setNewBlockOpen} proxyGroups={proxyGroups} />
     </>
   )
 }
