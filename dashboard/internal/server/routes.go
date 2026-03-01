@@ -9,11 +9,13 @@ import (
 
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/handler"
+	"github.com/mewbing/XKeen-UI-Xmeow/internal/logwatch"
 )
 
 // NewRouter creates a chi.Mux with all route registrations.
 // spaHandler serves the embedded SPA as a catch-all fallback.
-func NewRouter(cfg *config.AppConfig, spaHandler http.Handler) *chi.Mux {
+// logHub manages WebSocket clients and file watchers.
+func NewRouter(cfg *config.AppConfig, spaHandler http.Handler, logHub *logwatch.LogHub) *chi.Mux {
 	r := chi.NewRouter()
 
 	// Global middleware
@@ -67,18 +69,19 @@ func NewRouter(cfg *config.AppConfig, spaHandler http.Handler) *chi.Mux {
 			r.Get("/system/cpu", h.SystemCPU)
 			r.Get("/system/network", h.SystemNetwork)
 
-			// Log endpoints (plan 03 -- requires logwatch package)
-			// TODO(plan-03): r.Get("/logs/{name}", h.GetLogFile)
-			// TODO(plan-03): r.Get("/logs/{name}/parsed", h.GetParsedLog)
-			// TODO(plan-03): r.Post("/logs/{name}/clear", h.ClearLog)
+			// Log endpoints
+			r.Get("/logs/{name}", h.GetLogFile)
+			r.Get("/logs/{name}/parsed", h.GetParsedLog)
+			r.Post("/logs/{name}/clear", h.ClearLog)
 
 			// Proxy servers endpoint
 			r.Get("/proxies/servers", h.ProxyServers)
 		})
 	})
 
-	// WebSocket route (plan 03)
-	// r.Get("/ws/logs", handler.WsLogStream)
+	// WebSocket route (outside /api group, no auth on WS upgrade)
+	wsLogHandler := handler.NewWsLogHandler(logHub, cfg)
+	r.Get("/ws/logs", wsLogHandler.ServeHTTP)
 
 	// Mihomo reverse proxy (plan 04)
 	// r.Handle("/api/mihomo/*", mihomoProxy)
