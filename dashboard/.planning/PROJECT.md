@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Full-featured SPA dashboard for mihomo proxy on Keenetic router, replacing zashboard. Combines real-time monitoring (proxies, connections, logs) with visual config editing (drag-and-drop rules/groups), geodata browser, raw YAML editor, service management, and self-update. Runs as React SPA in browser + lightweight Python Flask backend on router.
+Full-featured SPA dashboard for mihomo proxy on Keenetic router, replacing zashboard. Combines real-time monitoring (proxies, connections, logs) with visual config editing (drag-and-drop rules/groups), geodata browser, raw YAML editor, service management, and self-update. Runs as React SPA in browser + compiled Go backend on router (single binary, no runtime dependencies).
 
 ## Core Value
 
@@ -12,22 +12,28 @@ Users can visually edit mihomo configuration (reorder rules, manage proxy-groups
 
 ### Validated
 
-(None yet -- ship to validate)
+- ✓ Project scaffold + Config API + setup wizard — Phase 1
+- ✓ Overview page with service management — Phase 2
+- ✓ Proxies page (switch proxies, latency testing) — Phase 3
+- ✓ Connections page (real-time table, search) — Phase 4
+- ✓ Logs page (WebSocket stream, filter, search) — Phase 4
+- ✓ Config raw editor with Monaco + live log — Phase 5
+- ✓ Rules visual editor with drag-and-drop — Phase 6
 
-### Active
+### Active (v1.0 — remaining)
 
-- [ ] Project scaffold + Config API + setup wizard
-- [ ] Overview page with service management (start/stop/restart, update kernel)
-- [ ] Proxies page (switch proxies, latency testing)
-- [ ] Connections page (real-time table, search, close connection)
-- [ ] Logs page (WebSocket stream, filter, search)
-- [ ] Config raw editor with tabs (config, ip_exclude, port_exclude, port_proxying) + live log
-- [ ] Rules visual editor with drag-and-drop priority reordering
 - [ ] Groups editor with drag-and-drop + GLOBAL sync
 - [ ] Providers page (rule-providers + proxy-providers status, update)
 - [ ] Geodata Viewer (browse GeoSite/GeoIP files, search, copy as rule format)
-- [ ] Self-update mechanism (dashboard + backend)
 - [ ] Dark + light theme, Russian language
+
+### Active (v2.0 — Go Backend + Installer)
+
+- [ ] Go backend replacing Python Flask (single binary, same API contract)
+- [ ] setup.sh installer (install/update/uninstall, по образцу XKeen-UI)
+- [ ] Self-update mechanism (check GitHub releases + download + restart)
+- [ ] Frontend update UI (auto-check + UpdatesPage + sidebar badge)
+- [ ] GitHub Actions CI (cross-compile arm64/mips32/mips32le + release)
 
 ### Out of Scope
 
@@ -51,7 +57,7 @@ Users can visually edit mihomo configuration (reorder rules, manage proxy-groups
 ## Constraints
 
 - **Platform**: ARM Keenetic router with Entware (mipsel/aarch64), limited RAM (~256MB total)
-- **Backend footprint**: Flask backend must stay under 15MB RAM
+- **Backend footprint**: Go binary must stay under 10MB, minimal RAM usage
 - **Browser-only rendering**: All drag-and-drop, Monaco editor, geodata parsing UI runs in browser
 - **Existing API**: Must work with mihomo REST API (port 9090) as-is, no mihomo modifications
 - **Config format**: Must read/write mihomo YAML config format without breaking existing structure
@@ -63,12 +69,24 @@ Users can visually edit mihomo configuration (reorder rules, manage proxy-groups
 |----------|-----------|---------|
 | React 18 + TypeScript | Type safety, ecosystem, team familiarity | -- Pending |
 | Tailwind CSS | Utility-first, dark/light theme support, small bundle | -- Pending |
-| Python Flask backend | Minimal footprint, runs on Entware, easy to deploy | -- Pending |
+| Python Flask backend → Go | Flask was prototyping; Go for production (single binary, no deps) | ⚠️ Revisit |
+| Go backend (v2.0) | Single binary, cross-compile arm64/mips, same API contract as Flask | — Pending |
 | Monaco Editor for YAML | VS Code quality editing, syntax highlighting, validation | -- Pending |
 | dnd-kit for drag-and-drop | Lightweight, accessible, React-native | -- Pending |
 | SPA replaces zashboard | Full control over UI, no iframe limitations | -- Pending |
 | Setup wizard (local/CDN) | User chooses backend location at first launch | -- Pending |
 | Protobuf parsing on backend | .dat files are binary, must parse server-side, serve as JSON | -- Pending |
 
+## Current Milestone: v2.0 Go Backend + Installer
+
+**Goal:** Переписать Python Flask backend на Go (единый бинарник ~5-8MB), добавить setup.sh installer по образцу XKeen-UI, self-update из GitHub releases, и frontend UI обновлений.
+
+**Target features:**
+- Go backend с 1:1 API совместимостью с Flask server.py
+- setup.sh с интерактивным меню (install/update/uninstall)
+- Self-update через GitHub releases API
+- Frontend: авто-проверка обновлений + страница управления
+- GitHub Actions CI для cross-compilation
+
 ---
-*Last updated: 2026-02-27 after initial definition*
+*Last updated: 2026-03-01 after milestone v2.0 definition*

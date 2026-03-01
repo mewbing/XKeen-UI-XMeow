@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-27)
+See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 6 -- Rules Visual Editor
+**Current focus:** Milestone v2.0 — Go Backend + Installer
 
 ## Current Position
 
-Phase: 6 of 11 (Rules Visual Editor)
-Plan: 4 of 4 in current phase
-Status: Phase 06 complete -- all 4 plans executed
-Last activity: 2026-03-01 -- Plan 06-04 executed (phase complete)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for milestone v2.0
+Last activity: 2026-03-01 — Milestone v2.0 started (Go backend + installer)
 
-Progress: [████████████████░░░░] 78% (43/55 requirements)
+**v1.0 progress:** Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
 
 ## Performance Metrics
 
@@ -122,5 +122,6 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 06-04-PLAN.md (Save/Apply workflow, settings -- phase 06 complete)
-Resume file: .planning/phases/06-rules-visual-editor/06-04-SUMMARY.md
+Stopped at: Started milestone v2.0 — Go Backend + Installer
+Resume file: .planning/PROJECT.md
+Approved plan: C:\Users\ART-PC\.claude\plans\kind-meandering-parrot.md
