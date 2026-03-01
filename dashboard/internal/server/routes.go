@@ -36,6 +36,9 @@ func NewRouter(cfg *config.AppConfig, spaHandler http.Handler) *chi.Mux {
 		return config.GetMihomoSecret(cfg.MihomoConfigPath)
 	}
 
+	// Create handlers with shared config dependency
+	h := handler.NewHandlers(cfg)
+
 	// API routes
 	r.Route("/api", func(r chi.Router) {
 		// Health endpoint -- no auth required (for monitoring)
@@ -45,32 +48,32 @@ func NewRouter(cfg *config.AppConfig, spaHandler http.Handler) *chi.Mux {
 		r.Group(func(r chi.Router) {
 			r.Use(AuthMiddleware(getSecret))
 
-			// Config endpoints (plan 02)
-			// r.Get("/config", handler.GetConfig)
-			// r.Put("/config", handler.PutConfig)
+			// Config endpoints
+			r.Get("/config", h.GetConfig)
+			r.Put("/config", h.PutConfig)
 
-			// Xkeen file endpoints (plan 02)
-			// r.Get("/xkeen/{filename}", handler.GetXkeenFile)
-			// r.Put("/xkeen/{filename}", handler.PutXkeenFile)
+			// Xkeen file endpoints
+			r.Get("/xkeen/{filename}", h.GetXkeenFile)
+			r.Put("/xkeen/{filename}", h.PutXkeenFile)
 
-			// Service management endpoints (plan 02)
-			// r.Post("/service/{action}", handler.ServiceAction)
-			// r.Get("/service/status", handler.ServiceStatus)
+			// Service management endpoints
+			r.Post("/service/{action}", h.ServiceAction)
+			r.Get("/service/status", h.ServiceStatus)
 
-			// Versions endpoint (plan 02)
-			// r.Get("/versions", handler.GetVersions)
+			// Versions endpoint
+			r.Get("/versions", h.GetVersions)
 
-			// System metrics endpoints (plan 02)
-			// r.Get("/system/cpu", handler.SystemCPU)
-			// r.Get("/system/network", handler.SystemNetwork)
+			// System metrics endpoints
+			r.Get("/system/cpu", h.SystemCPU)
+			r.Get("/system/network", h.SystemNetwork)
 
-			// Log endpoints (plan 02)
-			// r.Get("/logs/{name}", handler.GetLogFile)
-			// r.Get("/logs/{name}/parsed", handler.GetParsedLog)
-			// r.Post("/logs/{name}/clear", handler.ClearLog)
+			// Log endpoints (plan 03 -- requires logwatch package)
+			// TODO(plan-03): r.Get("/logs/{name}", h.GetLogFile)
+			// TODO(plan-03): r.Get("/logs/{name}/parsed", h.GetParsedLog)
+			// TODO(plan-03): r.Post("/logs/{name}/clear", h.ClearLog)
 
-			// Proxy servers endpoint (plan 02)
-			// r.Get("/proxies/servers", handler.ProxyServers)
+			// Proxy servers endpoint
+			r.Get("/proxies/servers", h.ProxyServers)
 		})
 	})
 
