@@ -202,7 +202,7 @@ Plans:
   3. SPA загружается из embedded файловой системы по корневому URL -- не нужен отдельный каталог static files
   4. Запросы к mihomo API (:9090) проксируются через Go backend с автоматической подстановкой auth header
   5. Конфиг и xkeen файлы валидируются и бэкапятся перед записью -- поведение идентично Flask
-**Plans:** 1/4 plans executed
+**Plans:** 2/4 plans executed
 
 Plans:
 - [ ] 12-01-PLAN.md -- Go scaffold: module init, chi router, SPA embed, CORS/auth middleware, config loading, health endpoint
@@ -274,7 +274,7 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 9. Geodata Viewer | v1.0 | 0/? | Not started | - |
 | 10. Self-Update | v1.0 | 0/? | Not started | - |
 | 11. Polish + Themes | v1.0 | 0/? | Not started | - |
-| 12. Go Backend Core | 1/4 | In Progress|  | - |
+| 12. Go Backend Core | 2/4 | In Progress|  | - |
 | 13. CI/CD Pipeline | v2.0 | 0/? | Not started | - |
 | 14. Installer (setup.sh) | v2.0 | 0/? | Not started | - |
 | 15. Self-Update Backend | v2.0 | 0/? | Not started | - |

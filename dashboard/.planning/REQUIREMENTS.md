@@ -110,12 +110,12 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 
 ### Go Backend
 
-- [ ] **GOBK-01**: Go binary serves all REST API endpoints identically to Flask backend (15 endpoints)
+- [x] **GOBK-01**: Go binary serves all REST API endpoints identically to Flask backend (15 endpoints)
 - [ ] **GOBK-02**: Go binary streams logs via WebSocket with same protocol (initial/append/clear/ping)
 - [x] **GOBK-03**: Go binary embeds SPA frontend via embed.FS (no separate static files directory)
 - [ ] **GOBK-04**: Go binary reverse-proxies mihomo API on :9090 with auth header injection
-- [ ] **GOBK-05**: Go binary validates YAML before saving config
-- [ ] **GOBK-06**: Go binary creates timestamped backups before config/xkeen writes
+- [x] **GOBK-05**: Go binary validates YAML before saving config
+- [x] **GOBK-06**: Go binary creates timestamped backups before config/xkeen writes
 - [x] **GOBK-07**: Go binary supports CORS middleware for development mode
 - [x] **GOBK-08**: Go binary reads config paths from environment variables with sensible defaults
 
@@ -256,12 +256,12 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GOBK-01 | Phase 12 | Pending |
+| GOBK-01 | Phase 12 | Complete |
 | GOBK-02 | Phase 12 | Pending |
 | GOBK-03 | Phase 12 | Complete |
 | GOBK-04 | Phase 12 | Pending |
-| GOBK-05 | Phase 12 | Pending |
-| GOBK-06 | Phase 12 | Pending |
+| GOBK-05 | Phase 12 | Complete |
+| GOBK-06 | Phase 12 | Complete |
 | GOBK-07 | Phase 12 | Complete |
 | GOBK-08 | Phase 12 | Complete |
 | CICD-01 | Phase 13 | Pending |

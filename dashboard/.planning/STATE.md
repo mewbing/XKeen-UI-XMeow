@@ -23,12 +23,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 12 of 16 (Go Backend Core)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: Executing
-Last activity: 2026-03-02 -- Completed 12-01 Go project scaffold
+Last activity: 2026-03-02 -- Completed 12-02 REST API handlers
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
-v2.0 progress: [██░░░░░░░░] 25% (1/4 plans in phase 12)
+v2.0 progress: [█████░░░░░] 50% (2/4 plans in phase 12)
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ v2.0 progress: [██░░░░░░░░] 25% (1/4 plans in phase 12)
 | 06 | 03 | 8min | 2 | 6 |
 | 06 | 04 | 12min | 3 | 5 |
 | 12 | 01 | 24min | 2 | 12 |
+| 12 | 02 | 3min | 2 | 10 |
 
 ## Accumulated Context
 
@@ -71,6 +72,9 @@ v2.0 progress: [██░░░░░░░░] 25% (1/4 plans in phase 12)
 - [v2.0]: go-selfupdate MIPS mapping нужно тестировать на реальном устройстве
 - [v2.0]: Линейная цепочка зависимостей: Go -> CI -> Installer -> Self-Update -> Frontend UI
 - [Phase 12]: Simple line-scan for mihomo config fields instead of full YAML parser in config package
+- [Phase 12]: Handlers struct pattern with *config.AppConfig for all handler methods
+- [Phase 12]: Pointer *string for JSON body content to distinguish missing vs empty
+- [Phase 12]: Package-level cpuPrev with sync.Mutex for thread-safe CPU delta calculation
 
 ### Pending Todos
 
@@ -83,5 +87,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 12-01-PLAN.md (Go project scaffold)
+Stopped at: Completed 12-02-PLAN.md (REST API handlers)
 Resume file: None
