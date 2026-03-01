@@ -3,7 +3,7 @@
 **Defined:** 2026-02-27
 **Core Value:** Users can visually edit mihomo configuration without manually editing YAML files
 
-## v1 Requirements
+## v1.0 Requirements
 
 ### Scaffold & Setup
 
@@ -92,11 +92,11 @@
 - [ ] **GEO-05**: Copy entry/category as mihomo rule format to clipboard
 - [ ] **GEO-06**: Pagination for large datasets
 
-### Self-Update
+### Self-Update (v1.0 — superseded by v2.0 milestone)
 
-- [ ] **UPDT-01**: Dashboard checks for new version from GitHub releases
-- [ ] **UPDT-02**: User can update dashboard + backend from within UI
-- [ ] **UPDT-03**: Update downloads dist.zip, extracts, restarts backend
+- [x] ~~**UPDT-01**: Dashboard checks for new version from GitHub releases~~ → SUPD-01
+- [x] ~~**UPDT-02**: User can update dashboard + backend from within UI~~ → UPUI-03
+- [x] ~~**UPDT-03**: Update downloads dist.zip, extracts, restarts backend~~ → SUPD-02, SUPD-03
 
 ### UI/UX
 
@@ -104,9 +104,61 @@
 - [ ] **UI-02**: Russian language by default
 - [ ] **UI-03**: Responsive layout (desktop primary, tablet acceptable)
 
-## v2 Requirements
+## v2.0 Milestone Requirements
 
-### Advanced Features
+Go backend rewrite + auto-update + installer. Replaces Python Flask with compiled Go binary.
+
+### Go Backend
+
+- [ ] **GOBK-01**: Go binary serves all REST API endpoints identically to Flask backend (15 endpoints)
+- [ ] **GOBK-02**: Go binary streams logs via WebSocket with same protocol (initial/append/clear/ping)
+- [ ] **GOBK-03**: Go binary embeds SPA frontend via embed.FS (no separate static files directory)
+- [ ] **GOBK-04**: Go binary reverse-proxies mihomo API on :9090 with auth header injection
+- [ ] **GOBK-05**: Go binary validates YAML before saving config
+- [ ] **GOBK-06**: Go binary creates timestamped backups before config/xkeen writes
+- [ ] **GOBK-07**: Go binary supports CORS middleware for development mode
+- [ ] **GOBK-08**: Go binary reads config paths from environment variables with sensible defaults
+
+### Installer
+
+- [ ] **INST-01**: setup.sh installs from GitHub releases via `curl | sh` one-liner
+- [ ] **INST-02**: setup.sh auto-detects router architecture (arm64/mipsle/mips)
+- [ ] **INST-03**: setup.sh creates init.d service script (S99) for Entware
+- [ ] **INST-04**: setup.sh supports interactive menu (install/update/uninstall)
+- [ ] **INST-05**: setup.sh validates successful installation and starts service
+
+### Self-Update Backend
+
+- [ ] **SUPD-01**: Backend checks GitHub releases for newer version via API
+- [ ] **SUPD-02**: Backend downloads and replaces own binary atomically with rollback backup
+- [ ] **SUPD-03**: Backend restarts gracefully after self-update via init.d
+- [ ] **SUPD-04**: Backend caches update check results (1h TTL to avoid GitHub rate limits)
+
+### Update Frontend
+
+- [ ] **UPUI-01**: Update page shows current vs latest version with comparison
+- [ ] **UPUI-02**: Update page shows changelog from GitHub release notes (markdown)
+- [ ] **UPUI-03**: User can trigger update from UI with progress overlay
+- [ ] **UPUI-04**: Sidebar shows notification badge when update is available
+- [ ] **UPUI-05**: Auto-check for updates on app load and periodically (every 6 hours)
+
+### CI/CD
+
+- [ ] **CICD-01**: GitHub Actions cross-compiles Go for arm64, mipsle (softfloat), mips (softfloat)
+- [ ] **CICD-02**: GitHub Actions builds frontend and embeds into Go binary
+- [ ] **CICD-03**: GitHub Actions creates GitHub Release with architecture-specific binaries
+- [ ] **CICD-04**: Version injected via Go ldflags (-X main.Version) at build time
+
+## Future Requirements
+
+### Deferred from v2.0
+
+- **DFRD-01**: Beta/prerelease channel toggle in update settings
+- **DFRD-02**: GitHub proxy fallback chain (gh-proxy.com, ghfast.top) for restricted networks
+- **DFRD-03**: Download progress indicator during update
+- **DFRD-04**: UPX compression in CI for smaller binaries
+
+### Advanced Features (from v1.0)
 
 - **ADV-01**: Rule import from URL (paste provider URL, auto-create rule block)
 - **ADV-02**: Config diff view (show changes before apply)
@@ -125,8 +177,17 @@
 | Auto-rule generation | Manual config editing is the core value |
 | Proxy server management | mihomo manages proxies, dashboard only switches |
 | Config encryption | Home network, mihomo API secret sufficient |
+| Auto-update without confirmation | Bricking risk on router; user must trigger manually |
+| OTA delta patching (bsdiff) | Binary is 4-8MB, full download fast enough |
+| Multi-version rollback UI | Over-engineering; one backup sufficient |
+| Package manager (opkg) | Requires maintainer agreement; direct GitHub releases |
+| ARM32 (armv7) support | No Keenetic routers use armv7 |
+| Docker/container | Entware routers don't run Docker |
+| Config schema validation | mihomo config schema undocumented; YAML syntax only |
 
 ## Traceability
+
+### v1.0 Phases (1-11)
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -165,9 +226,9 @@
 | RULE-02 | Phase 6 | Complete |
 | RULE-03 | Phase 6 | Complete |
 | RULE-04 | Phase 6 | Complete |
-| RULE-05 | Phase 6 | Pending |
-| RULE-06 | Phase 6 | Pending |
-| RULE-07 | Phase 6 | Pending |
+| RULE-05 | Phase 6 | Complete |
+| RULE-06 | Phase 6 | Complete |
+| RULE-07 | Phase 6 | Complete |
 | RULE-08 | Phase 6 | Complete |
 | GRPS-01 | Phase 7 | Pending |
 | GRPS-02 | Phase 7 | Pending |
@@ -184,18 +245,50 @@
 | GEO-04 | Phase 9 | Pending |
 | GEO-05 | Phase 9 | Pending |
 | GEO-06 | Phase 9 | Pending |
-| UPDT-01 | Phase 10 | Pending |
-| UPDT-02 | Phase 10 | Pending |
-| UPDT-03 | Phase 10 | Pending |
+| UPDT-01 | — | Superseded by SUPD-01 |
+| UPDT-02 | — | Superseded by UPUI-03 |
+| UPDT-03 | — | Superseded by SUPD-02/03 |
 | UI-01 | Phase 11 | Pending |
 | UI-02 | Phase 11 | Pending |
 | UI-03 | Phase 11 | Pending |
 
+### v2.0 Phases (12-16)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| GOBK-01 | Phase 12 | Pending |
+| GOBK-02 | Phase 12 | Pending |
+| GOBK-03 | Phase 12 | Pending |
+| GOBK-04 | Phase 12 | Pending |
+| GOBK-05 | Phase 12 | Pending |
+| GOBK-06 | Phase 12 | Pending |
+| GOBK-07 | Phase 12 | Pending |
+| GOBK-08 | Phase 12 | Pending |
+| CICD-01 | Phase 13 | Pending |
+| CICD-02 | Phase 13 | Pending |
+| CICD-03 | Phase 13 | Pending |
+| CICD-04 | Phase 13 | Pending |
+| INST-01 | Phase 14 | Pending |
+| INST-02 | Phase 14 | Pending |
+| INST-03 | Phase 14 | Pending |
+| INST-04 | Phase 14 | Pending |
+| INST-05 | Phase 14 | Pending |
+| SUPD-01 | Phase 15 | Pending |
+| SUPD-02 | Phase 15 | Pending |
+| SUPD-03 | Phase 15 | Pending |
+| SUPD-04 | Phase 15 | Pending |
+| UPUI-01 | Phase 16 | Pending |
+| UPUI-02 | Phase 16 | Pending |
+| UPUI-03 | Phase 16 | Pending |
+| UPUI-04 | Phase 16 | Pending |
+| UPUI-05 | Phase 16 | Pending |
+
 **Coverage:**
-- v1 requirements: 55 total
-- Mapped to phases: 55
+- v1.0 requirements: 55 total (52 active + 3 superseded)
+- v2.0 requirements: 26 total
+- Mapped to phases: 78 (52 v1.0 + 26 v2.0)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-02-27 after initial definition*
+*Last updated: 2026-03-01 after v2.0 milestone definition*
