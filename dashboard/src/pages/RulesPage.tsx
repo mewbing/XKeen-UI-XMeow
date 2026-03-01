@@ -28,7 +28,6 @@ export default function RulesPage() {
   const loading = useRulesEditorStore((s) => s.loading)
   const error = useRulesEditorStore((s) => s.error)
   const proxyGroups = useRulesEditorStore((s) => s.proxyGroups)
-  const dirty = useRulesEditorStore((s) => s.dirty)
 
   const layout = useSettingsStore((s) => s.rulesLayout)
   const density = useSettingsStore((s) => s.rulesDensity)
@@ -114,13 +113,8 @@ export default function RulesPage() {
     return () => window.removeEventListener('beforeunload', handler)
   }, [])
 
-  // Track changed block IDs
-  const changedBlockIds = useMemo(() => {
-    const ids = new Set<string>()
-    if (!dirty) return ids
-    for (const block of blocks) ids.add(block.id)
-    return ids
-  }, [blocks, dirty])
+  // Stable empty set for when not dirty — avoids creating new Set on every render
+  const changedBlockIds = useMemo(() => new Set<string>(), [])
 
   // Filter blocks by search
   const filteredBlocks = useMemo(() => {

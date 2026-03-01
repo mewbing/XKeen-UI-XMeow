@@ -6,6 +6,7 @@
  * and delete button. Wrapped with useSortable for drag-reorder.
  */
 
+import { memo } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Trash2, GripVertical } from 'lucide-react'
@@ -49,7 +50,7 @@ function getTypeBadgeClass(type: string): string {
   return 'bg-muted text-muted-foreground border-border'
 }
 
-export function RuleRow({ rule, index, showTarget, blockId: _blockId, proxyGroups, onChangeTarget, onRemove }: RuleRowProps) {
+export const RuleRow = memo(function RuleRow({ rule, index, showTarget, blockId: _blockId, proxyGroups, onChangeTarget, onRemove }: RuleRowProps) {
   const {
     attributes,
     listeners,
@@ -143,4 +144,4 @@ export function RuleRow({ rule, index, showTarget, blockId: _blockId, proxyGroup
       </Button>
     </div>
   )
-}
+})

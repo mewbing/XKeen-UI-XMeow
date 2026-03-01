@@ -48,7 +48,6 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
   const dirty = useRulesEditorStore((s) => s.dirty)
   const changeCount = useRulesEditorStore((s) => s.changeCount)
   const originalYaml = useRulesEditorStore((s) => s.originalYaml)
-  const currentYaml = useRulesEditorStore((s) => s.currentYaml)
   const proxyGroups = useRulesEditorStore((s) => s.proxyGroups)
 
   const [diffOpen, setDiffOpen] = useState(false)
@@ -57,18 +56,18 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
   const [saving, setSaving] = useState(false)
   const [applying, setApplying] = useState(false)
 
-  // Temporal state for undo/redo
-  const pastStates = useRulesEditorStore.temporal.getState().pastStates
-  const futureStates = useRulesEditorStore.temporal.getState().futureStates
-
   const handleGroupingChange = (value: string) => {
     if (!value) return
     setGrouping(value as 'proxy-group' | 'sections' | 'two-level')
     onGroupingChange()
   }
 
-  const handleUndo = () => useRulesEditorStore.temporal.getState().undo()
-  const handleRedo = () => useRulesEditorStore.temporal.getState().redo()
+  const handleUndo = () => {
+    useRulesEditorStore.temporal.getState().undo()
+  }
+  const handleRedo = () => {
+    useRulesEditorStore.temporal.getState().redo()
+  }
 
   const handleReset = () => setResetConfirmOpen(true)
   const handleConfirmReset = () => {
@@ -154,10 +153,10 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
               Новый блок
             </Button>
           )}
-          <Button variant="ghost" size="icon" className="size-8" title="Отменить (Ctrl+Z)" disabled={pastStates.length === 0} onClick={handleUndo}>
+          <Button variant="ghost" size="icon" className="size-8" title="Отменить (Ctrl+Z)" disabled={!dirty} onClick={handleUndo}>
             <Undo2 className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="size-8" title="Повторить (Ctrl+Shift+Z)" disabled={futureStates.length === 0} onClick={handleRedo}>
+          <Button variant="ghost" size="icon" className="size-8" title="Повторить (Ctrl+Shift+Z)" onClick={handleRedo}>
             <Redo2 className="size-4" />
           </Button>
           <Button variant="ghost" size="icon" className="size-8" title="Сбросить изменения" disabled={!dirty} onClick={handleReset}>
@@ -193,9 +192,9 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Diff preview */}
+      {/* Diff preview — lazy serialize only when opening diff */}
       {diffOpen && (
-        <RulesDiffPreview open={diffOpen} onOpenChange={setDiffOpen} original={originalYaml} modified={currentYaml} onConfirmApply={executeApply} />
+        <RulesDiffPreview open={diffOpen} onOpenChange={setDiffOpen} original={originalYaml} modified={useRulesEditorStore.getState().getCurrentYaml()} onConfirmApply={executeApply} />
       )}
 
       {/* New block dialog */}

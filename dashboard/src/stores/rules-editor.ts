@@ -54,6 +54,7 @@ interface RulesEditorState {
   resetChanges: () => void
   markSaved: () => void
   serialize: () => string
+  getCurrentYaml: () => string
 }
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -81,11 +82,14 @@ function extractProxyGroups(rules: ParsedRule[]): string[] {
   return Array.from(targets).sort()
 }
 
-/** Re-serialize and update currentYaml in state */
+/** Lazily serialize blocks to YAML — only called on Save/Apply/Diff, NOT on every mutation */
 function reserialize(blocks: RuleBlock[]): string {
   if (!storedDoc) return ''
   return serializeRulesToConfig(storedDoc, blocks)
 }
+
+/** Sentinel value meaning "currentYaml needs recomputation" */
+const STALE = '__STALE__'
 
 /** Generate unique rule id based on existing rules */
 function nextRuleId(blocks: RuleBlock[]): string {
@@ -146,10 +150,9 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         const [moved] = newBlocks.splice(oldIndex, 1)
         newBlocks.splice(newIndex, 0, moved)
 
-        const currentYaml = reserialize(newBlocks)
         set({
           blocks: newBlocks,
-          currentYaml,
+          currentYaml: STALE,
           dirty: true,
           changeCount: changeCount + 1,
         })
@@ -167,10 +170,9 @@ export const useRulesEditorStore = create<RulesEditorState>()(
           return { ...block, rules: newRules }
         })
 
-        const currentYaml = reserialize(newBlocks)
         set({
           blocks: newBlocks,
-          currentYaml,
+          currentYaml: STALE,
           dirty: true,
           changeCount: changeCount + 1,
         })
@@ -195,10 +197,9 @@ export const useRulesEditorStore = create<RulesEditorState>()(
           return { ...block, rules: [...block.rules, newRule] }
         })
 
-        const currentYaml = reserialize(newBlocks)
         set({
           blocks: newBlocks,
-          currentYaml,
+          currentYaml: STALE,
           proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
           dirty: true,
           changeCount: changeCount + 1,
@@ -212,10 +213,9 @@ export const useRulesEditorStore = create<RulesEditorState>()(
           return { ...block, rules: block.rules.filter(r => r.id !== ruleId) }
         })
 
-        const currentYaml = reserialize(newBlocks)
         set({
           blocks: newBlocks,
-          currentYaml,
+          currentYaml: STALE,
           proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
           dirty: true,
           changeCount: changeCount + 1,
@@ -235,10 +235,9 @@ export const useRulesEditorStore = create<RulesEditorState>()(
           return { ...block, target: newTarget, name: newTarget, rules: updatedRules }
         })
 
-        const currentYaml = reserialize(newBlocks)
         set({
           blocks: newBlocks,
-          currentYaml,
+          currentYaml: STALE,
           proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
           dirty: true,
           changeCount: changeCount + 1,
@@ -259,10 +258,9 @@ export const useRulesEditorStore = create<RulesEditorState>()(
           return { ...block, rules: updatedRules }
         })
 
-        const currentYaml = reserialize(newBlocks)
         set({
           blocks: newBlocks,
-          currentYaml,
+          currentYaml: STALE,
           proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
           dirty: true,
           changeCount: changeCount + 1,
@@ -280,10 +278,9 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         }
 
         const newBlocks = [...blocks, newBlock]
-        const currentYaml = reserialize(newBlocks)
         set({
           blocks: newBlocks,
-          currentYaml,
+          currentYaml: STALE,
           proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
           dirty: true,
           changeCount: changeCount + 1,
@@ -294,10 +291,9 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         const { blocks, changeCount } = get()
         const newBlocks = blocks.filter(b => b.id !== blockId)
 
-        const currentYaml = reserialize(newBlocks)
         set({
           blocks: newBlocks,
-          currentYaml,
+          currentYaml: STALE,
           proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
           dirty: true,
           changeCount: changeCount + 1,
@@ -331,8 +327,20 @@ export const useRulesEditorStore = create<RulesEditorState>()(
       },
 
       serialize: () => {
-        const { blocks } = get()
-        return reserialize(blocks)
+        const { blocks, currentYaml } = get()
+        if (currentYaml !== STALE) return currentYaml
+        const yaml = reserialize(blocks)
+        set({ currentYaml: yaml })
+        return yaml
+      },
+
+      /** Get current YAML for diff preview — lazy computation */
+      getCurrentYaml: () => {
+        const { blocks, currentYaml } = get()
+        if (currentYaml !== STALE) return currentYaml
+        const yaml = reserialize(blocks)
+        set({ currentYaml: yaml })
+        return yaml
       },
     }),
     {
@@ -340,6 +348,7 @@ export const useRulesEditorStore = create<RulesEditorState>()(
       partialize: (state) => ({
         blocks: state.blocks,
       }),
+      limit: 50,
     }
   )
 )

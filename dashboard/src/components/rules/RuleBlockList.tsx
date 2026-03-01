@@ -5,7 +5,7 @@
  * for drag-and-drop reordering. Supports 3 layout modes.
  */
 
-import { useState } from 'react'
+import { useState, memo, useMemo } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -62,7 +62,7 @@ interface SortableBlockCardProps {
   isChanged: boolean
 }
 
-function SortableBlockCard({
+const SortableBlockCard = memo(function SortableBlockCard({
   block,
   index,
   density,
@@ -107,7 +107,7 @@ function SortableBlockCard({
       />
     </div>
   )
-}
+})
 
 // ---- Inline new block card ----
 
@@ -260,12 +260,12 @@ export function RuleBlockList({
   const activeBlock = activeId ? blocks.find((b) => b.id === activeId) : null
   const activeIndex = activeId ? blocks.findIndex((b) => b.id === activeId) : -1
 
-  const blockIds = blocks.map((b) => b.id)
+  const blockIds = useMemo(() => blocks.map((b) => b.id), [blocks])
 
   // Layout mode determines strategy and CSS grid
   const isListLayout = layout === 'list'
   const strategy = isListLayout ? verticalListSortingStrategy : rectSortingStrategy
-  const modifiers = isListLayout ? [restrictToVerticalAxis] : []
+  const modifiers = useMemo(() => isListLayout ? [restrictToVerticalAxis] : [], [isListLayout])
 
   const containerClass = cn(
     layout === 'list' && 'flex flex-col gap-3',

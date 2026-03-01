@@ -6,7 +6,7 @@
  * Expanded: all rules as sortable RuleRow + add rule button.
  */
 
-import { useState } from 'react'
+import { useState, memo, useMemo } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -54,7 +54,7 @@ function pluralRules(count: number): string {
   return count + ' правил'
 }
 
-export function RuleBlockCard({ block, index, density, isExpanded, onToggleExpand, isDragging = false, style, proxyGroups }: RuleBlockCardProps) {
+export const RuleBlockCard = memo(function RuleBlockCard({ block, index, density, isExpanded, onToggleExpand, isDragging = false, style, proxyGroups }: RuleBlockCardProps) {
   const [addRuleOpen, setAddRuleOpen] = useState(false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteRuleConfirm, setDeleteRuleConfirm] = useState<{ blockId: string; ruleId: string; label: string } | null>(null)
@@ -62,6 +62,7 @@ export function RuleBlockCard({ block, index, density, isExpanded, onToggleExpan
   const rulesConfirmDelete = useSettingsStore((s) => s.rulesConfirmDelete)
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
+  const ruleIds = useMemo(() => block.rules.map((r) => r.id), [block.rules])
 
   const handleRuleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -102,8 +103,7 @@ export function RuleBlockCard({ block, index, density, isExpanded, onToggleExpan
   const handleChangeRuleTarget = (ruleId: string, newT: string) => useRulesEditorStore.getState().changeRuleTarget(block.id, ruleId, newT)
   const handleChangeBlockTarget = (newT: string) => useRulesEditorStore.getState().changeBlockTarget(block.id, newT)
 
-  const ruleIds = block.rules.map((r) => r.id)
-  const hasMixedTargets = block.rules.some((r) => r.target !== block.target)
+  const hasMixedTargets = useMemo(() => block.rules.some((r) => r.target !== block.target), [block.rules, block.target])
 
   return (
     <>
@@ -180,4 +180,4 @@ export function RuleBlockCard({ block, index, density, isExpanded, onToggleExpan
       </AlertDialog>
     </>
   )
-}
+})
