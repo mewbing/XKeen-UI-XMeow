@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 6 of 11 (Rules Visual Editor)
-Plan: 2 of 4 in current phase
-Status: Plan 06-01 complete -- rules parser, editor store, settings extensions
-Last activity: 2026-03-01 -- Plan 06-01 executed
+Plan: 3 of 4 in current phase
+Status: Plan 06-02 complete -- visual components (block cards, DnD, toolbar, page)
+Last activity: 2026-03-01 -- Plan 06-02 executed
 
-Progress: [███████████░░░░░░░░░] 62% (34/55 requirements)
+Progress: [████████████░░░░░░░░] 65% (36/55 requirements)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 4 min
 - Total execution time: 1.03 hours
 
@@ -43,6 +43,7 @@ Progress: [███████████░░░░░░░░░] 62% (34
 | 05 | 02 | 4min | 2 | 5 |
 | 05 | 03 | 4min | 2 | 4 |
 | 06 | 01 | 4min | 2 | 5 |
+| 06 | 02 | 26min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -95,6 +96,10 @@ Progress: [███████████░░░░░░░░░] 62% (34
 - [Phase 06]: Module-level Document storage outside Zustand since YAML Document is not serializable
 - [Phase 06]: zundo partialize tracks only blocks state, not UI flags (dirty, loading, error, changeCount)
 - [Phase 06]: Rules editor store is volatile (no persist) -- rules loaded fresh from config on page visit
+- [Phase 06]: Entire card is drag handle (no separate grip icon) per user decision from research
+- [Phase 06]: PointerSensor distance:8 activation constraint prevents accidental drags
+- [Phase 06]: restrictToVerticalAxis modifier only in list layout
+- [Phase 06]: Russian plural function for rule counts (1/2-4/5+ forms)
 
 ### Pending Todos
 
@@ -107,5 +112,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 06-01-PLAN.md (Rules parser, editor store, settings)
-Resume file: .planning/phases/06-rules-visual-editor/06-01-SUMMARY.md
+Stopped at: Completed 06-02-PLAN.md (Visual components, block cards, DnD, toolbar, page)
+Resume file: .planning/phases/06-rules-visual-editor/06-02-SUMMARY.md
