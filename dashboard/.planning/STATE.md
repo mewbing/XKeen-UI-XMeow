@@ -5,16 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Milestone v2.0 — Go Backend + Installer
+**Current focus:** Phase 12 -- Go Backend Core (milestone v2.0)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements for milestone v2.0
-Last activity: 2026-03-01 — Milestone v2.0 started (Go backend + installer)
+Phase: 12 of 16 (Go Backend Core)
+Plan: 0 of ? in current phase
+Status: Ready to plan
+Last activity: 2026-03-02 -- Roadmap v2.0 created (phases 12-16)
 
-**v1.0 progress:** Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
+v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
+v2.0 progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -51,65 +52,10 @@ Last activity: 2026-03-01 — Milestone v2.0 started (Go backend + installer)
 
 ### Decisions
 
-- Used Vite 7.3 (latest) instead of 6.x from research -- fully compatible
-- shadcn/ui default init uses neutral base color and new-york style
-- shadcn/ui latest version adds `@import "shadcn/tailwind.css"` alongside tw-animate-css
-- Backup extension included in filename at creation time (not via rename) to avoid race conditions
-- Xkeen file not found returns 200 with empty content (not 404) for graceful handling
-- _create_backup helper extracted as reusable function for config and xkeen backups
-- Settings page uses shadcn/ui Select instead of RadioGroup for start page -- cleaner with 11+ options
-- Wizard gate renders null during Zustand hydration to prevent flash of wrong UI
-- LocationTracker as separate component inside BrowserRouter for proper useLocation hook usage
-- Kept existing Zustand hydration pattern (onFinishHydration + hasHydrated) instead of custom _hasHydrated field
-- Mihomo 401 fallback: try without secret first, then retry with 'admin' as default
-- 5-second AbortSignal.timeout for all API calls
-- Auto-advance to success step after 1.5s delay when both tests pass
-- XKEEN_INIT_SCRIPT configurable via environment variable (default /opt/etc/init.d/S24xray)
-- Dashboard version hardcoded as 0.1.0 (will be dynamic in Phase 10)
-- formatBytes uses clamped index to prevent UNITS array overflow on very large values
-- useRef for onMessage callback in WebSocket hook to avoid stale closures and prevent WS re-creation
-- Connections polled every 5s via REST instead of WebSocket to avoid heavy data on overview
-- Client-side uptime tracking (Date.now on mount) since mihomo has no uptime endpoint
-- ServiceControl is self-contained (uses useServiceStatus + serviceAction internally, no required props)
-- Stop/Restart require AlertDialog confirmation; Start does not (non-destructive)
-- VersionLine adds 'v' prefix if missing, shows '--' when version not loaded
-- Version info hidden in sidebar collapsed (icon) mode
-- Sonner component uses hardcoded dark theme instead of next-themes (Vite project, not Next.js)
-- Proxies store is volatile (no persist) -- proxy data fetched fresh on page visit
-- Delay cache TTL 15 seconds to prevent router overload
-- testAllGroups runs sequentially to avoid concurrent request overload
-- Optimistic proxy switching with rollback on API error
-- ProxyGroupCard receives settings as props from ProxiesPage, not reading settings store directly
-- Toggle component used for auto-info on/off instead of checkbox (no checkbox component installed)
-- Expanded card gets col-span-full to occupy full grid width
-- Pre-existing TS errors from Phase 03 do not block Phase 02 gap closure plans (out of scope)
-- [Phase 02]: Removed key={location.pathname} from AppLayout -- page-enter animation not worth losing component state on remount
-- [Phase 02]: Tailwind v4 color pattern: use var(--color) directly, never wrap in hsl() -- CSS vars contain complete oklch() values
-- [Phase 02]: Zustand guard pattern: setStartTime only sets if null to prevent overwrite on remount
-- [Phase 04]: Fixed pre-existing TS errors from Phase 03 (unused cn imports, missing isDelayCacheValid) that blocked tsc -b build
-- [Phase 05]: Config editor store is volatile (no persist) -- content loaded fresh on page visit
-- [Phase 05]: Log ring buffer max 500 entries for apply-time streaming (separate from logs page 1000 limit)
-- [Phase 05]: monaco-editor added as dev dependency for TypeScript types (CDN loads at runtime)
-- [Phase 05]: Format shows warning toast before applying (comment loss) rather than confirmation dialog
-- [Phase 05]: useRef for onSave callback to avoid stale closures in Monaco addCommand
-- [Phase 05]: Zustand-driven WS lifecycle: EditorLogPanel subscribes to logStreaming flag for connect/disconnect
-- [Phase 05]: react-resizable-panels v4 uses orientation prop (not direction) and PanelSize object (not number)
-- [Phase 06]: yaml (eemeli) for rules parsing, js-yaml stays for ConfigEditor validation -- no conflict
-- [Phase 06]: Module-level Document storage outside Zustand since YAML Document is not serializable
-- [Phase 06]: zundo partialize tracks only blocks state, not UI flags (dirty, loading, error, changeCount)
-- [Phase 06]: Rules editor store is volatile (no persist) -- rules loaded fresh from config on page visit
-- [Phase 06]: Entire card is drag handle (no separate grip icon) per user decision from research
-- [Phase 06]: PointerSensor distance:8 activation constraint prevents accidental drags
-- [Phase 06]: restrictToVerticalAxis modifier only in list layout
-- [Phase 06]: Russian plural function for rule counts (1/2-4/5+ forms)
-- [Phase 06]: Nested DndContext for intra-block rule reordering (independent from block-level DnD)
-- [Phase 06]: Delete confirmation with dont-ask-again Switch persisted to settings store
-- [Phase 06]: RuleRow target dropdown only shown when hasMixedTargets
-- [Phase 06]: AddRuleDialog no-resolve switch only for IP-based rule types
-- [Phase 06]: Block name and chevron are separate clickable elements for expand-collapse
-- [Phase 06]: Danger warnings always shown on MATCH/exclusion moves (no dont-show-again)
-- [Phase 06]: Apply executes saveConfig then restartMihomo sequentially
-- [Phase 06]: changedBlockIds marks all blocks when dirty (simplified tracking)
+- [v2.0]: Go 1.26 + chi v5 + gorilla/websocket + rs/cors + yaml.v3 + go-selfupdate
+- [v2.0]: GOMIPS=softfloat обязателен для MIPS -- без этого silent crash
+- [v2.0]: go-selfupdate MIPS mapping нужно тестировать на реальном устройстве
+- [v2.0]: Линейная цепочка зависимостей: Go -> CI -> Installer -> Self-Update -> Frontend UI
 
 ### Pending Todos
 
@@ -121,7 +67,6 @@ None currently.
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: Started milestone v2.0 — Go Backend + Installer
-Resume file: .planning/PROJECT.md
-Approved plan: C:\Users\ART-PC\.claude\plans\kind-meandering-parrot.md
+Last session: 2026-03-02
+Stopped at: Roadmap v2.0 created -- phases 12-16 defined
+Resume file: None

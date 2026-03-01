@@ -2,13 +2,20 @@
 
 ## Overview
 
-Полнофункциональный SPA-дашборд для mihomo прокси на роутере Keenetic. Заменяет zashboard, добавляя визуальное редактирование конфига (drag-and-drop правил и групп), просмотрщик geodata, raw YAML редактор, управление сервисом и самообновление. 11 фаз от скаффолда до финальной полировки.
+Полнофункциональный SPA-дашборд для mihomo прокси на роутере Keenetic. Заменяет zashboard, добавляя визуальное редактирование конфига (drag-and-drop правил и групп), просмотрщик geodata, raw YAML редактор, управление сервисом и самообновление. v1.0 -- React SPA + Flask backend (фазы 1-11). v2.0 -- Go backend (единый бинарник), installer, self-update, CI/CD (фазы 12-16).
+
+## Milestones
+
+- 🚧 **v1.0 Dashboard** - Phases 1-11 (in progress, 6/11 complete)
+- 📋 **v2.0 Go Backend + Installer** - Phases 12-16 (planned)
 
 ## Phases
 
 **Phase Numbering:**
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+
+### v1.0 Dashboard
 
 - [x] **Phase 1: Scaffold + Config API + Setup Wizard** - React проект, Flask backend с CRUD для конфига, мастер настройки
 - [x] **Phase 2: Overview + Service Management** - Главная страница со статистикой, управление xkeen, обновление ядра (completed 2026-02-27)
@@ -21,6 +28,14 @@
 - [ ] **Phase 9: Geodata Viewer** - Просмотрщик GeoSite/GeoIP файлов с поиском и копированием правил
 - [ ] **Phase 10: Self-Update** - Механизм обновления дашборда и бэкенда из GitHub releases
 - [ ] **Phase 11: Polish + Themes** - Тёмная/светлая тема, адаптивность, финальное тестирование
+
+### v2.0 Go Backend + Installer
+
+- [ ] **Phase 12: Go Backend Core** - Go бинарник с 1:1 API совместимостью Flask, embedded SPA, reverse proxy mihomo
+- [ ] **Phase 13: CI/CD Pipeline** - GitHub Actions cross-compilation arm64/mipsle/mips, автоматические релизы
+- [ ] **Phase 14: Installer (setup.sh)** - Интерактивный shell-установщик для Entware с init.d сервисом
+- [ ] **Phase 15: Self-Update Backend** - Проверка и установка обновлений из GitHub releases с атомарной заменой бинарника
+- [ ] **Phase 16: Update Frontend** - Страница обновлений, sidebar badge, авто-проверка
 
 ## Phase Details
 
@@ -175,22 +190,86 @@ Plans:
   3. Responsive layout работает на desktop и tablet
 **Plans**: TBD
 
+---
+
+### Phase 12: Go Backend Core
+**Goal**: Go бинарник полностью заменяет Flask backend с идентичным API-контрактом, embedded SPA и reverse proxy к mihomo
+**Depends on**: Phase 6 (needs working SPA frontend to embed)
+**Requirements**: GOBK-01, GOBK-02, GOBK-03, GOBK-04, GOBK-05, GOBK-06, GOBK-07, GOBK-08
+**Success Criteria** (what must be TRUE):
+  1. Go бинарник отвечает на все 15 REST API эндпоинтов идентично Flask (GET/PUT config, xkeen files, service control, status)
+  2. WebSocket стрим логов работает с тем же протоколом (initial/append/clear/ping) -- фронтенд подключается без изменений
+  3. SPA загружается из embedded файловой системы по корневому URL -- не нужен отдельный каталог static files
+  4. Запросы к mihomo API (:9090) проксируются через Go backend с автоматической подстановкой auth header
+  5. Конфиг и xkeen файлы валидируются и бэкапятся перед записью -- поведение идентично Flask
+**Plans**: TBD
+
+### Phase 13: CI/CD Pipeline
+**Goal**: GitHub Actions автоматически собирает Go бинарники для всех архитектур роутера и создаёт GitHub Release
+**Depends on**: Phase 12
+**Requirements**: CICD-01, CICD-02, CICD-03, CICD-04
+**Success Criteria** (what must be TRUE):
+  1. Push тега `v*` запускает workflow, который собирает бинарники для linux/arm64, linux/mipsle (softfloat), linux/mips (softfloat)
+  2. Frontend собирается (npm run build) и встраивается в Go бинарник на этапе сборки
+  3. GitHub Release создаётся автоматически с тремя архитектурно-специфичными .tar.gz артефактами
+  4. Версия в бинарнике соответствует git tag (через Go ldflags -X main.Version)
+**Plans**: TBD
+
+### Phase 14: Installer (setup.sh)
+**Goal**: Пользователь устанавливает дашборд на роутер одной командой `curl | sh` с интерактивным меню
+**Depends on**: Phase 13 (needs CI-produced release binaries to download)
+**Requirements**: INST-01, INST-02, INST-03, INST-04, INST-05
+**Success Criteria** (what must be TRUE):
+  1. Команда `curl -sL https://...setup.sh | sh` скачивает и запускает установщик на роутере
+  2. Установщик определяет архитектуру роутера (arm64/mipsle/mips) и скачивает правильный бинарник из GitHub releases
+  3. Интерактивное меню предлагает install/update/uninstall -- каждая опция работает корректно
+  4. После установки создан init.d скрипт S99antigravity, сервис запущен, дашборд доступен в браузере на порту 5000
+**Plans**: TBD
+
+### Phase 15: Self-Update Backend
+**Goal**: Go backend умеет проверять и устанавливать обновления из GitHub releases, атомарно заменяя свой бинарник
+**Depends on**: Phase 14 (needs init.d service script for restart mechanism)
+**Requirements**: SUPD-01, SUPD-02, SUPD-03, SUPD-04
+**Success Criteria** (what must be TRUE):
+  1. GET /api/update/check возвращает информацию о доступном обновлении (текущая версия, последняя версия, changelog, есть ли update)
+  2. POST /api/update/apply скачивает новый бинарник, заменяет текущий атомарно (rename) с сохранением backup для rollback
+  3. После замены бинарника сервис перезапускается через init.d -- новая версия обслуживает запросы без ручного вмешательства
+  4. Результат проверки кэшируется на 1 час -- повторные вызовы check не обращаются к GitHub API
+**Plans**: TBD
+
+### Phase 16: Update Frontend
+**Goal**: Пользователь видит доступные обновления в UI и может обновить дашборд одним кликом
+**Depends on**: Phase 15 (needs backend update API)
+**Requirements**: UPUI-01, UPUI-02, UPUI-03, UPUI-04, UPUI-05
+**Success Criteria** (what must be TRUE):
+  1. Страница обновлений показывает текущую и последнюю версию с визуальным сравнением
+  2. Changelog из GitHub release notes отображается как отформатированный markdown
+  3. Кнопка "Обновить" запускает процесс с прогресс-оверлеем -- после завершения страница перезагружается с новой версией
+  4. В sidebar появляется badge-индикатор когда доступно обновление
+  5. Проверка обновлений происходит автоматически при загрузке приложения и каждые 6 часов
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases 1 -> 2 -> 3/4/8 (parallel) -> 5 -> 6/7 (parallel) -> 9 -> 10 -> 11
-Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
+v1.0: Phases 1 -> 2 -> 3/4/8 (parallel) -> 5 -> 6/7 (parallel) -> 9 -> 10 -> 11
+v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Scaffold + Config API + Setup | 4/4 | Complete | 2026-02-27 |
-| 2. Overview + Service Mgmt | 3/5 | Complete    | 2026-02-27 |
-| 3. Proxies Page | 2/2 | Complete    | 2026-02-27 |
-| 4. Connections + Logs | 3/3 | Complete | 2026-02-28 |
-| 5. Config Raw Editor | 0/3 | Complete    | 2026-02-28 |
-| 6. Rules Visual Editor | 4/4 | Complete | 2026-03-01 |
-| 7. Groups Editor | 0/? | Not started | - |
-| 8. Providers Page | 0/? | Not started | - |
-| 9. Geodata Viewer | 0/? | Not started | - |
-| 10. Self-Update | 0/? | Not started | - |
-| 11. Polish + Themes | 0/? | Not started | - |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Scaffold + Config API + Setup | v1.0 | 4/4 | Complete | 2026-02-27 |
+| 2. Overview + Service Mgmt | v1.0 | 3/5 | Complete | 2026-02-27 |
+| 3. Proxies Page | v1.0 | 2/2 | Complete | 2026-02-27 |
+| 4. Connections + Logs | v1.0 | 3/3 | Complete | 2026-02-28 |
+| 5. Config Raw Editor | v1.0 | 0/3 | Complete | 2026-02-28 |
+| 6. Rules Visual Editor | v1.0 | 4/4 | Complete | 2026-03-01 |
+| 7. Groups Editor | v1.0 | 0/? | Not started | - |
+| 8. Providers Page | v1.0 | 0/? | Not started | - |
+| 9. Geodata Viewer | v1.0 | 0/? | Not started | - |
+| 10. Self-Update | v1.0 | 0/? | Not started | - |
+| 11. Polish + Themes | v1.0 | 0/? | Not started | - |
+| 12. Go Backend Core | v2.0 | 0/? | Not started | - |
+| 13. CI/CD Pipeline | v2.0 | 0/? | Not started | - |
+| 14. Installer (setup.sh) | v2.0 | 0/? | Not started | - |
+| 15. Self-Update Backend | v2.0 | 0/? | Not started | - |
+| 16. Update Frontend | v2.0 | 0/? | Not started | - |
