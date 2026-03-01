@@ -1,0 +1,59 @@
+package main
+
+import (
+	"context"
+	"log"
+	"net/http"
+	"os/signal"
+	"syscall"
+	"time"
+
+	xkeenui "github.com/mewbing/XKeen-UI-Xmeow"
+	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
+	"github.com/mewbing/XKeen-UI-Xmeow/internal/server"
+)
+
+// Version is set via ldflags at build time:
+//
+//	go build -ldflags "-X main.Version=1.0.0" ./cmd/antigravity/
+var Version = "dev"
+
+func main() {
+	// Load configuration from environment variables
+	cfg := config.LoadConfig()
+	cfg.Version = Version
+
+	log.Printf("Antigravity Dashboard v%s", cfg.Version)
+	if cfg.DevMode {
+		log.Println("Running in development mode (CORS enabled)")
+	}
+
+	// Create HTTP server with embedded SPA
+	srv := server.New(cfg, xkeenui.DistFS)
+
+	// Graceful shutdown with signal.NotifyContext (SIGINT, SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	// Start server in goroutine
+	go func() {
+		log.Printf("Antigravity Dashboard listening on :%d", cfg.Port)
+		if err := srv.Start(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server error: %v", err)
+		}
+	}()
+
+	// Wait for interrupt signal
+	<-ctx.Done()
+	log.Println("Shutting down...")
+
+	// 5-second shutdown timeout
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Printf("Shutdown error: %v", err)
+	}
+
+	log.Println("Server stopped")
+}
