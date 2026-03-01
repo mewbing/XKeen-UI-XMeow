@@ -11,10 +11,10 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 
 Phase: 6 of 11 (Rules Visual Editor)
 Plan: 4 of 4 in current phase
-Status: Plan 06-03 complete -- editing dialogs, inline controls, nested DnD
-Last activity: 2026-03-01 -- Plan 06-03 executed
+Status: Phase 06 complete -- all 4 plans executed
+Last activity: 2026-03-01 -- Plan 06-04 executed (phase complete)
 
-Progress: [██████████████░░░░░░] 71% (39/55 requirements)
+Progress: [████████████████░░░░] 78% (43/55 requirements)
 
 ## Performance Metrics
 
@@ -45,6 +45,7 @@ Progress: [██████████████░░░░░░] 71% (39
 | 06 | 01 | 4min | 2 | 5 |
 | 06 | 02 | 26min | 2 | 5 |
 | 06 | 03 | 8min | 2 | 6 |
+| 06 | 04 | 12min | 3 | 5 |
 
 ## Accumulated Context
 
@@ -106,6 +107,9 @@ Progress: [██████████████░░░░░░] 71% (39
 - [Phase 06]: RuleRow target dropdown only shown when hasMixedTargets
 - [Phase 06]: AddRuleDialog no-resolve switch only for IP-based rule types
 - [Phase 06]: Block name and chevron are separate clickable elements for expand-collapse
+- [Phase 06]: Danger warnings always shown on MATCH/exclusion moves (no dont-show-again)
+- [Phase 06]: Apply executes saveConfig then restartMihomo sequentially
+- [Phase 06]: changedBlockIds marks all blocks when dirty (simplified tracking)
 
 ### Pending Todos
 
@@ -118,5 +122,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 06-03-PLAN.md (Editing dialogs, inline controls, nested DnD)
-Resume file: .planning/phases/06-rules-visual-editor/06-03-SUMMARY.md
+Stopped at: Completed 06-04-PLAN.md (Save/Apply workflow, settings -- phase 06 complete)
+Resume file: .planning/phases/06-rules-visual-editor/06-04-SUMMARY.md

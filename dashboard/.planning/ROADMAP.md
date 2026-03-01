@@ -15,7 +15,7 @@
 - [x] **Phase 3: Proxies Page** - Карточки proxy-groups, переключение прокси, тест задержки (completed 2026-02-27)
 - [x] **Phase 4: Connections + Logs** - Таблица подключений в реальном времени, лог-стрим через WebSocket
 - [x] **Phase 5: Config Raw Editor** - Monaco Editor с табами (config, ip_exclude, port_exclude, port_proxying), live-лог (completed 2026-02-28)
-- [ ] **Phase 6: Rules Visual Editor** - Визуальные блоки правил с drag-and-drop приоритизацией
+- [x] **Phase 6: Rules Visual Editor** - Визуальные блоки правил с drag-and-drop приоритизацией
 - [ ] **Phase 7: Groups Editor** - Редактор proxy-groups с drag-and-drop и синхронизацией GLOBAL
 - [ ] **Phase 8: Providers Page** - Список rule-providers и proxy-providers со статусом и обновлением
 - [ ] **Phase 9: Geodata Viewer** - Просмотрщик GeoSite/GeoIP файлов с поиском и копированием правил
@@ -120,7 +120,7 @@ Plans:
 - [ ] 06-01-PLAN.md -- Инфраструктура: установка yaml/dnd-kit/zundo, rules-parser с комментариями, Zustand store с undo/redo, настройки
 - [ ] 06-02-PLAN.md -- Core UI: карточки блоков, сортируемый список с DnD, тулбар с переключателями группировки/лейаута/плотности, RulesPage
 - [ ] 06-03-PLAN.md -- Редактирование: диалоги добавления/создания, смена proxy-group, удаление с подтверждением, DnD внутри блока
-- [ ] 06-04-PLAN.md -- Save/Apply/Undo: сохранение, diff-превью, Reset, Ctrl+Z, бейдж-счётчик, предупреждения, настройки
+- [x] 06-04-PLAN.md -- Save/Apply/Undo: сохранение, diff-превью, Reset, Ctrl+Z, бейдж-счётчик, предупреждения, настройки
 
 ### Phase 7: Groups Editor
 **Goal**: Визуальное управление proxy-groups с синхронизацией GLOBAL
@@ -188,7 +188,7 @@ Note: Phases 3, 4, 8 depend only on Phase 1. Phases 6, 7 depend on Phase 5.
 | 3. Proxies Page | 2/2 | Complete    | 2026-02-27 |
 | 4. Connections + Logs | 3/3 | Complete | 2026-02-28 |
 | 5. Config Raw Editor | 0/3 | Complete    | 2026-02-28 |
-| 6. Rules Visual Editor | 3/4 | In Progress | - |
+| 6. Rules Visual Editor | 4/4 | Complete | 2026-03-01 |
 | 7. Groups Editor | 0/? | Not started | - |
 | 8. Providers Page | 0/? | Not started | - |
 | 9. Geodata Viewer | 0/? | Not started | - |
