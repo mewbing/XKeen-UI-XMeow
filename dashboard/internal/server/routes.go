@@ -10,6 +10,7 @@ import (
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/handler"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/logwatch"
+	"github.com/mewbing/XKeen-UI-Xmeow/internal/proxy"
 )
 
 // NewRouter creates a chi.Mux with all route registrations.
@@ -83,8 +84,10 @@ func NewRouter(cfg *config.AppConfig, spaHandler http.Handler, logHub *logwatch.
 	wsLogHandler := handler.NewWsLogHandler(logHub, cfg)
 	r.Get("/ws/logs", wsLogHandler.ServeHTTP)
 
-	// Mihomo reverse proxy (plan 04)
-	// r.Handle("/api/mihomo/*", mihomoProxy)
+	// Mihomo reverse proxy -- forwards /api/mihomo/* to mihomo external-controller
+	// with automatic Authorization header injection (reads from config.yaml)
+	mihomoProxy := proxy.NewMihomoProxy(cfg)
+	r.Handle("/api/mihomo/*", mihomoProxy)
 
 	// SPA fallback (LAST -- catches all unmatched routes)
 	r.NotFound(spaHandler.ServeHTTP)
