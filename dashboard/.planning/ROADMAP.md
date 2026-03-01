@@ -202,7 +202,13 @@ Plans:
   3. SPA загружается из embedded файловой системы по корневому URL -- не нужен отдельный каталог static files
   4. Запросы к mihomo API (:9090) проксируются через Go backend с автоматической подстановкой auth header
   5. Конфиг и xkeen файлы валидируются и бэкапятся перед записью -- поведение идентично Flask
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 12-01-PLAN.md -- Go scaffold: module init, chi router, SPA embed, CORS/auth middleware, config loading, health endpoint
+- [ ] 12-02-PLAN.md -- REST API: все 14 handlers (config, xkeen, service, versions, system, logs, proxies) + route registration
+- [ ] 12-03-PLAN.md -- WebSocket: log streaming с fsnotify lazy watcher, bidirectional protocol, polling fallback
+- [ ] 12-04-PLAN.md -- Reverse proxy mihomo API с auth injection + Vite dev config update + integration checkpoint
 
 ### Phase 13: CI/CD Pipeline
 **Goal**: GitHub Actions автоматически собирает Go бинарники для всех архитектур роутера и создаёт GitHub Release
@@ -268,7 +274,7 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 9. Geodata Viewer | v1.0 | 0/? | Not started | - |
 | 10. Self-Update | v1.0 | 0/? | Not started | - |
 | 11. Polish + Themes | v1.0 | 0/? | Not started | - |
-| 12. Go Backend Core | v2.0 | 0/? | Not started | - |
+| 12. Go Backend Core | v2.0 | 0/4 | Planning complete | - |
 | 13. CI/CD Pipeline | v2.0 | 0/? | Not started | - |
 | 14. Installer (setup.sh) | v2.0 | 0/? | Not started | - |
 | 15. Self-Update Backend | v2.0 | 0/? | Not started | - |
