@@ -63,6 +63,9 @@ export const RuleRow = memo(function RuleRow({ rule, index, showTarget, blockId:
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
+    // Native browser virtualization — skip paint/layout for off-screen rows
+    contentVisibility: 'auto',
+    containIntrinsicSize: 'auto 34px',
   }
 
   return (

@@ -137,7 +137,7 @@ export const RuleBlockCard = memo(function RuleBlockCard({ block, index, density
           <CardContent className="px-4 pb-3 pt-0">
             <DndContext sensors={sensors} collisionDetection={closestCenter} modifiers={VERTICAL_MODIFIERS} onDragEnd={handleRuleDragEnd}>
               <SortableContext items={ruleIds} strategy={verticalListSortingStrategy}>
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-col gap-0.5 max-h-[60vh] overflow-y-auto">
                   {block.rules.map((rule, ri) => (<RuleRow key={rule.id} rule={rule} index={ri} showTarget={hasMixedTargets} blockId={block.id} proxyGroups={proxyGroups} onChangeTarget={handleChangeRuleTarget} onRemove={handleRemoveRule} />))}
                 </div>
               </SortableContext>
