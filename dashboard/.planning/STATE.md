@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Dashboard
 status: unknown
-last_updated: "2026-03-01T19:20:36.133Z"
+last_updated: "2026-03-01T19:33:35Z"
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 25
-  completed_plans: 22
+  completed_plans: 23
 ---
 
 # Project State
@@ -23,19 +23,19 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 12 of 16 (Go Backend Core)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: Executing
-Last activity: 2026-03-02 -- Completed 12-02 REST API handlers
+Last activity: 2026-03-02 -- Completed 12-03 WebSocket log streaming + REST log endpoints
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
-v2.0 progress: [█████░░░░░] 50% (2/4 plans in phase 12)
+v2.0 progress: [███████░░░] 75% (3/4 plans in phase 12)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 23
 - Average duration: 5 min
-- Total execution time: 1.43 hours
+- Total execution time: 1.51 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -62,6 +62,7 @@ v2.0 progress: [█████░░░░░] 50% (2/4 plans in phase 12)
 | 06 | 04 | 12min | 3 | 5 |
 | 12 | 01 | 24min | 2 | 12 |
 | 12 | 02 | 3min | 2 | 10 |
+| 12 | 03 | 5min | 2 | 10 |
 
 ## Accumulated Context
 
@@ -75,6 +76,9 @@ v2.0 progress: [█████░░░░░] 50% (2/4 plans in phase 12)
 - [Phase 12]: Handlers struct pattern with *config.AppConfig for all handler methods
 - [Phase 12]: Pointer *string for JSON body content to distinguish missing vs empty
 - [Phase 12]: Package-level cpuPrev with sync.Mutex for thread-safe CPU delta calculation
+- [Phase 12]: Canonical log parsing in logwatch package -- single source of truth for WS and REST
+- [Phase 12]: LogHub lazy watcher: 0 clients = 0 file watchers, fsnotify + polling fallback
+- [Phase 12]: WS endpoint outside /api auth group -- no auth on WebSocket upgrade
 
 ### Pending Todos
 
@@ -87,5 +91,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 12-02-PLAN.md (REST API handlers)
+Stopped at: Completed 12-03-PLAN.md (WebSocket log streaming + REST log endpoints)
 Resume file: None
