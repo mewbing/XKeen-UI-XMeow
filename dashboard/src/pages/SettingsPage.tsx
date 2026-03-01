@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Settings, RotateCcw, RefreshCw, Trash2, Globe, Loader2 } from 'lucide-react'
+import { Settings, RotateCcw, RefreshCw, Trash2, Globe, Loader2, Sun, Moon, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { reloadConfig, flushFakeIP, updateGeoData, restartMihomo } from '@/lib/mihomo-api'
 import { toast } from 'sonner'
@@ -103,13 +103,27 @@ export function SettingsSheet({
     mihomoApiUrl,
     configApiUrl,
     startPage,
+    theme,
     reduceMotion,
     maxLogEntries,
     showDiffBeforeApply,
+    rulesConfirmDelete,
+    rulesShowDiffBeforeApply,
+    rulesGrouping,
+    rulesLayout,
+    rulesDensity,
+    rulesNewBlockMode,
     setStartPage,
+    setTheme,
     setReduceMotion,
     setMaxLogEntries,
     setShowDiffBeforeApply,
+    setRulesConfirmDelete,
+    setRulesShowDiffBeforeApply,
+    setRulesGrouping,
+    setRulesLayout,
+    setRulesDensity,
+    setRulesNewBlockMode,
     resetConfig,
   } = useSettingsStore()
 
@@ -180,8 +194,36 @@ export function SettingsSheet({
           </section>
 
           {/* Appearance */}
-          <section className="rounded-lg border p-3">
-            <div className="flex items-center justify-between">
+          <section className="rounded-lg border p-3 space-y-3">
+            <h3 className="text-sm font-medium">Оформление</h3>
+
+            {/* Theme selector */}
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Тема</Label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {([
+                  { value: 'light', label: 'Светлая', Icon: Sun },
+                  { value: 'dark', label: 'Тёмная', Icon: Moon },
+                  { value: 'system', label: 'Авто', Icon: Monitor },
+                ] as const).map(({ value, label, Icon }) => (
+                  <button
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    className={`flex flex-col items-center gap-1 rounded-md border py-2 px-1 text-[11px] transition-colors ${
+                      theme === value
+                        ? 'border-primary bg-primary/5 text-foreground'
+                        : 'border-border text-muted-foreground hover:border-primary/50'
+                    }`}
+                  >
+                    <Icon className="size-4" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Animations toggle */}
+            <div className="flex items-center justify-between pt-1 border-t">
               <div>
                 <Label htmlFor="reduce-motion" className="text-sm font-medium">Анимации</Label>
                 <p className="text-[11px] text-muted-foreground">Отключите для слабых систем</p>
@@ -226,6 +268,95 @@ export function SettingsSheet({
                 checked={showDiffBeforeApply}
                 onCheckedChange={setShowDiffBeforeApply}
               />
+            </div>
+          </section>
+
+          {/* Rules editor */}
+          <section className="rounded-lg border p-3 space-y-3">
+            <h3 className="text-sm font-medium">Визуальный редактор правил</h3>
+
+            {/* Confirm delete */}
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="rules-confirm-delete" className="text-sm font-medium">Подтверждать удаление</Label>
+                <p className="text-[11px] text-muted-foreground">Спрашивать перед удалением правила или блока</p>
+              </div>
+              <Switch
+                id="rules-confirm-delete"
+                checked={rulesConfirmDelete}
+                onCheckedChange={setRulesConfirmDelete}
+              />
+            </div>
+
+            {/* Show diff before apply */}
+            <div className="flex items-center justify-between pt-1 border-t">
+              <div>
+                <Label htmlFor="rules-diff-before-apply" className="text-sm font-medium">Diff перед Apply</Label>
+                <p className="text-[11px] text-muted-foreground">Показывать изменения перед применением правил</p>
+              </div>
+              <Switch
+                id="rules-diff-before-apply"
+                checked={rulesShowDiffBeforeApply}
+                onCheckedChange={setRulesShowDiffBeforeApply}
+              />
+            </div>
+
+            {/* Grouping mode */}
+            <div className="space-y-1.5 pt-1 border-t">
+              <Label className="text-xs text-muted-foreground">Группировка</Label>
+              <Select value={rulesGrouping} onValueChange={setRulesGrouping}>
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="proxy-group">По прокси-группе</SelectItem>
+                  <SelectItem value="sections">По секциям</SelectItem>
+                  <SelectItem value="two-level">Двухуровневая</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Layout mode */}
+            <div className="space-y-1.5 pt-1 border-t">
+              <Label className="text-xs text-muted-foreground">Раскладка</Label>
+              <Select value={rulesLayout} onValueChange={setRulesLayout}>
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="list">Список</SelectItem>
+                  <SelectItem value="grid">Сетка</SelectItem>
+                  <SelectItem value="proxies">Как прокси</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Density */}
+            <div className="space-y-1.5 pt-1 border-t">
+              <Label className="text-xs text-muted-foreground">Плотность</Label>
+              <Select value={rulesDensity} onValueChange={setRulesDensity}>
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="min">Компактная</SelectItem>
+                  <SelectItem value="detailed">Подробная</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* New block mode */}
+            <div className="space-y-1.5 pt-1 border-t">
+              <Label className="text-xs text-muted-foreground">Создание блока</Label>
+              <Select value={rulesNewBlockMode} onValueChange={setRulesNewBlockMode}>
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dialog">Диалог</SelectItem>
+                  <SelectItem value="inline">Встроенный</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </section>
 
