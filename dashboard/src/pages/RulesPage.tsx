@@ -5,7 +5,7 @@
  * supports expand/collapse, search filtering, and 3 view modes.
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useDeferredValue, startTransition } from 'react'
 import { Search, RefreshCw, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -22,6 +22,7 @@ export default function RulesPage() {
   const health = useHealthCheck({ requireConfigApi: true })
 
   const [searchQuery, setSearchQuery] = useState('')
+  const deferredSearch = useDeferredValue(searchQuery)
   const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set())
 
   const blocks = useRulesEditorStore((s) => s.blocks)
@@ -61,16 +62,18 @@ export default function RulesPage() {
     }
   }, [])
 
-  // Toggle expand/collapse
+  // Toggle expand/collapse — low-priority update via startTransition
   const handleToggleExpand = useCallback((blockId: string) => {
-    setExpandedBlocks((prev) => {
-      const next = new Set(prev)
-      if (next.has(blockId)) {
-        next.delete(blockId)
-      } else {
-        next.add(blockId)
-      }
-      return next
+    startTransition(() => {
+      setExpandedBlocks((prev) => {
+        const next = new Set(prev)
+        if (next.has(blockId)) {
+          next.delete(blockId)
+        } else {
+          next.add(blockId)
+        }
+        return next
+      })
     })
   }, [])
 
@@ -116,11 +119,11 @@ export default function RulesPage() {
   // Stable empty set for when not dirty — avoids creating new Set on every render
   const changedBlockIds = useMemo(() => new Set<string>(), [])
 
-  // Filter blocks by search
+  // Filter blocks by search — uses deferred value to keep input responsive
   const filteredBlocks = useMemo(() => {
-    if (!searchQuery) return blocks
+    if (!deferredSearch) return blocks
 
-    const q = searchQuery.toLowerCase()
+    const q = deferredSearch.toLowerCase()
     return blocks.filter((block) => {
       // Match block name
       if (block.name.toLowerCase().includes(q)) return true
@@ -133,7 +136,7 @@ export default function RulesPage() {
         rule.target.toLowerCase().includes(q)
       )
     })
-  }, [blocks, searchQuery])
+  }, [blocks, deferredSearch])
 
   if (!isHealthy(health)) {
     return (

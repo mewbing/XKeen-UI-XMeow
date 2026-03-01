@@ -6,7 +6,7 @@
  * Expanded: all rules as sortable RuleRow + add rule button.
  */
 
-import { useState, memo, useMemo } from 'react'
+import { useState, memo, useMemo, useCallback } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -35,6 +35,9 @@ import { RuleRow } from './RuleRow'
 import { AddRuleDialog } from './AddRuleDialog'
 import type { RuleBlock } from '@/lib/rules-parser'
 
+/** Static array — avoids new allocation each render */
+const VERTICAL_MODIFIERS = [restrictToVerticalAxis]
+
 interface RuleBlockCardProps {
   block: RuleBlock
   index: number
@@ -59,24 +62,26 @@ export const RuleBlockCard = memo(function RuleBlockCard({ block, index, density
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteRuleConfirm, setDeleteRuleConfirm] = useState<{ blockId: string; ruleId: string; label: string } | null>(null)
   const [dontAskAgain, setDontAskAgain] = useState(false)
-  const rulesConfirmDelete = useSettingsStore((s) => s.rulesConfirmDelete)
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
   const ruleIds = useMemo(() => block.rules.map((r) => r.id), [block.rules])
 
-  const handleRuleDragEnd = (event: DragEndEvent) => {
+  // Stable callbacks — read store state directly to avoid closure deps on block.rules
+  const handleRuleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
-    const oldI = block.rules.findIndex((r) => r.id === active.id)
-    const newI = block.rules.findIndex((r) => r.id === over.id)
+    const currentBlock = useRulesEditorStore.getState().blocks.find(b => b.id === block.id)
+    if (!currentBlock) return
+    const oldI = currentBlock.rules.findIndex((r) => r.id === active.id)
+    const newI = currentBlock.rules.findIndex((r) => r.id === over.id)
     if (oldI !== -1 && newI !== -1) useRulesEditorStore.getState().reorderRules(block.id, oldI, newI)
-  }
+  }, [block.id])
 
-  const handleDeleteBlock = (e: React.MouseEvent) => {
+  const handleDeleteBlock = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    if (rulesConfirmDelete) setDeleteConfirmOpen(true)
+    if (useSettingsStore.getState().rulesConfirmDelete) setDeleteConfirmOpen(true)
     else useRulesEditorStore.getState().removeBlock(block.id)
-  }
+  }, [block.id])
 
   const handleConfirmDeleteBlock = () => {
     if (dontAskAgain) useSettingsStore.getState().setRulesConfirmDelete(false)
@@ -84,14 +89,15 @@ export const RuleBlockCard = memo(function RuleBlockCard({ block, index, density
     setDeleteConfirmOpen(false); setDontAskAgain(false)
   }
 
-  const handleRemoveRule = (ruleId: string) => {
-    if (rulesConfirmDelete) {
-      const rule = block.rules.find((r) => r.id === ruleId)
+  const handleRemoveRule = useCallback((ruleId: string) => {
+    if (useSettingsStore.getState().rulesConfirmDelete) {
+      const currentBlock = useRulesEditorStore.getState().blocks.find(b => b.id === block.id)
+      const rule = currentBlock?.rules.find((r) => r.id === ruleId)
       setDeleteRuleConfirm({ blockId: block.id, ruleId, label: rule ? `${rule.type},${rule.value}` : ruleId })
     } else {
       useRulesEditorStore.getState().removeRule(block.id, ruleId)
     }
-  }
+  }, [block.id])
 
   const handleConfirmDeleteRule = () => {
     if (!deleteRuleConfirm) return
@@ -100,15 +106,15 @@ export const RuleBlockCard = memo(function RuleBlockCard({ block, index, density
     setDeleteRuleConfirm(null); setDontAskAgain(false)
   }
 
-  const handleChangeRuleTarget = (ruleId: string, newT: string) => useRulesEditorStore.getState().changeRuleTarget(block.id, ruleId, newT)
-  const handleChangeBlockTarget = (newT: string) => useRulesEditorStore.getState().changeBlockTarget(block.id, newT)
+  const handleChangeRuleTarget = useCallback((ruleId: string, newT: string) => useRulesEditorStore.getState().changeRuleTarget(block.id, ruleId, newT), [block.id])
+  const handleChangeBlockTarget = useCallback((newT: string) => useRulesEditorStore.getState().changeBlockTarget(block.id, newT), [block.id])
 
   const hasMixedTargets = useMemo(() => block.rules.some((r) => r.target !== block.target), [block.rules, block.target])
 
   return (
     <>
-      <Card className={cn('transition-all duration-200 overflow-hidden py-0 gap-0', isDragging && 'opacity-50')} style={style}>
-        <CardHeader className={cn('select-none px-4 !gap-0 transition-[padding] duration-200', isExpanded ? 'pt-3 pb-2' : 'py-3')}>
+      <Card className={cn('transition-opacity duration-150 overflow-hidden py-0 gap-0', isDragging && 'opacity-50')} style={style}>
+        <CardHeader className={cn('select-none px-4 !gap-0', isExpanded ? 'pt-3 pb-2' : 'py-3')}>
           <div className="flex items-center gap-2 min-w-0">
             <span className="flex items-center justify-center size-6 rounded-md bg-muted text-muted-foreground text-xs font-medium tabular-nums shrink-0">#{index + 1}</span>
             <button className="font-medium text-sm truncate min-w-0 flex-1 text-left cursor-pointer hover:text-primary transition-colors" onClick={onToggleExpand}>{block.name}</button>
@@ -127,20 +133,18 @@ export const RuleBlockCard = memo(function RuleBlockCard({ block, index, density
             </div>
           )}
         </CardHeader>
-        <div className={cn('grid transition-[grid-template-rows] duration-300 ease-out', isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}>
-          <div className={cn('overflow-hidden transition-opacity duration-200', isExpanded ? 'opacity-100 delay-100' : 'opacity-0')}>
-            <CardContent className="px-4 pb-3 pt-0">
-              <DndContext sensors={sensors} collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={handleRuleDragEnd}>
-                <SortableContext items={ruleIds} strategy={verticalListSortingStrategy}>
-                  <div className="flex flex-col gap-0.5">
-                    {block.rules.map((rule, ri) => (<RuleRow key={rule.id} rule={rule} index={ri} showTarget={hasMixedTargets} blockId={block.id} proxyGroups={proxyGroups} onChangeTarget={handleChangeRuleTarget} onRemove={handleRemoveRule} />))}
-                  </div>
-                </SortableContext>
-              </DndContext>
-              <Button variant="ghost" size="sm" className="w-full mt-2 text-muted-foreground hover:text-primary" onClick={() => setAddRuleOpen(true)}><Plus className="size-4" />Добавить правило</Button>
-            </CardContent>
-          </div>
-        </div>
+        {isExpanded && (
+          <CardContent className="px-4 pb-3 pt-0">
+            <DndContext sensors={sensors} collisionDetection={closestCenter} modifiers={VERTICAL_MODIFIERS} onDragEnd={handleRuleDragEnd}>
+              <SortableContext items={ruleIds} strategy={verticalListSortingStrategy}>
+                <div className="flex flex-col gap-0.5">
+                  {block.rules.map((rule, ri) => (<RuleRow key={rule.id} rule={rule} index={ri} showTarget={hasMixedTargets} blockId={block.id} proxyGroups={proxyGroups} onChangeTarget={handleChangeRuleTarget} onRemove={handleRemoveRule} />))}
+                </div>
+              </SortableContext>
+            </DndContext>
+            <Button variant="ghost" size="sm" className="w-full mt-2 text-muted-foreground hover:text-primary" onClick={() => setAddRuleOpen(true)}><Plus className="size-4" />Добавить правило</Button>
+          </CardContent>
+        )}
       </Card>
 
       <AddRuleDialog open={addRuleOpen} onOpenChange={setAddRuleOpen} blockId={block.id} proxyGroups={proxyGroups} defaultTarget={block.target} />

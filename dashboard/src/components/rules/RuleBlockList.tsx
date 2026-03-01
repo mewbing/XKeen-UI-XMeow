@@ -5,7 +5,7 @@
  * for drag-and-drop reordering. Supports 3 layout modes.
  */
 
-import { useState, memo, useMemo } from 'react'
+import { useState, memo, useMemo, useCallback } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -57,7 +57,7 @@ interface SortableBlockCardProps {
   index: number
   density: 'min' | 'detailed'
   isExpanded: boolean
-  onToggleExpand: () => void
+  onToggleExpand: (blockId: string) => void
   proxyGroups: string[]
   isChanged: boolean
 }
@@ -85,6 +85,8 @@ const SortableBlockCard = memo(function SortableBlockCard({
     transition,
   }
 
+  const handleToggle = useCallback(() => onToggleExpand(block.id), [onToggleExpand, block.id])
+
   return (
     <div
       ref={setNodeRef}
@@ -101,7 +103,7 @@ const SortableBlockCard = memo(function SortableBlockCard({
         index={index}
         density={density}
         isExpanded={isExpanded}
-        onToggleExpand={onToggleExpand}
+        onToggleExpand={handleToggle}
         isDragging={isDragging}
         proxyGroups={proxyGroups}
       />
@@ -292,7 +294,7 @@ export function RuleBlockList({
               index={i}
               density={density}
               isExpanded={expandedBlocks.has(block.id)}
-              onToggleExpand={() => onToggleExpand(block.id)}
+              onToggleExpand={onToggleExpand}
               proxyGroups={proxyGroups}
               isChanged={changedBlockIds.has(block.id)}
             />

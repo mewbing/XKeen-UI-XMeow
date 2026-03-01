@@ -82,6 +82,15 @@ function extractProxyGroups(rules: ParsedRule[]): string[] {
   return Array.from(targets).sort()
 }
 
+/** Return the same array reference if contents haven't changed — prevents memo-breaking re-renders */
+function stableProxyGroups(newGroups: string[], currentGroups: string[]): string[] {
+  if (newGroups.length !== currentGroups.length) return newGroups
+  for (let i = 0; i < newGroups.length; i++) {
+    if (newGroups[i] !== currentGroups[i]) return newGroups
+  }
+  return currentGroups
+}
+
 /** Lazily serialize blocks to YAML — only called on Save/Apply/Diff, NOT on every mutation */
 function reserialize(blocks: RuleBlock[]): string {
   if (!storedDoc) return ''
@@ -200,7 +209,7 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         set({
           blocks: newBlocks,
           currentYaml: STALE,
-          proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
+          proxyGroups: stableProxyGroups(extractProxyGroups(flattenBlocksToRules(newBlocks)), get().proxyGroups),
           dirty: true,
           changeCount: changeCount + 1,
         })
@@ -216,7 +225,7 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         set({
           blocks: newBlocks,
           currentYaml: STALE,
-          proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
+          proxyGroups: stableProxyGroups(extractProxyGroups(flattenBlocksToRules(newBlocks)), get().proxyGroups),
           dirty: true,
           changeCount: changeCount + 1,
         })
@@ -238,7 +247,7 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         set({
           blocks: newBlocks,
           currentYaml: STALE,
-          proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
+          proxyGroups: stableProxyGroups(extractProxyGroups(flattenBlocksToRules(newBlocks)), get().proxyGroups),
           dirty: true,
           changeCount: changeCount + 1,
         })
@@ -261,7 +270,7 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         set({
           blocks: newBlocks,
           currentYaml: STALE,
-          proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
+          proxyGroups: stableProxyGroups(extractProxyGroups(flattenBlocksToRules(newBlocks)), get().proxyGroups),
           dirty: true,
           changeCount: changeCount + 1,
         })
@@ -281,7 +290,7 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         set({
           blocks: newBlocks,
           currentYaml: STALE,
-          proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
+          proxyGroups: stableProxyGroups(extractProxyGroups(flattenBlocksToRules(newBlocks)), get().proxyGroups),
           dirty: true,
           changeCount: changeCount + 1,
         })
@@ -294,7 +303,7 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         set({
           blocks: newBlocks,
           currentYaml: STALE,
-          proxyGroups: extractProxyGroups(flattenBlocksToRules(newBlocks)),
+          proxyGroups: stableProxyGroups(extractProxyGroups(flattenBlocksToRules(newBlocks)), get().proxyGroups),
           dirty: true,
           changeCount: changeCount + 1,
         })
@@ -349,6 +358,14 @@ export const useRulesEditorStore = create<RulesEditorState>()(
         blocks: state.blocks,
       }),
       limit: 50,
+      // Debounce undo snapshots — batch rapid mutations (drag, type-ahead, etc.)
+      handleSet: (handleSet) => {
+        let timer: ReturnType<typeof setTimeout>
+        return (state) => {
+          clearTimeout(timer)
+          timer = setTimeout(() => handleSet(state), 400)
+        }
+      },
     }
   )
 )
