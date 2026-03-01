@@ -7,11 +7,12 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Search, RefreshCw, AlertTriangle } from 'lucide-react'
+import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { useSettingsStore } from '@/stores/settings'
 import { useRulesEditorStore } from '@/stores/rules-editor'
-import { fetchConfig } from '@/lib/config-api'
+import { fetchConfig, saveConfig } from '@/lib/config-api'
 import { RulesToolbar } from '@/components/rules/RulesToolbar'
 import { RuleBlockList } from '@/components/rules/RuleBlockList'
 import { useHealthCheck, isHealthy } from '@/hooks/useHealthCheck'
@@ -27,6 +28,7 @@ export default function RulesPage() {
   const loading = useRulesEditorStore((s) => s.loading)
   const error = useRulesEditorStore((s) => s.error)
   const proxyGroups = useRulesEditorStore((s) => s.proxyGroups)
+  const dirty = useRulesEditorStore((s) => s.dirty)
 
   const layout = useSettingsStore((s) => s.rulesLayout)
   const density = useSettingsStore((s) => s.rulesDensity)
@@ -72,6 +74,53 @@ export default function RulesPage() {
       return next
     })
   }, [])
+
+  // Keyboard shortcuts: Ctrl+Z, Ctrl+Shift+Z, Ctrl+Y, Ctrl+S
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return
+
+      if (e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        useRulesEditorStore.temporal.getState().undo()
+      } else if ((e.key === 'z' && e.shiftKey) || e.key === 'y') {
+        e.preventDefault()
+        useRulesEditorStore.temporal.getState().redo()
+      } else if (e.key === 's') {
+        e.preventDefault()
+        const state = useRulesEditorStore.getState()
+        if (!state.dirty) return
+        const yaml = state.serialize()
+        saveConfig(yaml).then(() => {
+          useRulesEditorStore.getState().markSaved()
+          toast.success('\u041a\u043e\u043d\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u044f \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430')
+        }).catch((err) => {
+          toast.error('\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f: ' + (err instanceof Error ? err.message : String(err)))
+        })
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
+  // Navigation guard
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (useRulesEditorStore.getState().dirty) {
+        e.preventDefault()
+      }
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [])
+
+  // Track changed block IDs
+  const changedBlockIds = useMemo(() => {
+    const ids = new Set<string>()
+    if (!dirty) return ids
+    for (const block of blocks) ids.add(block.id)
+    return ids
+  }, [blocks, dirty])
 
   // Filter blocks by search
   const filteredBlocks = useMemo(() => {
@@ -164,6 +213,7 @@ export default function RulesPage() {
           onToggleExpand={handleToggleExpand}
           newBlockMode={newBlockMode}
           proxyGroups={proxyGroups}
+          changedBlockIds={changedBlockIds}
         />
       )}
     </div>

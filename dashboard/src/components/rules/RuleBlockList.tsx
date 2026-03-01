@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/select'
 import { useRulesEditorStore } from '@/stores/rules-editor'
 import { RuleBlockCard } from './RuleBlockCard'
+import { DangerWarningDialog, DANGER_MATCH_MOVED, DANGER_EXCLUSIONS_MOVED } from './DangerWarningDialog'
 import type { RuleBlock } from '@/lib/rules-parser'
 
 interface RuleBlockListProps {
@@ -46,6 +47,7 @@ interface RuleBlockListProps {
   onToggleExpand: (blockId: string) => void
   newBlockMode: 'dialog' | 'inline'
   proxyGroups: string[]
+  changedBlockIds: Set<string>
 }
 
 // ---- SortableBlockCard wrapper ----
@@ -57,6 +59,7 @@ interface SortableBlockCardProps {
   isExpanded: boolean
   onToggleExpand: () => void
   proxyGroups: string[]
+  isChanged: boolean
 }
 
 function SortableBlockCard({
@@ -66,6 +69,7 @@ function SortableBlockCard({
   isExpanded,
   onToggleExpand,
   proxyGroups,
+  isChanged,
 }: SortableBlockCardProps) {
   const {
     attributes,
@@ -87,7 +91,10 @@ function SortableBlockCard({
       {...attributes}
       {...listeners}
       style={style}
-      className={cn(isExpanded && 'col-span-full')}
+      className={cn(
+        isExpanded && 'col-span-full',
+        isChanged && 'border-l-4 border-l-amber-500 rounded-l-sm',
+      )}
     >
       <RuleBlockCard
         block={block}
@@ -189,8 +196,13 @@ export function RuleBlockList({
   onToggleExpand,
   newBlockMode,
   proxyGroups,
+  changedBlockIds,
 }: RuleBlockListProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [pendingMove, setPendingMove] = useState<{
+    oldIndex: number; newIndex: number;
+    dangerType: { title: string; description: string }
+  } | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -210,14 +222,39 @@ export function RuleBlockList({
 
     const oldIndex = blocks.findIndex((b) => b.id === active.id)
     const newIndex = blocks.findIndex((b) => b.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
 
-    if (oldIndex !== -1 && newIndex !== -1) {
-      useRulesEditorStore.getState().reorderBlocks(oldIndex, newIndex)
+    const movedBlock = blocks[oldIndex]
+
+    // Check MATCH to non-last position
+    const hasMatch = movedBlock.rules.some((r) => r.type === 'MATCH')
+    if (hasMatch && newIndex !== blocks.length - 1) {
+      setPendingMove({ oldIndex, newIndex, dangerType: DANGER_MATCH_MOVED })
+      return
     }
+
+    // Check exclusions block
+    if (/исключен/i.test(movedBlock.name) && newIndex > 0) {
+      setPendingMove({ oldIndex, newIndex, dangerType: DANGER_EXCLUSIONS_MOVED })
+      return
+    }
+
+    useRulesEditorStore.getState().reorderBlocks(oldIndex, newIndex)
   }
 
   const handleDragCancel = () => {
     setActiveId(null)
+  }
+
+  const handleDangerConfirm = () => {
+    if (pendingMove) {
+      useRulesEditorStore.getState().reorderBlocks(pendingMove.oldIndex, pendingMove.newIndex)
+      setPendingMove(null)
+    }
+  }
+
+  const handleDangerCancel = () => {
+    setPendingMove(null)
   }
 
   const activeBlock = activeId ? blocks.find((b) => b.id === activeId) : null
@@ -237,6 +274,7 @@ export function RuleBlockList({
   )
 
   return (
+    <>
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
@@ -256,6 +294,7 @@ export function RuleBlockList({
               isExpanded={expandedBlocks.has(block.id)}
               onToggleExpand={() => onToggleExpand(block.id)}
               proxyGroups={proxyGroups}
+              isChanged={changedBlockIds.has(block.id)}
             />
           ))}
 
@@ -280,5 +319,18 @@ export function RuleBlockList({
         )}
       </DragOverlay>
     </DndContext>
+
+      {/* Danger warning dialog */}
+      {pendingMove && (
+        <DangerWarningDialog
+          open={pendingMove !== null}
+          onOpenChange={(v) => { if (!v) setPendingMove(null) }}
+          title={pendingMove.dangerType.title}
+          description={pendingMove.dangerType.description}
+          onConfirm={handleDangerConfirm}
+          onCancel={handleDangerCancel}
+        />
+      )}
+    </>
   )
 }
