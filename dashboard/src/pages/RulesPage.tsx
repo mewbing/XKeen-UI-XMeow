@@ -18,6 +18,9 @@ import { RuleBlockList } from '@/components/rules/RuleBlockList'
 import { useHealthCheck, isHealthy } from '@/hooks/useHealthCheck'
 import { SetupGuide } from '@/components/shared/SetupGuide'
 
+/** Module-level constant — guaranteed stable reference, never breaks memo */
+const EMPTY_CHANGED_IDS = new Set<string>()
+
 export default function RulesPage() {
   const health = useHealthCheck({ requireConfigApi: true })
 
@@ -116,8 +119,7 @@ export default function RulesPage() {
     return () => window.removeEventListener('beforeunload', handler)
   }, [])
 
-  // Stable empty set for when not dirty — avoids creating new Set on every render
-  const changedBlockIds = useMemo(() => new Set<string>(), [])
+  const changedBlockIds = EMPTY_CHANGED_IDS
 
   // Filter blocks by search — uses deferred value to keep input responsive
   const filteredBlocks = useMemo(() => {
