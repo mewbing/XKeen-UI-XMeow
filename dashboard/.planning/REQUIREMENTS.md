@@ -147,9 +147,9 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 
 ### CI/CD
 
-- [ ] **CICD-01**: GitHub Actions cross-compiles Go for arm64, mipsle (softfloat), mips (softfloat)
+- [ ] **CICD-01**: GitHub Actions cross-compiles Go for arm64, mipsle (softfloat), mips (softfloat), amd64, armv7 with UPX compression
 - [ ] **CICD-02**: GitHub Actions builds frontend and embeds into Go binary
-- [ ] **CICD-03**: GitHub Actions creates GitHub Release with architecture-specific binaries
+- [ ] **CICD-03**: GitHub Actions creates GitHub Release with 5 architecture-specific binaries + dist.tar.gz + checksums
 - [ ] **CICD-04**: Version injected via Go ldflags (-X main.Version) at build time
 
 ## Future Requirements
@@ -159,7 +159,7 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 - **DFRD-01**: Beta/prerelease channel toggle in update settings
 - **DFRD-02**: GitHub proxy fallback chain (gh-proxy.com, ghfast.top) for restricted networks
 - **DFRD-03**: Download progress indicator during update
-- **DFRD-04**: UPX compression in CI for smaller binaries
+- ~~**DFRD-04**: UPX compression in CI for smaller binaries~~ → promoted to Phase 13 (CICD-01)
 
 ### Advanced Features (from v1.0)
 
@@ -184,7 +184,7 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 | OTA delta patching (bsdiff) | Binary is 4-8MB, full download fast enough |
 | Multi-version rollback UI | Over-engineering; one backup sufficient |
 | Package manager (opkg) | Requires maintainer agreement; direct GitHub releases |
-| ARM32 (armv7) support | No Keenetic routers use armv7 |
+| ~~ARM32 (armv7) support~~ | ~~No Keenetic routers use armv7~~ — added to Phase 13 for broader compatibility |
 | Docker/container | Entware routers don't run Docker |
 | Config schema validation | mihomo config schema undocumented; YAML syntax only |
 
@@ -297,4 +297,4 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-03-02 after adding external-ui update requirements (SUPD-05, SUPD-06, UPUI-06)*
+*Last updated: 2026-03-03 — synced CICD-01/03 with Phase 13 discuss-phase decisions (5 architectures + UPX), promoted DFRD-04*
