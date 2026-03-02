@@ -233,26 +233,29 @@ Plans:
 **Plans**: TBD
 
 ### Phase 15: Self-Update Backend
-**Goal**: Go backend умеет проверять и устанавливать обновления из GitHub releases, атомарно заменяя свой бинарник
+**Goal**: Go backend умеет проверять и устанавливать обновления из GitHub releases, атомарно заменяя свой бинарник. В external-ui режиме — отдельно обновляет SPA файлы в директории mihomo.
 **Depends on**: Phase 14 (needs init.d service script for restart mechanism)
-**Requirements**: SUPD-01, SUPD-02, SUPD-03, SUPD-04
+**Requirements**: SUPD-01, SUPD-02, SUPD-03, SUPD-04, SUPD-05, SUPD-06
 **Success Criteria** (what must be TRUE):
   1. GET /api/update/check возвращает информацию о доступном обновлении (текущая версия, последняя версия, changelog, есть ли update)
   2. POST /api/update/apply скачивает новый бинарник, заменяет текущий атомарно (rename) с сохранением backup для rollback
   3. После замены бинарника сервис перезапускается через init.d -- новая версия обслуживает запросы без ручного вмешательства
   4. Результат проверки кэшируется на 1 час -- повторные вызовы check не обращаются к GitHub API
+  5. Backend автоопределяет режим работы (embedded SPA vs external-ui) и выбирает стратегию обновления
+  6. В external-ui режиме POST /api/update/apply скачивает dist.tar.gz и распаковывает в директорию external-ui mihomo
 **Plans**: TBD
 
 ### Phase 16: Update Frontend
-**Goal**: Пользователь видит доступные обновления в UI и может обновить дашборд одним кликом
+**Goal**: Пользователь видит доступные обновления в UI и может обновить дашборд одним кликом. В external-ui режиме — раздельный статус версий сервера и дашборда.
 **Depends on**: Phase 15 (needs backend update API)
-**Requirements**: UPUI-01, UPUI-02, UPUI-03, UPUI-04, UPUI-05
+**Requirements**: UPUI-01, UPUI-02, UPUI-03, UPUI-04, UPUI-05, UPUI-06
 **Success Criteria** (what must be TRUE):
   1. Страница обновлений показывает текущую и последнюю версию с визуальным сравнением
   2. Changelog из GitHub release notes отображается как отформатированный markdown
   3. Кнопка "Обновить" запускает процесс с прогресс-оверлеем -- после завершения страница перезагружается с новой версией
   4. В sidebar появляется badge-индикатор когда доступно обновление
   5. Проверка обновлений происходит автоматически при загрузке приложения и каждые 6 часов
+  6. В external-ui режиме UI показывает раздельный статус версий сервера и дашборда с возможностью обновить каждый компонент независимо
 **Plans**: TBD
 
 ## Progress

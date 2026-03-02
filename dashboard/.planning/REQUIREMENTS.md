@@ -133,6 +133,8 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 - [ ] **SUPD-02**: Backend downloads and replaces own binary atomically with rollback backup
 - [ ] **SUPD-03**: Backend restarts gracefully after self-update via init.d
 - [ ] **SUPD-04**: Backend caches update check results (1h TTL to avoid GitHub rate limits)
+- [ ] **SUPD-05**: Backend auto-detects deployment mode (embedded SPA vs external-ui) and selects update strategy
+- [ ] **SUPD-06**: In external-ui mode: backend downloads and extracts dist.tar.gz into mihomo external-ui directory
 
 ### Update Frontend
 
@@ -141,6 +143,7 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 - [ ] **UPUI-03**: User can trigger update from UI with progress overlay
 - [ ] **UPUI-04**: Sidebar shows notification badge when update is available
 - [ ] **UPUI-05**: Auto-check for updates on app load and periodically (every 6 hours)
+- [ ] **UPUI-06**: UI shows separate version status for server and dashboard in external-ui mode
 
 ### CI/CD
 
@@ -277,18 +280,21 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 | SUPD-02 | Phase 15 | Pending |
 | SUPD-03 | Phase 15 | Pending |
 | SUPD-04 | Phase 15 | Pending |
+| SUPD-05 | Phase 15 | Pending |
+| SUPD-06 | Phase 15 | Pending |
 | UPUI-01 | Phase 16 | Pending |
 | UPUI-02 | Phase 16 | Pending |
 | UPUI-03 | Phase 16 | Pending |
 | UPUI-04 | Phase 16 | Pending |
 | UPUI-05 | Phase 16 | Pending |
+| UPUI-06 | Phase 16 | Pending |
 
 **Coverage:**
 - v1.0 requirements: 55 total (52 active + 3 superseded)
-- v2.0 requirements: 26 total
-- Mapped to phases: 78 (52 v1.0 + 26 v2.0)
+- v2.0 requirements: 29 total
+- Mapped to phases: 81 (52 v1.0 + 29 v2.0)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-03-01 after v2.0 milestone definition*
+*Last updated: 2026-03-02 after adding external-ui update requirements (SUPD-05, SUPD-06, UPUI-06)*
