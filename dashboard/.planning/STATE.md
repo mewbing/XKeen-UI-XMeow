@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Dashboard
 status: unknown
-last_updated: "2026-03-02T07:22:13.212Z"
+last_updated: "2026-03-03"
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 25
-  completed_plans: 24
+  total_phases: 8
+  completed_phases: 8
+  total_plans: 26
+  completed_plans: 25
 ---
 
 # Project State
@@ -18,17 +18,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 12 -- Go Backend Core (milestone v2.0)
+**Current focus:** Phase 13 -- CI/CD Pipeline (milestone v2.0) -- COMPLETE
 
 ## Current Position
 
-Phase: 12 of 16 (Go Backend Core) -- COMPLETE
-Plan: 4 of 4 in current phase (all complete)
-Status: Phase 12 complete, ready for Phase 13
-Last activity: 2026-03-02 -- Completed 12-04 Mihomo reverse proxy + integration verification
+Phase: 13 of 16 (CI/CD Pipeline) -- COMPLETE
+Plan: 1 of 1 in current phase (all complete)
+Status: Phase 13 complete, ready for Phase 14
+Last activity: 2026-03-03 -- Completed 13-01 CI/CD Pipeline (CI workflow + Release workflow + README.md)
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
-v2.0 progress: [██████████] 100% (4/4 plans in phase 12)
+v2.0 progress: [████████░░] 40% (Phase 12-13 complete, 14-16 remain)
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ v2.0 progress: [██████████] 100% (4/4 plans in phase 12)
 | 12 | 02 | 3min | 2 | 10 |
 | 12 | 03 | 5min | 2 | 10 |
 | 12 | 04 | 5min | 2 | 3 |
+| 13 | 01 | 5min | 2 | 3 |
 
 ## Accumulated Context
 
@@ -73,6 +74,9 @@ v2.0 progress: [██████████] 100% (4/4 plans in phase 12)
 - [v2.0]: GOMIPS=softfloat обязателен для MIPS -- без этого silent crash
 - [v2.0]: go-selfupdate MIPS mapping нужно тестировать на реальном устройстве
 - [v2.0]: Линейная цепочка зависимостей: Go -> CI -> Installer -> Self-Update -> Frontend UI
+- [Phase 13]: GOMIPS/GOARM via env block -- empty string = unset = Go default
+- [Phase 13]: Flat tar.gz archives (no subdirectory), dist.tar.gz separate for external-ui
+- [Phase 13]: Prerelease auto-detected from hyphen in tag name
 - [Phase 12]: Simple line-scan for mihomo config fields instead of full YAML parser in config package
 - [Phase 12]: Handlers struct pattern with *config.AppConfig for all handler methods
 - [Phase 12]: Pointer *string for JSON body content to distinguish missing vs empty
@@ -94,6 +98,6 @@ None currently.
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: Completed 12-04-PLAN.md (Mihomo reverse proxy + integration verification) -- Phase 12 fully complete
+Last session: 2026-03-03
+Stopped at: Completed 13-01-PLAN.md (CI/CD Pipeline) -- Phase 13 fully complete
 Resume file: None
