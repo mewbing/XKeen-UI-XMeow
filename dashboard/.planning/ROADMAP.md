@@ -31,7 +31,7 @@
 
 ### v2.0 Go Backend + Installer
 
-- [ ] **Phase 12: Go Backend Core** - Go бинарник с 1:1 API совместимостью Flask, embedded SPA, reverse proxy mihomo
+- [x] **Phase 12: Go Backend Core** - Go бинарник с 1:1 API совместимостью Flask, embedded SPA, reverse proxy mihomo (completed 2026-03-02)
 - [ ] **Phase 13: CI/CD Pipeline** - GitHub Actions cross-compilation arm64/mipsle/mips, автоматические релизы
 - [ ] **Phase 14: Installer (setup.sh)** - Интерактивный shell-установщик для Entware с init.d сервисом
 - [ ] **Phase 15: Self-Update Backend** - Проверка и установка обновлений из GitHub releases с атомарной заменой бинарника
@@ -202,13 +202,13 @@ Plans:
   3. SPA загружается из embedded файловой системы по корневому URL -- не нужен отдельный каталог static files
   4. Запросы к mihomo API (:9090) проксируются через Go backend с автоматической подстановкой auth header
   5. Конфиг и xkeen файлы валидируются и бэкапятся перед записью -- поведение идентично Flask
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
-- [ ] 12-01-PLAN.md -- Go scaffold: module init, chi router, SPA embed, CORS/auth middleware, config loading, health endpoint
-- [ ] 12-02-PLAN.md -- REST API: все 14 handlers (config, xkeen, service, versions, system, logs, proxies) + route registration
-- [ ] 12-03-PLAN.md -- WebSocket: log streaming с fsnotify lazy watcher, bidirectional protocol, polling fallback
-- [ ] 12-04-PLAN.md -- Reverse proxy mihomo API с auth injection + Vite dev config update + integration checkpoint
+- [x] 12-01-PLAN.md -- Go scaffold: module init, chi router, SPA embed, CORS/auth middleware, config loading, health endpoint
+- [x] 12-02-PLAN.md -- REST API: все 14 handlers (config, xkeen, service, versions, system, logs, proxies) + route registration
+- [x] 12-03-PLAN.md -- WebSocket: log streaming с fsnotify lazy watcher, bidirectional protocol, polling fallback
+- [x] 12-04-PLAN.md -- Reverse proxy mihomo API с auth injection + Vite dev config update + integration checkpoint
 
 ### Phase 13: CI/CD Pipeline
 **Goal**: GitHub Actions автоматически собирает Go бинарники для всех архитектур роутера и создаёт GitHub Release
@@ -274,7 +274,7 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 9. Geodata Viewer | v1.0 | 0/? | Not started | - |
 | 10. Self-Update | v1.0 | 0/? | Not started | - |
 | 11. Polish + Themes | v1.0 | 0/? | Not started | - |
-| 12. Go Backend Core | 3/4 | In Progress|  | - |
+| 12. Go Backend Core | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 13. CI/CD Pipeline | v2.0 | 0/? | Not started | - |
 | 14. Installer (setup.sh) | v2.0 | 0/? | Not started | - |
 | 15. Self-Update Backend | v2.0 | 0/? | Not started | - |
