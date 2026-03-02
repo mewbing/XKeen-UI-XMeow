@@ -219,7 +219,10 @@ Plans:
   2. Frontend собирается (npm run build) и встраивается в Go бинарник на этапе сборки
   3. GitHub Release создаётся автоматически с тремя архитектурно-специфичными .tar.gz артефактами
   4. Версия в бинарнике соответствует git tag (через Go ldflags -X main.Version)
-**Plans**: TBD
+**Plans:** 1 plan
+
+Plans:
+- [ ] 13-01-PLAN.md -- CI workflow (push/PR проверка) + Release workflow (3-job pipeline: frontend build, matrix cross-compile 5 arch, GitHub Release)
 
 ### Phase 14: Installer (setup.sh)
 **Goal**: Пользователь устанавливает дашборд на роутер одной командой `curl | sh` с интерактивным меню
@@ -278,7 +281,7 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 10. Self-Update | v1.0 | 0/? | Not started | - |
 | 11. Polish + Themes | v1.0 | 0/? | Not started | - |
 | 12. Go Backend Core | v2.0 | 4/4 | Complete | 2026-03-02 |
-| 13. CI/CD Pipeline | v2.0 | 0/? | Not started | - |
+| 13. CI/CD Pipeline | v2.0 | 0/1 | Planned | - |
 | 14. Installer (setup.sh) | v2.0 | 0/? | Not started | - |
 | 15. Self-Update Backend | v2.0 | 0/? | Not started | - |
 | 16. Update Frontend | v2.0 | 0/? | Not started | - |
