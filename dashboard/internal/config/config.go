@@ -52,22 +52,23 @@ func LoadConfig() *AppConfig {
 // GetMihomoSecret reads the mihomo config.yaml and extracts the "secret" field value.
 // Returns empty string if the file doesn't exist or the field is not found.
 func GetMihomoSecret(configPath string) string {
-	return readMihomoField(configPath, "secret")
+	return ReadMihomoField(configPath, "secret")
 }
 
 // GetMihomoExternalController reads the "external-controller" field from mihomo config.yaml.
 // Returns "127.0.0.1:9090" as default if not found.
 func GetMihomoExternalController(configPath string) string {
-	val := readMihomoField(configPath, "external-controller")
+	val := ReadMihomoField(configPath, "external-controller")
 	if val == "" {
 		return "127.0.0.1:9090"
 	}
 	return val
 }
 
-// readMihomoField performs a simple line-by-line scan for a top-level YAML key.
+// ReadMihomoField performs a simple line-by-line scan for a top-level YAML key.
 // This avoids importing a full YAML parser just for reading one field.
-func readMihomoField(configPath, key string) string {
+// Exported for use by the updater package (external-ui detection).
+func ReadMihomoField(configPath, key string) string {
 	f, err := os.Open(configPath)
 	if err != nil {
 		return ""
@@ -82,12 +83,16 @@ func readMihomoField(configPath, key string) string {
 		if strings.HasPrefix(trimmed, prefix) {
 			val := strings.TrimPrefix(trimmed, prefix)
 			val = strings.TrimSpace(val)
-			// Remove surrounding quotes if present
-			if len(val) >= 2 {
-				if (val[0] == '\'' && val[len(val)-1] == '\'') ||
-					(val[0] == '"' && val[len(val)-1] == '"') {
-					val = val[1 : len(val)-1]
+			// Handle quoted values: find matching closing quote, ignore trailing comment
+			if len(val) >= 2 && (val[0] == '\'' || val[0] == '"') {
+				quote := val[0]
+				if end := strings.IndexByte(val[1:], quote); end >= 0 {
+					return val[1 : end+1]
 				}
+			}
+			// Unquoted: strip inline YAML comments (# ...)
+			if idx := strings.Index(val, " #"); idx >= 0 {
+				val = strings.TrimSpace(val[:idx])
 			}
 			return val
 		}
