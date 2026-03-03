@@ -8,7 +8,7 @@ progress:
   total_phases: 8
   completed_phases: 8
   total_plans: 27
-  completed_plans: 26
+  completed_plans: 27
 ---
 
 # Project State
@@ -18,24 +18,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 14 -- Installer setup.sh (milestone v2.0) -- IN PROGRESS
+**Current focus:** Phase 14 complete -- ready for Phase 15 (Self-Update Backend)
 
 ## Current Position
 
-Phase: 14 of 16 (Installer setup.sh)
-Plan: 1 of 2 in current phase (14-01 complete)
-Status: 14-01 complete (binary rename + version flag), 14-02 next (installer script)
-Last activity: 2026-03-03 -- Completed 14-01 Binary Rename & Version Flag
+Phase: 14 of 16 (Installer setup.sh) -- COMPLETE
+Plan: 2 of 2 in current phase (all complete)
+Status: Phase 14 complete (14-01 binary rename, 14-02 installer script), Phase 15 next
+Last activity: 2026-03-03 -- Completed 14-02 Install-Only setup.sh
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
-v2.0 progress: [█████████░] 50% (Phase 12-14 in progress, 15-16 remain)
+v2.0 progress: [████████████░░] 60% (Phase 12-14 complete, 15-16 remain)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
+- Total plans completed: 27
 - Average duration: 5 min
-- Total execution time: 1.68 hours
+- Total execution time: 1.82 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -66,6 +66,7 @@ v2.0 progress: [█████████░] 50% (Phase 12-14 in progress, 15
 | 12 | 04 | 5min | 2 | 3 |
 | 13 | 01 | 5min | 2 | 3 |
 | 14 | 01 | 4min | 2 | 3 |
+| 14 | 02 | 8min | 2 | 2 |
 
 ## Accumulated Context
 
@@ -89,6 +90,10 @@ v2.0 progress: [█████████░] 50% (Phase 12-14 in progress, 15
 - [Phase 12]: 503 JSON fallback when mihomo not configured instead of panic
 - [Phase 12]: Vite config keeps Flask mode active, Go backend mode as commented alternative
 - [Phase 14]: Bare version output (no prefix) from --version flag for machine parsing by installer
+- [Phase 14]: Install-only setup.sh -- no update/uninstall menu (updates via dashboard UI)
+- [Phase 14]: main() wrapper for curl|sh pipe safety, bilingual output (ru/en) via $LANG
+- [Phase 14]: Two-stage MIPS endianness: opkg.conf first, od byte-order fallback
+- [Phase 14]: init.d overwritten on reinstall, xmeow-ui.conf preserved (user settings)
 
 ### Pending Todos
 
@@ -101,5 +106,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 14-01-PLAN.md (Binary Rename & Version Flag)
+Stopped at: Completed 14-02-PLAN.md (Install-Only setup.sh)
 Resume file: None

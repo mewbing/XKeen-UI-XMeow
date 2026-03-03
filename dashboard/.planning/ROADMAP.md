@@ -33,7 +33,7 @@
 
 - [x] **Phase 12: Go Backend Core** - Go бинарник с 1:1 API совместимостью Flask, embedded SPA, reverse proxy mihomo (completed 2026-03-02)
 - [x] **Phase 13: CI/CD Pipeline** - GitHub Actions cross-compilation arm64/mipsle/mips, автоматические релизы (completed 2026-03-03)
-- [ ] **Phase 14: Installer (setup.sh)** - Интерактивный shell-установщик для Entware с init.d сервисом
+- [x] **Phase 14: Installer (setup.sh)** - Install-only POSIX sh скрипт для Entware с init.d сервисом (completed 2026-03-03)
 - [ ] **Phase 15: Self-Update Backend** - Проверка и установка обновлений из GitHub releases с атомарной заменой бинарника
 - [ ] **Phase 16: Update Frontend** - Страница обновлений, sidebar badge, авто-проверка
 
@@ -237,7 +237,7 @@ Plans:
 
 Plans:
 - [x] 14-01-PLAN.md -- CI rename (xmeow-ui -> xmeow-server) + Go --version flag
-- [ ] 14-02-PLAN.md -- setup.sh install-only script (arch detection, binary download, SHA256, init.d, .gitattributes for LF)
+- [x] 14-02-PLAN.md -- setup.sh install-only script (arch detection, binary download, SHA256, init.d, .gitattributes for LF)
 
 ### Phase 15: Self-Update Backend
 **Goal**: Go backend умеет проверять и устанавливать обновления из GitHub releases, атомарно заменяя свой бинарник. В external-ui режиме — отдельно обновляет SPA файлы в директории mihomo.
@@ -286,6 +286,6 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 11. Polish + Themes | v1.0 | 0/? | Not started | - |
 | 12. Go Backend Core | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 13. CI/CD Pipeline | v2.0 | 1/1 | Complete | 2026-03-03 |
-| 14. Installer (setup.sh) | v2.0 | 1/2 | In Progress | - |
+| 14. Installer (setup.sh) | v2.0 | 2/2 | Complete | 2026-03-03 |
 | 15. Self-Update Backend | v2.0 | 0/? | Not started | - |
 | 16. Update Frontend | v2.0 | 0/? | Not started | - |

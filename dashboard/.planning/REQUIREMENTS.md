@@ -123,9 +123,9 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 
 - [x] **INST-01**: setup.sh installs from GitHub releases via `curl | sh` one-liner
 - [x] **INST-02**: setup.sh auto-detects router architecture (arm64/mipsle/mips)
-- [ ] **INST-03**: setup.sh creates init.d service script (S99) for Entware
-- [ ] **INST-04**: setup.sh supports interactive menu (install/update/uninstall)
-- [ ] **INST-05**: setup.sh validates successful installation and starts service
+- [x] **INST-03**: setup.sh creates init.d service script (S99) for Entware
+- [x] **INST-04**: setup.sh is install-only (no update/uninstall — updates via dashboard UI)
+- [x] **INST-05**: setup.sh validates successful installation and starts service
 
 ### Self-Update Backend
 
@@ -273,9 +273,9 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 | CICD-04 | Phase 13 | Pending |
 | INST-01 | Phase 14 | Complete |
 | INST-02 | Phase 14 | Complete |
-| INST-03 | Phase 14 | Pending |
-| INST-04 | Phase 14 | Pending |
-| INST-05 | Phase 14 | Pending |
+| INST-03 | Phase 14 | Complete |
+| INST-04 | Phase 14 | Complete |
+| INST-05 | Phase 14 | Complete |
 | SUPD-01 | Phase 15 | Pending |
 | SUPD-02 | Phase 15 | Pending |
 | SUPD-03 | Phase 15 | Pending |
