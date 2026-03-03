@@ -232,8 +232,12 @@ Plans:
   1. Команда `curl -sL https://...setup.sh | sh` скачивает и запускает установщик на роутере
   2. Установщик определяет архитектуру роутера (arm64/mipsle/mips) и скачивает правильный бинарник из GitHub releases
   3. Интерактивное меню предлагает install/update/uninstall -- каждая опция работает корректно
-  4. После установки создан init.d скрипт S99antigravity, сервис запущен, дашборд доступен в браузере на порту 5000
-**Plans**: TBD
+  4. После установки создан init.d скрипт S99xmeow-ui, сервис запущен, дашборд доступен в браузере на порту 5000
+**Plans:** 2 plans
+
+Plans:
+- [ ] 14-01-PLAN.md -- CI rename (xmeow-ui -> xmeow-server) + Go --version flag
+- [ ] 14-02-PLAN.md -- setup.sh installer script (install/update/uninstall, arch detection, init.d, external-ui)
 
 ### Phase 15: Self-Update Backend
 **Goal**: Go backend умеет проверять и устанавливать обновления из GitHub releases, атомарно заменяя свой бинарник. В external-ui режиме — отдельно обновляет SPA файлы в директории mihomo.
