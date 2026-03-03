@@ -7,7 +7,7 @@
 ## Milestones
 
 - 🚧 **v1.0 Dashboard** - Phases 1-11 (in progress, 6/11 complete)
-- 📋 **v2.0 Go Backend + Installer** - Phases 12-16 (planned)
+- 📋 **v0.1.0 Go Backend + Installer** - Phases 12-16 (first release)
 
 ## Phases
 
@@ -29,7 +29,7 @@
 - [ ] **Phase 10: Self-Update** - Механизм обновления дашборда и бэкенда из GitHub releases
 - [ ] **Phase 11: Polish + Themes** - Тёмная/светлая тема, адаптивность, финальное тестирование
 
-### v2.0 Go Backend + Installer
+### v0.1.0 Go Backend + Installer
 
 - [x] **Phase 12: Go Backend Core** - Go бинарник с 1:1 API совместимостью Flask, embedded SPA, reverse proxy mihomo (completed 2026-03-02)
 - [x] **Phase 13: CI/CD Pipeline** - GitHub Actions cross-compilation arm64/mipsle/mips, автоматические релизы (completed 2026-03-03)
@@ -225,19 +225,19 @@ Plans:
 - [x] 13-01-PLAN.md -- CI workflow (push/PR проверка) + Release workflow (3-job pipeline: frontend build, matrix cross-compile 5 arch, GitHub Release)
 
 ### Phase 14: Installer (setup.sh)
-**Goal**: Пользователь устанавливает дашборд на роутер одной командой `curl | sh` с интерактивным меню
+**Goal**: Пользователь устанавливает серверную часть на роутер одной командой `curl | sh` — только установка, обновления через дашборд UI
 **Depends on**: Phase 13 (needs CI-produced release binaries to download)
 **Requirements**: INST-01, INST-02, INST-03, INST-04, INST-05
 **Success Criteria** (what must be TRUE):
   1. Команда `curl -sL https://...setup.sh | sh` скачивает и запускает установщик на роутере
   2. Установщик определяет архитектуру роутера (arm64/mipsle/mips) и скачивает правильный бинарник из GitHub releases
-  3. Интерактивное меню предлагает install/update/uninstall -- каждая опция работает корректно
+  3. Скрипт install-only: без update/uninstall меню (обновления через UI дашборда)
   4. После установки создан init.d скрипт S99xmeow-ui, сервис запущен, дашборд доступен в браузере на порту 5000
-**Plans:** 1/2 plans executed
+**Plans:** 2 plans
 
 Plans:
-- [ ] 14-01-PLAN.md -- CI rename (xmeow-ui -> xmeow-server) + Go --version flag
-- [ ] 14-02-PLAN.md -- setup.sh installer script (install/update/uninstall, arch detection, init.d, external-ui)
+- [x] 14-01-PLAN.md -- CI rename (xmeow-ui -> xmeow-server) + Go --version flag
+- [ ] 14-02-PLAN.md -- setup.sh install-only script (arch detection, binary download, SHA256, init.d, .gitattributes for LF)
 
 ### Phase 15: Self-Update Backend
 **Goal**: Go backend умеет проверять и устанавливать обновления из GitHub releases, атомарно заменяя свой бинарник. В external-ui режиме — отдельно обновляет SPA файлы в директории mihomo.
@@ -286,6 +286,6 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 11. Polish + Themes | v1.0 | 0/? | Not started | - |
 | 12. Go Backend Core | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 13. CI/CD Pipeline | v2.0 | 1/1 | Complete | 2026-03-03 |
-| 14. Installer (setup.sh) | 1/2 | In Progress|  | - |
+| 14. Installer (setup.sh) | v2.0 | 1/2 | In Progress | - |
 | 15. Self-Update Backend | v2.0 | 0/? | Not started | - |
 | 16. Update Frontend | v2.0 | 0/? | Not started | - |
