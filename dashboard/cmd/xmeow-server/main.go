@@ -18,7 +18,7 @@ import (
 // Version is set via ldflags at build time:
 //
 //	go build -ldflags "-X main.Version=1.0.0" ./cmd/xmeow-server/
-var Version = "dev"
+var Version = "0.1.0"
 
 func main() {
 	// Print bare version string and exit (used by installer for update detection)

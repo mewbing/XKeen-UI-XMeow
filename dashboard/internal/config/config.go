@@ -36,7 +36,7 @@ func LoadConfig() *AppConfig {
 		XkeenLogDir:      getEnv("XKEEN_LOG_DIR", "/opt/var/log/xray"),
 		Port:             getEnvInt("PORT", 5000),
 		DevMode:          getEnv("DEV_MODE", "") != "",
-		Version:          getEnv("VERSION", "dev"),
+		Version:          getEnv("VERSION", "0.1.0"),
 		AllowedLogs: map[string]string{
 			"error":  "error.log",
 			"access": "access.log",
