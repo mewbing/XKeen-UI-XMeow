@@ -250,7 +250,7 @@ Plans:
   4. Результат проверки кэшируется на 1 час -- повторные вызовы check не обращаются к GitHub API
   5. Backend автоопределяет режим работы (embedded SPA vs external-ui) и выбирает стратегию обновления
   6. В external-ui режиме POST /api/update/apply скачивает dist.tar.gz и распаковывает в директорию external-ui mihomo
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 15-01-PLAN.md -- Core updater package: GitHub API client, archive extraction, SHA256 verification, atomic binary replacement, cache, rollback
@@ -291,5 +291,5 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 12. Go Backend Core | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 13. CI/CD Pipeline | v2.0 | 1/1 | Complete | 2026-03-03 |
 | 14. Installer (setup.sh) | v2.0 | 2/2 | Complete | 2026-03-03 |
-| 15. Self-Update Backend | v2.0 | 0/2 | Not started | - |
+| 15. Self-Update Backend | 1/2 | In Progress|  | - |
 | 16. Update Frontend | v2.0 | 0/? | Not started | - |

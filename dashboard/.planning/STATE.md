@@ -8,7 +8,7 @@ progress:
   total_phases: 8
   completed_phases: 8
   total_plans: 27
-  completed_plans: 27
+  completed_plans: 28
 ---
 
 # Project State
@@ -18,24 +18,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 14 complete -- ready for Phase 15 (Self-Update Backend)
+**Current focus:** Phase 15 in progress -- Self-Update Backend (Plan 01 complete, Plan 02 next)
 
 ## Current Position
 
-Phase: 14 of 16 (Installer setup.sh) -- COMPLETE
-Plan: 2 of 2 in current phase (all complete)
-Status: Phase 14 complete (14-01 binary rename, 14-02 installer script), Phase 15 next
-Last activity: 2026-03-03 -- Completed 14-02 Install-Only setup.sh
+Phase: 15 of 16 (Self-Update Backend) -- IN PROGRESS
+Plan: 1 of 2 in current phase (15-01 updater core complete)
+Status: Phase 15 Plan 01 complete (updater package), Plan 02 next (HTTP handlers + restart)
+Last activity: 2026-03-03 -- Completed 15-01 Updater Core Package
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
-v2.0 progress: [████████████░░] 60% (Phase 12-14 complete, 15-16 remain)
+v2.0 progress: [█████████████░] 70% (Phase 12-14 complete, 15 in progress, 16 remain)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
-- Average duration: 5 min
-- Total execution time: 1.82 hours
+- Total plans completed: 28
+- Average duration: 4 min
+- Total execution time: 1.87 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -67,6 +67,7 @@ v2.0 progress: [████████████░░] 60% (Phase 12-14 com
 | 13 | 01 | 5min | 2 | 3 |
 | 14 | 01 | 4min | 2 | 3 |
 | 14 | 02 | 8min | 2 | 2 |
+| 15 | 01 | 3min | 2 | 6 |
 
 ## Accumulated Context
 
@@ -94,6 +95,10 @@ v2.0 progress: [████████████░░] 60% (Phase 12-14 com
 - [Phase 14]: main() wrapper for curl|sh pipe safety, bilingual output (ru/en) via $LANG
 - [Phase 14]: Two-stage MIPS endianness: opkg.conf first, od byte-order fallback
 - [Phase 14]: init.d overwritten on reinstall, xmeow-ui.conf preserved (user settings)
+- [Phase 15]: Hand-rolled GitHub API client instead of go-selfupdate (custom archive naming)
+- [Phase 15]: Platform-specific disk check via build tags (disk_linux.go + disk_other.go)
+- [Phase 15]: Download to same dir as binary (not /tmp) to avoid cross-FS rename failure
+- [Phase 15]: Exported ReadMihomoField for cross-package access (updater needs external-ui detection)
 
 ### Pending Todos
 
@@ -106,5 +111,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 14-02-PLAN.md (Install-Only setup.sh)
+Stopped at: Completed 15-01-PLAN.md (Updater Core Package)
 Resume file: None
