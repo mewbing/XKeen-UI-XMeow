@@ -34,7 +34,7 @@
 - [x] **Phase 12: Go Backend Core** - Go бинарник с 1:1 API совместимостью Flask, embedded SPA, reverse proxy mihomo (completed 2026-03-02)
 - [x] **Phase 13: CI/CD Pipeline** - GitHub Actions cross-compilation arm64/mipsle/mips, автоматические релизы (completed 2026-03-03)
 - [x] **Phase 14: Installer (setup.sh)** - Install-only POSIX sh скрипт для Entware с init.d сервисом (completed 2026-03-03)
-- [ ] **Phase 15: Self-Update Backend** - Проверка и установка обновлений из GitHub releases с атомарной заменой бинарника
+- [x] **Phase 15: Self-Update Backend** - Проверка и установка обновлений из GitHub releases с атомарной заменой бинарника (completed 2026-03-03)
 - [ ] **Phase 16: Update Frontend** - Страница обновлений, sidebar badge, авто-проверка
 
 ## Phase Details
@@ -250,11 +250,11 @@ Plans:
   4. Результат проверки кэшируется на 1 час -- повторные вызовы check не обращаются к GitHub API
   5. Backend автоопределяет режим работы (embedded SPA vs external-ui) и выбирает стратегию обновления
   6. В external-ui режиме POST /api/update/apply скачивает dist.tar.gz и распаковывает в директорию external-ui mihomo
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 15-01-PLAN.md -- Core updater package: GitHub API client, archive extraction, SHA256 verification, atomic binary replacement, cache, rollback
-- [ ] 15-02-PLAN.md -- HTTP handlers (/api/update/*), route registration, init.d restart, external-ui dist update, checkpoint
+- [x] 15-01-PLAN.md -- Core updater package: GitHub API client, archive extraction, SHA256 verification, atomic binary replacement, cache, rollback
+- [x] 15-02-PLAN.md -- HTTP handlers (/api/update/*), route registration, init.d restart, external-ui dist update, checkpoint
 
 ### Phase 16: Update Frontend
 **Goal**: Пользователь видит доступные обновления в UI и может обновить дашборд одним кликом. В external-ui режиме — раздельный статус версий сервера и дашборда.
@@ -291,5 +291,5 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 12. Go Backend Core | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 13. CI/CD Pipeline | v2.0 | 1/1 | Complete | 2026-03-03 |
 | 14. Installer (setup.sh) | v2.0 | 2/2 | Complete | 2026-03-03 |
-| 15. Self-Update Backend | 1/2 | In Progress|  | - |
+| 15. Self-Update Backend | v2.0 | 2/2 | Complete | 2026-03-03 |
 | 16. Update Frontend | v2.0 | 0/? | Not started | - |

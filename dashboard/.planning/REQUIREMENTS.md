@@ -131,10 +131,10 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 
 - [x] **SUPD-01**: Backend checks GitHub releases for newer version via API
 - [x] **SUPD-02**: Backend downloads and replaces own binary atomically with rollback backup
-- [ ] **SUPD-03**: Backend restarts gracefully after self-update via init.d
+- [x] **SUPD-03**: Backend restarts gracefully after self-update via init.d
 - [x] **SUPD-04**: Backend caches update check results (1h TTL to avoid GitHub rate limits)
 - [x] **SUPD-05**: Backend auto-detects deployment mode (embedded SPA vs external-ui) and selects update strategy
-- [ ] **SUPD-06**: In external-ui mode: backend downloads and extracts dist.tar.gz into mihomo external-ui directory
+- [x] **SUPD-06**: In external-ui mode: backend downloads and extracts dist.tar.gz into mihomo external-ui directory
 
 ### Update Frontend
 
@@ -278,10 +278,10 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 | INST-05 | Phase 14 | Complete |
 | SUPD-01 | Phase 15 | Complete |
 | SUPD-02 | Phase 15 | Complete |
-| SUPD-03 | Phase 15 | Pending |
+| SUPD-03 | Phase 15 | Complete |
 | SUPD-04 | Phase 15 | Complete |
 | SUPD-05 | Phase 15 | Complete |
-| SUPD-06 | Phase 15 | Pending |
+| SUPD-06 | Phase 15 | Complete |
 | UPUI-01 | Phase 16 | Pending |
 | UPUI-02 | Phase 16 | Pending |
 | UPUI-03 | Phase 16 | Pending |

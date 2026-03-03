@@ -8,7 +8,7 @@ progress:
   total_phases: 8
   completed_phases: 8
   total_plans: 27
-  completed_plans: 28
+  completed_plans: 29
 ---
 
 # Project State
@@ -18,17 +18,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 15 in progress -- Self-Update Backend (Plan 01 complete, Plan 02 next)
+**Current focus:** Phase 15 complete -- Self-Update Backend (both plans done, Phase 16 next)
 
 ## Current Position
 
-Phase: 15 of 16 (Self-Update Backend) -- IN PROGRESS
-Plan: 1 of 2 in current phase (15-01 updater core complete)
-Status: Phase 15 Plan 01 complete (updater package), Plan 02 next (HTTP handlers + restart)
-Last activity: 2026-03-03 -- Completed 15-01 Updater Core Package
+Phase: 15 of 16 (Self-Update Backend) -- COMPLETE
+Plan: 2 of 2 in current phase (all plans complete)
+Status: Phase 15 complete, ready for Phase 16 (Update Frontend)
+Last activity: 2026-03-03 -- Completed 15-02 Update HTTP API
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
-v2.0 progress: [█████████████░] 70% (Phase 12-14 complete, 15 in progress, 16 remain)
+v2.0 progress: [██████████████░] 80% (Phase 12-15 complete, 16 remains)
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ v2.0 progress: [█████████████░] 70% (Phase 12-14 com
 | 14 | 01 | 4min | 2 | 3 |
 | 14 | 02 | 8min | 2 | 2 |
 | 15 | 01 | 3min | 2 | 6 |
+| 15 | 02 | 3min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ v2.0 progress: [█████████████░] 70% (Phase 12-14 com
 - [Phase 15]: Platform-specific disk check via build tags (disk_linux.go + disk_other.go)
 - [Phase 15]: Download to same dir as binary (not /tmp) to avoid cross-FS rename failure
 - [Phase 15]: Exported ReadMihomoField for cross-package access (updater needs external-ui detection)
+- [Phase 15]: Separate UpdateHandler struct with Updater DI, not merged into existing Handlers
+- [Phase 15]: HTTP Flush + time.AfterFunc(1s) for sending response before init.d restart
 
 ### Pending Todos
 
@@ -111,5 +114,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 15-01-PLAN.md (Updater Core Package)
+Stopped at: Completed 15-02-PLAN.md (Update HTTP API)
 Resume file: None
