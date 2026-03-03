@@ -2,6 +2,7 @@
 # XMeow UI Installer
 # Install: curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-Xmeow/master/setup.sh | sh
 # Usage:   sh setup.sh
+# Note:    If copied from Windows, fix line endings first: tr -d '\r' < setup.sh > setup_lf.sh && sh setup_lf.sh
 
 main() {
     set -eu
