@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -15,15 +17,21 @@ import (
 
 // Version is set via ldflags at build time:
 //
-//	go build -ldflags "-X main.Version=1.0.0" ./cmd/antigravity/
+//	go build -ldflags "-X main.Version=1.0.0" ./cmd/xmeow-server/
 var Version = "dev"
 
 func main() {
+	// Print bare version string and exit (used by installer for update detection)
+	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
+		fmt.Println(Version)
+		os.Exit(0)
+	}
+
 	// Load configuration from environment variables
 	cfg := config.LoadConfig()
 	cfg.Version = Version
 
-	log.Printf("Antigravity Dashboard v%s", cfg.Version)
+	log.Printf("XMeow Dashboard v%s", cfg.Version)
 	if cfg.DevMode {
 		log.Println("Running in development mode (CORS enabled)")
 	}
@@ -37,7 +45,7 @@ func main() {
 
 	// Start server in goroutine
 	go func() {
-		log.Printf("Antigravity Dashboard listening on :%d", cfg.Port)
+		log.Printf("XMeow Dashboard listening on :%d", cfg.Port)
 		if err := srv.Start(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Server error: %v", err)
 		}
