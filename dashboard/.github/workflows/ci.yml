@@ -27,6 +27,6 @@ jobs:
         with:
           go-version: "1.25"
 
-      - run: go build -ldflags "-s -w" ./cmd/xmeow-ui/
+      - run: go build -ldflags "-s -w" ./cmd/xmeow-server/
         env:
           CGO_ENABLED: "0"
