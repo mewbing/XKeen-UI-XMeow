@@ -70,7 +70,7 @@ jobs:
         run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
       - name: Build binary
-        run: go build -ldflags "-s -w -X main.Version=${{ steps.version.outputs.version }}" -o xmeow-ui ./cmd/xmeow-ui/
+        run: go build -ldflags "-s -w -X main.Version=${{ steps.version.outputs.version }}" -o xmeow-server ./cmd/xmeow-server/
         env:
           CGO_ENABLED: "0"
           GOOS: ${{ matrix.goos }}
@@ -82,11 +82,11 @@ jobs:
         uses: crazy-max/ghaction-upx@v3
         with:
           version: latest
-          files: xmeow-ui
+          files: xmeow-server
           args: --best --lzma
 
       - name: Package
-        run: tar -czf xmeow-ui_${{ steps.version.outputs.version }}_${{ matrix.suffix }}.tar.gz xmeow-ui README.md
+        run: tar -czf xmeow-server_${{ steps.version.outputs.version }}_${{ matrix.suffix }}.tar.gz xmeow-server README.md
 
       - uses: actions/upload-artifact@v4
         with:
