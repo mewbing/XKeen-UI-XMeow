@@ -11,28 +11,30 @@ import (
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/handler"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/logwatch"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/proxy"
+	"github.com/mewbing/XKeen-UI-Xmeow/internal/updater"
 )
 
 // NewRouter creates a chi.Mux with all route registrations.
 // spaHandler serves the embedded SPA as a catch-all fallback.
 // logHub manages WebSocket clients and file watchers.
-func NewRouter(cfg *config.AppConfig, spaHandler http.Handler, logHub *logwatch.LogHub) *chi.Mux {
+func NewRouter(cfg *config.AppConfig, spaHandler http.Handler, logHub *logwatch.LogHub, upd *updater.Updater) *chi.Mux {
 	r := chi.NewRouter()
 
 	// Global middleware
-	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
-
-	// CORS middleware (dev mode only, per GOBK-07)
 	if cfg.DevMode {
-		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   []string{"*"},
-			AllowedMethods:   []string{"GET", "PUT", "POST", "DELETE", "OPTIONS"},
-			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-API-Key"},
-			AllowCredentials: true,
-		}))
+		r.Use(middleware.Logger)
 	}
+
+	// CORS middleware -- always enabled because the dashboard may be served
+	// from mihomo external-ui (port 9090) while the backend runs on port 5000
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "PUT", "POST", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-API-Key"},
+		AllowCredentials: true,
+	}))
 
 	// Auth middleware getter -- reads secret from mihomo config on each request
 	getSecret := func() string {
@@ -41,6 +43,7 @@ func NewRouter(cfg *config.AppConfig, spaHandler http.Handler, logHub *logwatch.
 
 	// Create handlers with shared config dependency
 	h := handler.NewHandlers(cfg)
+	uh := handler.NewUpdateHandler(upd, cfg)
 
 	// API routes
 	r.Route("/api", func(r chi.Router) {
@@ -77,6 +80,14 @@ func NewRouter(cfg *config.AppConfig, spaHandler http.Handler, logHub *logwatch.
 
 			// Proxy servers endpoint
 			r.Get("/proxies/servers", h.ProxyServers)
+
+			// Update endpoints
+			r.Route("/update", func(r chi.Router) {
+				r.Get("/check", uh.CheckUpdate)
+				r.Post("/apply", uh.ApplyUpdate)
+				r.Post("/rollback", uh.RollbackUpdate)
+				r.Post("/apply-dist", uh.ApplyDist)
+			})
 		})
 	})
 

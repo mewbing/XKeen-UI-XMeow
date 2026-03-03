@@ -10,6 +10,7 @@ import (
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/logwatch"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/spa"
+	"github.com/mewbing/XKeen-UI-Xmeow/internal/updater"
 )
 
 // Server wraps the HTTP server with config, router, and LogHub.
@@ -19,11 +20,12 @@ type Server struct {
 	logHub     *logwatch.LogHub
 }
 
-// New creates a new Server with chi router, SPA handler, LogHub, and all middleware wired.
+// New creates a new Server with chi router, SPA handler, LogHub, Updater, and all middleware wired.
 func New(cfg *config.AppConfig, distFS fs.FS) *Server {
 	spaHandler := spa.NewSPAHandler(distFS)
 	logHub := logwatch.NewLogHub(cfg)
-	router := NewRouter(cfg, spaHandler, logHub)
+	upd := updater.NewUpdater(cfg)
+	router := NewRouter(cfg, spaHandler, logHub, upd)
 
 	return &Server{
 		httpServer: &http.Server{

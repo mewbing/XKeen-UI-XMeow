@@ -240,3 +240,58 @@ func (u *Updater) IsExternalUI() bool {
 	val := config.ReadMihomoField(u.cfg.MihomoConfigPath, "external-ui")
 	return val != ""
 }
+
+// ApplyDist downloads dist.tar.gz from the latest release and extracts it into destDir.
+// Used in external-ui mode to update the SPA served by mihomo.
+// Only one update operation can run at a time (shares the updating lock with Apply).
+func (u *Updater) ApplyDist(ctx context.Context, destDir string) error {
+	if !u.updating.CompareAndSwap(false, true) {
+		return fmt.Errorf("update already in progress")
+	}
+	defer u.updating.Store(false)
+
+	// Get release info (may use cache)
+	info, err := u.Check(ctx)
+	if err != nil {
+		return fmt.Errorf("check for update: %w", err)
+	}
+	if info.distURL == "" {
+		return fmt.Errorf("dist.tar.gz not found in release %s", info.LatestVersion)
+	}
+
+	// Check disk space (3x dist size for archive + extracted + safety)
+	requiredSpace := info.DistSize * 3
+	if requiredSpace < 10*1024*1024 {
+		requiredSpace = 10 * 1024 * 1024 // minimum 10 MB
+	}
+	if err := checkDiskSpace(destDir, requiredSpace); err != nil {
+		return err
+	}
+
+	// Download dist.tar.gz to temp file in destDir
+	tmpPath := filepath.Join(destDir, ".dist-update.tar.gz")
+	if err := downloadFile(ctx, info.distURL, tmpPath); err != nil {
+		return fmt.Errorf("download dist.tar.gz: %w", err)
+	}
+	defer os.Remove(tmpPath)
+
+	// Verify SHA256 checksum if checksums.txt is available
+	if info.checksumURL != "" {
+		checksumPath := filepath.Join(destDir, ".checksums.txt")
+		if err := downloadFile(ctx, info.checksumURL, checksumPath); err != nil {
+			return fmt.Errorf("download checksums: %w", err)
+		}
+		defer os.Remove(checksumPath)
+
+		if err := verifyChecksum(tmpPath, checksumPath, "dist.tar.gz"); err != nil {
+			return err
+		}
+	}
+
+	// Extract dist.tar.gz contents into destDir (overwrites existing files)
+	if err := extractDistTarGz(tmpPath, destDir); err != nil {
+		return fmt.Errorf("extract dist.tar.gz: %w", err)
+	}
+
+	return nil
+}
