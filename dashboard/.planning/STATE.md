@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Dashboard
-status: unknown
+status: in-progress
 last_updated: "2026-03-03"
 progress:
   total_phases: 8
   completed_phases: 8
-  total_plans: 26
-  completed_plans: 25
+  total_plans: 27
+  completed_plans: 26
 ---
 
 # Project State
@@ -18,24 +18,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 13 -- CI/CD Pipeline (milestone v2.0) -- COMPLETE
+**Current focus:** Phase 14 -- Installer setup.sh (milestone v2.0) -- IN PROGRESS
 
 ## Current Position
 
-Phase: 13 of 16 (CI/CD Pipeline) -- COMPLETE
-Plan: 1 of 1 in current phase (all complete)
-Status: Phase 13 complete, ready for Phase 14
-Last activity: 2026-03-03 -- Completed 13-01 CI/CD Pipeline (CI workflow + Release workflow + README.md)
+Phase: 14 of 16 (Installer setup.sh)
+Plan: 1 of 2 in current phase (14-01 complete)
+Status: 14-01 complete (binary rename + version flag), 14-02 next (installer script)
+Last activity: 2026-03-03 -- Completed 14-01 Binary Rename & Version Flag
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
-v2.0 progress: [████████░░] 40% (Phase 12-13 complete, 14-16 remain)
+v2.0 progress: [█████████░] 50% (Phase 12-14 in progress, 15-16 remain)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24
+- Total plans completed: 26
 - Average duration: 5 min
-- Total execution time: 1.60 hours
+- Total execution time: 1.68 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -65,6 +65,7 @@ v2.0 progress: [████████░░] 40% (Phase 12-13 complete, 14-16
 | 12 | 03 | 5min | 2 | 10 |
 | 12 | 04 | 5min | 2 | 3 |
 | 13 | 01 | 5min | 2 | 3 |
+| 14 | 01 | 4min | 2 | 3 |
 
 ## Accumulated Context
 
@@ -87,6 +88,7 @@ v2.0 progress: [████████░░] 40% (Phase 12-13 complete, 14-16
 - [Phase 12]: httputil.ReverseProxy with Rewrite (not Director) for mihomo proxy
 - [Phase 12]: 503 JSON fallback when mihomo not configured instead of panic
 - [Phase 12]: Vite config keeps Flask mode active, Go backend mode as commented alternative
+- [Phase 14]: Bare version output (no prefix) from --version flag for machine parsing by installer
 
 ### Pending Todos
 
@@ -99,5 +101,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 13-01-PLAN.md (CI/CD Pipeline) -- Phase 13 fully complete
+Stopped at: Completed 14-01-PLAN.md (Binary Rename & Version Flag)
 Resume file: None

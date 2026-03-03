@@ -233,7 +233,7 @@ Plans:
   2. Установщик определяет архитектуру роутера (arm64/mipsle/mips) и скачивает правильный бинарник из GitHub releases
   3. Интерактивное меню предлагает install/update/uninstall -- каждая опция работает корректно
   4. После установки создан init.d скрипт S99xmeow-ui, сервис запущен, дашборд доступен в браузере на порту 5000
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 14-01-PLAN.md -- CI rename (xmeow-ui -> xmeow-server) + Go --version flag
@@ -286,6 +286,6 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 11. Polish + Themes | v1.0 | 0/? | Not started | - |
 | 12. Go Backend Core | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 13. CI/CD Pipeline | v2.0 | 1/1 | Complete | 2026-03-03 |
-| 14. Installer (setup.sh) | v2.0 | 0/? | Not started | - |
+| 14. Installer (setup.sh) | 1/2 | In Progress|  | - |
 | 15. Self-Update Backend | v2.0 | 0/? | Not started | - |
 | 16. Update Frontend | v2.0 | 0/? | Not started | - |
