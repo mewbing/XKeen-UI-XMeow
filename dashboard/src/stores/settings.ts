@@ -43,6 +43,11 @@ interface SettingsState {
   // Updates
   autoCheckUpdates: boolean
 
+  // SSH Terminal
+  sshHost: string
+  sshPort: number
+  sshUser: string
+
   // Actions
   setConfigured: (config: {
     type: 'local' | 'cdn'
@@ -71,6 +76,9 @@ interface SettingsState {
   setRulesShowDiffBeforeApply: (v: boolean) => void
   setAutoCheckUpdates: (v: boolean) => void
   setMihomoSecret: (s: string) => void
+  setSshHost: (v: string) => void
+  setSshPort: (v: number) => void
+  setSshUser: (v: string) => void
   resetConfig: () => void
 }
 
@@ -105,6 +113,9 @@ const initialState = {
   rulesConfirmDelete: true,
   rulesShowDiffBeforeApply: true,
   autoCheckUpdates: true,
+  sshHost: 'localhost',
+  sshPort: 22,
+  sshUser: 'root',
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -158,6 +169,10 @@ export const useSettingsStore = create<SettingsState>()(
       setAutoCheckUpdates: (v) => set({ autoCheckUpdates: v }),
 
       setMihomoSecret: (s) => set({ mihomoSecret: s }),
+
+      setSshHost: (v) => set({ sshHost: v }),
+      setSshPort: (v) => set({ sshPort: v }),
+      setSshUser: (v) => set({ sshUser: v }),
 
       resetConfig: () => set({ ...initialState }),
     }),
