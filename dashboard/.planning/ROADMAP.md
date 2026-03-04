@@ -35,7 +35,7 @@
 - [x] **Phase 13: CI/CD Pipeline** - GitHub Actions cross-compilation arm64/mipsle/mips, автоматические релизы (completed 2026-03-03)
 - [x] **Phase 14: Installer (setup.sh)** - Install-only POSIX sh скрипт для Entware с init.d сервисом (completed 2026-03-03)
 - [x] **Phase 15: Self-Update Backend** - Проверка и установка обновлений из GitHub releases с атомарной заменой бинарника (completed 2026-03-03)
-- [ ] **Phase 16: Update Frontend** - Страница обновлений, sidebar badge, авто-проверка
+- [x] **Phase 16: Update Frontend** - Страница обновлений, sidebar badge, авто-проверка (completed 2026-03-04)
 
 ## Phase Details
 
@@ -265,7 +265,7 @@ Plans:
   4. В sidebar появляется badge-индикатор когда доступно обновление
   5. Проверка обновлений происходит автоматически при загрузке приложения и каждые 6 часов
   6. В external-ui режиме UI показывает раздельный статус версий сервера и дашборда с возможностью обновить каждый компонент независимо
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 16-01-PLAN.md -- Backend is_external_ui + npm deps + API client + Zustand store + settings + sidebar badge + auto-check
@@ -294,4 +294,4 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 13. CI/CD Pipeline | v2.0 | 1/1 | Complete | 2026-03-03 |
 | 14. Installer (setup.sh) | v2.0 | 2/2 | Complete | 2026-03-03 |
 | 15. Self-Update Backend | v2.0 | Complete    | 2026-03-03 | 2026-03-03 |
-| 16. Update Frontend | v2.0 | 0/2 | Not started | - |
+| 16. Update Frontend | 2/2 | Complete   | 2026-03-04 | - |

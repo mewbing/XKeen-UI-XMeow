@@ -141,8 +141,8 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 - [ ] **UPUI-01**: Update page shows current vs latest version with comparison
 - [ ] **UPUI-02**: Update page shows changelog from GitHub release notes (markdown)
 - [ ] **UPUI-03**: User can trigger update from UI with progress overlay
-- [ ] **UPUI-04**: Sidebar shows notification badge when update is available
-- [ ] **UPUI-05**: Auto-check for updates on app load and periodically (every 6 hours)
+- [x] **UPUI-04**: Sidebar shows notification badge when update is available
+- [x] **UPUI-05**: Auto-check for updates on app load and periodically (every 6 hours)
 - [ ] **UPUI-06**: UI shows separate version status for server and dashboard in external-ui mode
 
 ### CI/CD
@@ -285,8 +285,8 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 | UPUI-01 | Phase 16 | Pending |
 | UPUI-02 | Phase 16 | Pending |
 | UPUI-03 | Phase 16 | Pending |
-| UPUI-04 | Phase 16 | Pending |
-| UPUI-05 | Phase 16 | Pending |
+| UPUI-04 | Phase 16 | Complete |
+| UPUI-05 | Phase 16 | Complete |
 | UPUI-06 | Phase 16 | Pending |
 
 **Coverage:**

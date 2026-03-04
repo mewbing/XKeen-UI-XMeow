@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Dashboard
-status: unknown
-last_updated: "2026-03-03T13:01:25.923Z"
+status: complete
+last_updated: "2026-03-04T04:23:00Z"
 progress:
   total_phases: 10
   completed_phases: 10
-  total_plans: 30
-  completed_plans: 30
+  total_plans: 32
+  completed_plans: 32
 ---
 
 # Project State
@@ -18,24 +18,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 15 complete -- Self-Update Backend (both plans done, Phase 16 next)
+**Current focus:** Phase 16 in progress -- Update Frontend (Plan 01 complete, Plan 02 next)
 
 ## Current Position
 
-Phase: 15 of 16 (Self-Update Backend) -- COMPLETE
-Plan: 2 of 2 in current phase (all plans complete)
-Status: Phase 15 complete, ready for Phase 16 (Update Frontend)
-Last activity: 2026-03-03 -- Completed 15-02 Update HTTP API
+Phase: 16 of 16 (Update Frontend) -- IN PROGRESS
+Plan: 1 of 2 in current phase
+Status: Plan 01 complete (foundation layer), Plan 02 next (update page UI)
+Last activity: 2026-03-04 -- Completed 16-01 Update Foundation
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
-v2.0 progress: [██████████████░] 80% (Phase 12-15 complete, 16 remains)
+v2.0 progress: [██████████████▓] 90% (Phase 12-15 complete, 16 in progress)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28
+- Total plans completed: 31
 - Average duration: 4 min
-- Total execution time: 1.87 hours
+- Total execution time: 1.94 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -69,6 +69,7 @@ v2.0 progress: [██████████████░] 80% (Phase 12-15 
 | 14 | 02 | 8min | 2 | 2 |
 | 15 | 01 | 3min | 2 | 6 |
 | 15 | 02 | 3min | 2 | 4 |
+| 16 | 01 | 4min | 2 | 8 |
 
 ## Accumulated Context
 
@@ -102,6 +103,9 @@ v2.0 progress: [██████████████░] 80% (Phase 12-15 
 - [Phase 15]: Exported ReadMihomoField for cross-package access (updater needs external-ui detection)
 - [Phase 15]: Separate UpdateHandler struct with Updater DI, not merged into existing Handlers
 - [Phase 15]: HTTP Flush + time.AfterFunc(1s) for sending response before init.d restart
+- [Phase 16]: Volatile (non-persisted) Zustand store for update state -- no stale data across reloads
+- [Phase 16]: 6-hour auto-check interval controlled by settings toggle
+- [Phase 16]: Green dot notification on sidebar only -- no toast popups
 
 ### Pending Todos
 
@@ -113,6 +117,6 @@ None currently.
 
 ## Session Continuity
 
-Last session: 2026-03-03
-Stopped at: Completed 15-02-PLAN.md (Update HTTP API)
+Last session: 2026-03-04
+Stopped at: Completed 16-01-PLAN.md (Update Foundation)
 Resume file: None
