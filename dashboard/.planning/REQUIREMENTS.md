@@ -159,9 +159,9 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 - [ ] **TERM-03**: Terminal data flows bidirectionally via WebSocket (binary frames for I/O, JSON for control)
 - [ ] **TERM-04**: WS endpoint /ws/terminal protected by Bearer token (mihomo secret)
 - [ ] **TERM-05**: Single SSH session limit with 30-minute inactivity timeout
-- [ ] **TERM-06**: xterm.js packages installed with Antigravity theme
-- [ ] **TERM-07**: Zustand store manages terminal connection state (volatile) and SSH settings (persisted)
-- [ ] **TERM-08**: WebSocket hook handles hybrid binary/JSON protocol with auth and auto-reconnect
+- [x] **TERM-06**: xterm.js packages installed with Antigravity theme
+- [x] **TERM-07**: Zustand store manages terminal connection state (volatile) and SSH settings (persisted)
+- [x] **TERM-08**: WebSocket hook handles hybrid binary/JSON protocol with auth and auto-reconnect
 - [ ] **TERM-09**: Terminal modal accessible from any page via header icon button
 - [ ] **TERM-10**: Ctrl+backtick keyboard shortcut toggles terminal modal
 - [ ] **TERM-11**: Terminal session persists when modal is closed (reopening restores active session)
@@ -314,9 +314,9 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 | TERM-03 | Phase 17 | Pending |
 | TERM-04 | Phase 17 | Pending |
 | TERM-05 | Phase 17 | Pending |
-| TERM-06 | Phase 17 | Pending |
-| TERM-07 | Phase 17 | Pending |
-| TERM-08 | Phase 17 | Pending |
+| TERM-06 | Phase 17 | Complete |
+| TERM-07 | Phase 17 | Complete |
+| TERM-08 | Phase 17 | Complete |
 | TERM-09 | Phase 17 | Pending |
 | TERM-10 | Phase 17 | Pending |
 | TERM-11 | Phase 17 | Pending |

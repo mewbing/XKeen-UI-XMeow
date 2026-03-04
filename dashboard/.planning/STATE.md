@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Dashboard
 status: unknown
-last_updated: "2026-03-04T06:21:22.648Z"
+last_updated: "2026-03-04T12:15:46.371Z"
 progress:
-  total_phases: 11
+  total_phases: 12
   completed_phases: 11
-  total_plans: 32
-  completed_plans: 32
+  total_plans: 35
+  completed_plans: 33
 ---
 
 # Project State
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 16 complete -- Update Frontend (all plans done). v2.0 milestone COMPLETE.
+**Current focus:** Phase 17 -- Web Terminal (SSH access via xterm.js)
 
 ## Current Position
 
-Phase: 16 of 16 (Update Frontend) -- COMPLETE
-Plan: 2 of 2 in current phase (all plans complete)
-Status: Phase 16 complete, v2.0 milestone finished
-Last activity: 2026-03-04 -- Completed 16-02 Update Page UI
+Phase: 17 of 17 (Web Terminal)
+Plan: 2 of 3 in current phase (plan 02 complete)
+Status: Executing phase 17 -- frontend infrastructure done, UI components next
+Last activity: 2026-03-04 -- Completed 17-02 Frontend Infrastructure
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
 v2.0 progress: [████████████████] 100% (Phase 12-16 all complete)
@@ -71,6 +71,7 @@ v2.0 progress: [████████████████] 100% (Phase 12
 | 15 | 02 | 3min | 2 | 4 |
 | 16 | 01 | 4min | 2 | 8 |
 | 16 | 02 | 4min | 2 | 4 |
+| 17 | 02 | 2min | 2 | 6 |
 
 ## Accumulated Context
 
@@ -110,6 +111,9 @@ v2.0 progress: [████████████████] 100% (Phase 12
 - [Phase 16]: Custom react-markdown components map for Antigravity theme (not @tailwindcss/typography)
 - [Phase 16]: 3s delay before health polling to avoid false-positive from old server
 - [Phase 16]: Dist update skips health polling -- server never restarts
+- [Phase 17]: Volatile (non-persisted) terminal store -- connection state must not survive reloads
+- [Phase 17]: ArrayBuffer binaryType for sync terminal data handling (not Blob)
+- [Phase 17]: Auth token as WS query parameter (token=SECRET) matching backend pattern
 
 ### Roadmap Evolution
 
@@ -126,5 +130,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-04
-Stopped at: Completed 16-02-PLAN.md (Update Page UI) -- v2.0 milestone complete
+Stopped at: Completed 17-02-PLAN.md (Frontend Infrastructure)
 Resume file: None
