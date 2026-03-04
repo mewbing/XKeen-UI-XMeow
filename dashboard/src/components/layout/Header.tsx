@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router'
-import { ArrowUpCircle } from 'lucide-react'
+import { Settings, SquareTerminal } from 'lucide-react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { ServiceControl } from '@/components/overview/ServiceControl'
-import { UpdateOverlay } from '@/components/overview/UpdateOverlay'
-import { useOverviewStore } from '@/stores/overview'
+import { SplitToggleButton } from '@/components/ui/split-toggle-button'
+import { SettingsSheet } from '@/pages/SettingsPage'
+import { useTerminalStore } from '@/stores/terminal'
 
 const pageTitles: Record<string, string> = {
   '/overview': 'Обзор',
@@ -19,14 +20,22 @@ const pageTitles: Record<string, string> = {
   '/providers': 'Провайдеры',
   '/geodata': 'Геоданные',
   '/updates': 'Обновления',
-  '/settings': 'Настройки',
 }
 
 export function Header() {
   const location = useLocation()
   const title = pageTitles[location.pathname] ?? 'Mihomo Dashboard'
-  const [updateOverlayOpen, setUpdateOverlayOpen] = useState(false)
-  const mihomoVersion = useOverviewStore((s) => s.mihomoVersion)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
+  // Listen for 'open-settings' event from SetupGuide and other components
+  useEffect(() => {
+    const handler = () => setSettingsOpen(true)
+    window.addEventListener('open-settings', handler)
+    return () => window.removeEventListener('open-settings', handler)
+  }, [])
+
+  const isConnectionsOrLogs =
+    location.pathname === '/connections' || location.pathname === '/logs'
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
@@ -36,23 +45,34 @@ export function Header() {
 
       <div className="flex-1" />
 
-      {mihomoVersion && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => setUpdateOverlayOpen(true)}
-          title="Обновить ядро"
-        >
-          <ArrowUpCircle className="h-4 w-4" />
-        </Button>
-      )}
+      {/* Split toggle — only on connections/logs pages */}
+      {isConnectionsOrLogs && <SplitToggleButton />}
 
       <ServiceControl />
 
-      <UpdateOverlay
-        open={updateOverlayOpen}
-        onClose={() => setUpdateOverlayOpen(false)}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => useTerminalStore.getState().setOpen(true)}
+        title="Терминал (Ctrl+`)"
+      >
+        <SquareTerminal className="h-4 w-4" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => setSettingsOpen(true)}
+        title="Настройки"
+      >
+        <Settings className="h-4 w-4" />
+      </Button>
+
+      <SettingsSheet
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
       />
     </header>
   )
