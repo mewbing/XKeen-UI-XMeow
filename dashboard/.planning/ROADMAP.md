@@ -271,6 +271,27 @@ Plans:
 - [ ] 16-01-PLAN.md -- Backend is_external_ui + npm deps + API client + Zustand store + settings + sidebar badge + auto-check
 - [ ] 16-02-PLAN.md -- Update page UI: status cards, markdown changelog, progress overlay, external-ui dual-card mode
 
+### Phase 17: Web Terminal
+**Goal**: Веб-терминал с SSH бэкендом (Go) и xterm.js фронтендом для удалённого shell-доступа к роутеру через модальное окно дашборда
+**Depends on**: Phase 16
+**Requirements**: TERM-01, TERM-02, TERM-03, TERM-04, TERM-05, TERM-06, TERM-07, TERM-08, TERM-09, TERM-10, TERM-11, TERM-12, TERM-13
+**Success Criteria** (what must be TRUE):
+  1. Go backend устанавливает SSH-соединение к роутеру и мостит I/O через WebSocket
+  2. WS endpoint /ws/terminal защищён Bearer токеном (mihomo secret)
+  3. Одна SSH-сессия одновременно с 30-минутным таймаутом неактивности
+  4. xterm.js отображает терминал с темой Antigravity в модальном окне
+  5. Модальное окно доступно с любой страницы через кнопку в хедере и Ctrl+`
+  6. SSH-сессия сохраняется при закрытии/открытии модального окна
+  7. Тулбар: подключение/отключение, очистка, поиск, размер шрифта, полный экран
+  8. Диалог подключения запрашивает логин/пароль (логин сохраняется, пароль нет)
+  9. Терминал автоматически подстраивается под размер контейнера с отправкой resize на бэкенд
+**Plans:** 3 plans
+
+Plans:
+- [ ] 17-01-PLAN.md -- Go backend: SSH terminal package (session + hub) + WS handler с auth + route registration
+- [ ] 17-02-PLAN.md -- Frontend infrastructure: xterm.js deps + Zustand store + WS hook + settings SSH fields
+- [ ] 17-03-PLAN.md -- Frontend UI: TerminalModal + TerminalView + TerminalToolbar + ConnectDialog + Header integration
+
 ## Progress
 
 **Execution Order:**
@@ -293,15 +314,6 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 12. Go Backend Core | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 13. CI/CD Pipeline | v2.0 | 1/1 | Complete | 2026-03-03 |
 | 14. Installer (setup.sh) | v2.0 | 2/2 | Complete | 2026-03-03 |
-| 15. Self-Update Backend | v2.0 | Complete    | 2026-03-03 | 2026-03-03 |
-| 16. Update Frontend | 2/2 | Complete    | 2026-03-04 | - |
-
-### Phase 17: Web terminal with PTY backend and xterm.js frontend for remote shell access to router
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 16
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 17 to break down)
+| 15. Self-Update Backend | v2.0 | 2/2 | Complete | 2026-03-03 |
+| 16. Update Frontend | v2.0 | 2/2 | Complete | 2026-03-04 |
+| 17. Web Terminal | - | 0/3 | Planned | - |

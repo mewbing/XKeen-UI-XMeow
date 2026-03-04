@@ -152,6 +152,22 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 - [ ] **CICD-03**: GitHub Actions creates GitHub Release with 5 architecture-specific binaries + dist.tar.gz + checksums
 - [ ] **CICD-04**: Version injected via Go ldflags (-X main.Version) at build time
 
+### Web Terminal
+
+- [ ] **TERM-01**: Go backend establishes SSH connection to configurable host:port with password authentication
+- [ ] **TERM-02**: SSH session allocates PTY (xterm-256color) and starts interactive shell
+- [ ] **TERM-03**: Terminal data flows bidirectionally via WebSocket (binary frames for I/O, JSON for control)
+- [ ] **TERM-04**: WS endpoint /ws/terminal protected by Bearer token (mihomo secret)
+- [ ] **TERM-05**: Single SSH session limit with 30-minute inactivity timeout
+- [ ] **TERM-06**: xterm.js packages installed with Antigravity theme
+- [ ] **TERM-07**: Zustand store manages terminal connection state (volatile) and SSH settings (persisted)
+- [ ] **TERM-08**: WebSocket hook handles hybrid binary/JSON protocol with auth and auto-reconnect
+- [ ] **TERM-09**: Terminal modal accessible from any page via header icon button
+- [ ] **TERM-10**: Ctrl+backtick keyboard shortcut toggles terminal modal
+- [ ] **TERM-11**: Terminal session persists when modal is closed (reopening restores active session)
+- [ ] **TERM-12**: Toolbar with Connect/Disconnect, Clear, Search, Font size +/-, Fullscreen
+- [ ] **TERM-13**: Connect dialog prompts for SSH credentials (login saved, password never saved)
+
 ## Future Requirements
 
 ### Deferred from v2.0
@@ -289,12 +305,31 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 | UPUI-05 | Phase 16 | Complete |
 | UPUI-06 | Phase 16 | Complete |
 
+### Phase 17 (Web Terminal)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| TERM-01 | Phase 17 | Pending |
+| TERM-02 | Phase 17 | Pending |
+| TERM-03 | Phase 17 | Pending |
+| TERM-04 | Phase 17 | Pending |
+| TERM-05 | Phase 17 | Pending |
+| TERM-06 | Phase 17 | Pending |
+| TERM-07 | Phase 17 | Pending |
+| TERM-08 | Phase 17 | Pending |
+| TERM-09 | Phase 17 | Pending |
+| TERM-10 | Phase 17 | Pending |
+| TERM-11 | Phase 17 | Pending |
+| TERM-12 | Phase 17 | Pending |
+| TERM-13 | Phase 17 | Pending |
+
 **Coverage:**
 - v1.0 requirements: 55 total (52 active + 3 superseded)
 - v2.0 requirements: 29 total
-- Mapped to phases: 81 (52 v1.0 + 29 v2.0)
+- Phase 17 requirements: 13 total
+- Mapped to phases: 94 (52 v1.0 + 29 v2.0 + 13 Phase 17)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-03-03 — synced CICD-01/03 with Phase 13 discuss-phase decisions (5 architectures + UPX), promoted DFRD-04*
+*Last updated: 2026-03-04 — added TERM-01..TERM-13 for Phase 17 (Web Terminal)*
