@@ -101,29 +101,27 @@ export function SettingsSheet({
     isConfigured,
     installationType,
     mihomoApiUrl,
+    mihomoSecret,
     configApiUrl,
     startPage,
     theme,
     reduceMotion,
     maxLogEntries,
     showDiffBeforeApply,
+    autoCheckUpdates,
     rulesConfirmDelete,
     rulesShowDiffBeforeApply,
-    rulesGrouping,
-    rulesLayout,
     rulesDensity,
-    rulesNewBlockMode,
     setStartPage,
     setTheme,
     setReduceMotion,
     setMaxLogEntries,
     setShowDiffBeforeApply,
+    setAutoCheckUpdates,
     setRulesConfirmDelete,
     setRulesShowDiffBeforeApply,
-    setRulesGrouping,
-    setRulesLayout,
     setRulesDensity,
-    setRulesNewBlockMode,
+    setMihomoSecret,
     resetConfig,
   } = useSettingsStore()
 
@@ -162,6 +160,17 @@ export function SettingsSheet({
                 <span className="font-mono truncate max-w-[55%] text-right">
                   {configApiUrl || '---'}
                 </span>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="mihomo-secret" className="text-xs text-muted-foreground">Secret</Label>
+                <Input
+                  id="mihomo-secret"
+                  type="password"
+                  placeholder="Пароль mihomo API"
+                  value={mihomoSecret}
+                  onChange={(e) => setMihomoSecret(e.target.value)}
+                  className="h-7 text-xs font-mono"
+                />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Статус</span>
@@ -301,36 +310,6 @@ export function SettingsSheet({
               />
             </div>
 
-            {/* Grouping mode */}
-            <div className="space-y-1.5 pt-1 border-t">
-              <Label className="text-xs text-muted-foreground">Группировка</Label>
-              <Select value={rulesGrouping} onValueChange={setRulesGrouping}>
-                <SelectTrigger className="w-full h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="proxy-group">По прокси-группе</SelectItem>
-                  <SelectItem value="sections">По секциям</SelectItem>
-                  <SelectItem value="two-level">Двухуровневая</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Layout mode */}
-            <div className="space-y-1.5 pt-1 border-t">
-              <Label className="text-xs text-muted-foreground">Раскладка</Label>
-              <Select value={rulesLayout} onValueChange={setRulesLayout}>
-                <SelectTrigger className="w-full h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="list">Список</SelectItem>
-                  <SelectItem value="grid">Сетка</SelectItem>
-                  <SelectItem value="proxies">Как прокси</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Density */}
             <div className="space-y-1.5 pt-1 border-t">
               <Label className="text-xs text-muted-foreground">Плотность</Label>
@@ -345,18 +324,20 @@ export function SettingsSheet({
               </Select>
             </div>
 
-            {/* New block mode */}
-            <div className="space-y-1.5 pt-1 border-t">
-              <Label className="text-xs text-muted-foreground">Создание блока</Label>
-              <Select value={rulesNewBlockMode} onValueChange={setRulesNewBlockMode}>
-                <SelectTrigger className="w-full h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="dialog">Диалог</SelectItem>
-                  <SelectItem value="inline">Встроенный</SelectItem>
-                </SelectContent>
-              </Select>
+          </section>
+
+          {/* Updates */}
+          <section className="rounded-lg border p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="auto-check-updates" className="text-sm font-medium">Автообновления</Label>
+                <p className="text-[11px] text-muted-foreground">Проверять обновления автоматически</p>
+              </div>
+              <Switch
+                id="auto-check-updates"
+                checked={autoCheckUpdates}
+                onCheckedChange={setAutoCheckUpdates}
+              />
             </div>
           </section>
 

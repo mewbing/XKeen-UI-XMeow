@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router'
 import {
   Home,
@@ -10,7 +11,7 @@ import {
   Database,
   Map,
   Download,
-  Settings,
+  ArrowUpCircle,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -24,9 +25,11 @@ import {
   SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
-  SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { Button } from '@/components/ui/button'
+import { UpdateOverlay } from '@/components/overview/UpdateOverlay'
 import { useOverviewStore } from '@/stores/overview'
+import { useUpdateStore } from '@/stores/update'
 import type { LucideIcon } from 'lucide-react'
 
 interface MenuItem {
@@ -47,8 +50,6 @@ const mainMenuItems: MenuItem[] = [
   { title: 'Геоданные', icon: Map, path: '/geodata' },
   { title: 'Обновления', icon: Download, path: '/updates' },
 ]
-
-const settingsItem: MenuItem = { title: 'Настройки', icon: Settings, path: '/settings' }
 
 // --- Version line helper ---
 
@@ -80,9 +81,11 @@ function VersionLine({
 
 export function AppSidebar() {
   const location = useLocation()
+  const hasUpdate = useUpdateStore((s) => s.hasUpdate)
   const mihomoVersion = useOverviewStore((s) => s.mihomoVersion)
   const xkeenVersion = useOverviewStore((s) => s.xkeenVersion)
   const dashboardVersion = useOverviewStore((s) => s.dashboardVersion)
+  const [updateOverlayOpen, setUpdateOverlayOpen] = useState(false)
 
   return (
     <Sidebar collapsible="icon">
@@ -106,6 +109,9 @@ export function AppSidebar() {
                     <NavLink to={item.path}>
                       <item.icon />
                       <span>{item.title}</span>
+                      {item.path === '/updates' && hasUpdate && (
+                        <span className="ml-auto h-2 w-2 rounded-full bg-green-500 shrink-0" />
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -120,32 +126,43 @@ export function AppSidebar() {
 
         {/* Version info -- hidden when sidebar collapsed */}
         <div className="px-3 py-2 space-y-1 group-data-[collapsible=icon]:hidden">
-          <VersionLine label="mihomo" version={mihomoVersion} />
+          <div className="flex items-center justify-between">
+            <VersionLine label="mihomo" version={mihomoVersion} />
+            {mihomoVersion && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setUpdateOverlayOpen(true)}
+                title="Обновить ядро"
+              >
+                <ArrowUpCircle className="h-3.5 w-3.5" />
+              </Button>
+            )}
+          </div>
           <VersionLine label="xkeen" version={xkeenVersion} />
           <VersionLine label="Dashboard" version={dashboardVersion} />
         </div>
 
-        <SidebarSeparator />
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={location.pathname === settingsItem.path}
-              tooltip={settingsItem.title}
+        {/* Update overlay (collapsed: icon button) */}
+        {mihomoVersion && (
+          <div className="hidden group-data-[collapsible=icon]:flex justify-center py-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setUpdateOverlayOpen(true)}
+              title="Обновить ядро"
             >
-              <NavLink to={settingsItem.path}>
-                <settingsItem.icon />
-                <span>{settingsItem.title}</span>
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarSeparator />
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarTrigger className="w-full" />
-          </SidebarMenuItem>
-        </SidebarMenu>
+              <ArrowUpCircle className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        <UpdateOverlay
+          open={updateOverlayOpen}
+          onClose={() => setUpdateOverlayOpen(false)}
+        />
       </SidebarFooter>
 
       <SidebarRail />
