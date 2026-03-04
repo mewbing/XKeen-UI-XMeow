@@ -18,24 +18,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 16 in progress -- Update Frontend (Plan 01 complete, Plan 02 next)
+**Current focus:** Phase 16 complete -- Update Frontend (all plans done). v2.0 milestone COMPLETE.
 
 ## Current Position
 
-Phase: 16 of 16 (Update Frontend) -- IN PROGRESS
-Plan: 1 of 2 in current phase
-Status: Plan 01 complete (foundation layer), Plan 02 next (update page UI)
-Last activity: 2026-03-04 -- Completed 16-01 Update Foundation
+Phase: 16 of 16 (Update Frontend) -- COMPLETE
+Plan: 2 of 2 in current phase (all plans complete)
+Status: Phase 16 complete, v2.0 milestone finished
+Last activity: 2026-03-04 -- Completed 16-02 Update Page UI
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
-v2.0 progress: [██████████████▓] 90% (Phase 12-15 complete, 16 in progress)
+v2.0 progress: [████████████████] 100% (Phase 12-16 all complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 31
+- Total plans completed: 32
 - Average duration: 4 min
-- Total execution time: 1.94 hours
+- Total execution time: 2.01 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -70,6 +70,7 @@ v2.0 progress: [██████████████▓] 90% (Phase 12-15 
 | 15 | 01 | 3min | 2 | 6 |
 | 15 | 02 | 3min | 2 | 4 |
 | 16 | 01 | 4min | 2 | 8 |
+| 16 | 02 | 4min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -106,6 +107,9 @@ v2.0 progress: [██████████████▓] 90% (Phase 12-15 
 - [Phase 16]: Volatile (non-persisted) Zustand store for update state -- no stale data across reloads
 - [Phase 16]: 6-hour auto-check interval controlled by settings toggle
 - [Phase 16]: Green dot notification on sidebar only -- no toast popups
+- [Phase 16]: Custom react-markdown components map for Antigravity theme (not @tailwindcss/typography)
+- [Phase 16]: 3s delay before health polling to avoid false-positive from old server
+- [Phase 16]: Dist update skips health polling -- server never restarts
 
 ### Pending Todos
 
@@ -118,5 +122,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-04
-Stopped at: Completed 16-01-PLAN.md (Update Foundation)
+Stopped at: Completed 16-02-PLAN.md (Update Page UI) -- v2.0 milestone complete
 Resume file: None
