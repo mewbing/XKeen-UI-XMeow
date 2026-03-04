@@ -190,8 +190,6 @@ Plans:
   3. Responsive layout работает на desktop и tablet
 **Plans**: TBD
 
----
-
 ### Phase 12: Go Backend Core
 **Goal**: Go бинарник полностью заменяет Flask backend с идентичным API-контрактом, embedded SPA и reverse proxy к mihomo
 **Depends on**: Phase 6 (needs working SPA frontend to embed)
@@ -267,7 +265,11 @@ Plans:
   4. В sidebar появляется badge-индикатор когда доступно обновление
   5. Проверка обновлений происходит автоматически при загрузке приложения и каждые 6 часов
   6. В external-ui режиме UI показывает раздельный статус версий сервера и дашборда с возможностью обновить каждый компонент независимо
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 16-01-PLAN.md -- Backend is_external_ui + npm deps + API client + Zustand store + settings + sidebar badge + auto-check
+- [ ] 16-02-PLAN.md -- Update page UI: status cards, markdown changelog, progress overlay, external-ui dual-card mode
 
 ## Progress
 
@@ -292,4 +294,4 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 13. CI/CD Pipeline | v2.0 | 1/1 | Complete | 2026-03-03 |
 | 14. Installer (setup.sh) | v2.0 | 2/2 | Complete | 2026-03-03 |
 | 15. Self-Update Backend | v2.0 | Complete    | 2026-03-03 | 2026-03-03 |
-| 16. Update Frontend | v2.0 | 0/? | Not started | - |
+| 16. Update Frontend | v2.0 | 0/2 | Not started | - |
