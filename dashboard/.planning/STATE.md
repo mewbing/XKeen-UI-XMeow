@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 17 of 17 (Web Terminal)
-Plan: 2 of 3 in current phase (plan 02 complete)
-Status: Executing phase 17 -- frontend infrastructure done, UI components next
-Last activity: 2026-03-04 -- Completed 17-02 Frontend Infrastructure
+Plan: 1 of 3 in current phase (plan 01 complete)
+Status: Executing phase 17 -- Go backend terminal package done, frontend next
+Last activity: 2026-03-04 -- Completed 17-01 Go Backend SSH Terminal
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
 v2.0 progress: [████████████████] 100% (Phase 12-16 all complete)
@@ -71,7 +71,7 @@ v2.0 progress: [████████████████] 100% (Phase 12
 | 15 | 02 | 3min | 2 | 4 |
 | 16 | 01 | 4min | 2 | 8 |
 | 16 | 02 | 4min | 2 | 4 |
-| 17 | 02 | 2min | 2 | 6 |
+| 17 | 01 | 3min | 2 | 7 |
 
 ## Accumulated Context
 
@@ -111,9 +111,10 @@ v2.0 progress: [████████████████] 100% (Phase 12
 - [Phase 16]: Custom react-markdown components map for Antigravity theme (not @tailwindcss/typography)
 - [Phase 16]: 3s delay before health polling to avoid false-positive from old server
 - [Phase 16]: Dist update skips health polling -- server never restarts
-- [Phase 17]: Volatile (non-persisted) terminal store -- connection state must not survive reloads
-- [Phase 17]: ArrayBuffer binaryType for sync terminal data handling (not Blob)
-- [Phase 17]: Auth token as WS query parameter (token=SECRET) matching backend pattern
+- [Phase 17]: ssh.InsecureIgnoreHostKey for home router local network SSH connection
+- [Phase 17]: Channel-based output reader wrapping blocking session.Read() for context-cancellable select
+- [Phase 17]: Auth check before WS upgrade with token query param fallback
+- [Phase 17]: Session.Shell() uses default login shell -- no explicit shell detection
 
 ### Roadmap Evolution
 
@@ -130,5 +131,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-04
-Stopped at: Completed 17-02-PLAN.md (Frontend Infrastructure)
+Stopped at: Completed 17-01-PLAN.md (Go Backend SSH Terminal)
 Resume file: None

@@ -285,7 +285,7 @@ Plans:
   7. Тулбар: подключение/отключение, очистка, поиск, размер шрифта, полный экран
   8. Диалог подключения запрашивает логин/пароль (логин сохраняется, пароль нет)
   9. Терминал автоматически подстраивается под размер контейнера с отправкой resize на бэкенд
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 17-01-PLAN.md -- Go backend: SSH terminal package (session + hub) + WS handler с auth + route registration
@@ -316,4 +316,4 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 14. Installer (setup.sh) | v2.0 | 2/2 | Complete | 2026-03-03 |
 | 15. Self-Update Backend | v2.0 | 2/2 | Complete | 2026-03-03 |
 | 16. Update Frontend | v2.0 | 2/2 | Complete | 2026-03-04 |
-| 17. Web Terminal | 1/3 | In Progress|  | - |
+| 17. Web Terminal | 2/3 | In Progress|  | - |

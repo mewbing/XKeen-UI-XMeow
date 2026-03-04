@@ -154,11 +154,11 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 
 ### Web Terminal
 
-- [ ] **TERM-01**: Go backend establishes SSH connection to configurable host:port with password authentication
-- [ ] **TERM-02**: SSH session allocates PTY (xterm-256color) and starts interactive shell
-- [ ] **TERM-03**: Terminal data flows bidirectionally via WebSocket (binary frames for I/O, JSON for control)
-- [ ] **TERM-04**: WS endpoint /ws/terminal protected by Bearer token (mihomo secret)
-- [ ] **TERM-05**: Single SSH session limit with 30-minute inactivity timeout
+- [x] **TERM-01**: Go backend establishes SSH connection to configurable host:port with password authentication
+- [x] **TERM-02**: SSH session allocates PTY (xterm-256color) and starts interactive shell
+- [x] **TERM-03**: Terminal data flows bidirectionally via WebSocket (binary frames for I/O, JSON for control)
+- [x] **TERM-04**: WS endpoint /ws/terminal protected by Bearer token (mihomo secret)
+- [x] **TERM-05**: Single SSH session limit with 30-minute inactivity timeout
 - [x] **TERM-06**: xterm.js packages installed with Antigravity theme
 - [x] **TERM-07**: Zustand store manages terminal connection state (volatile) and SSH settings (persisted)
 - [x] **TERM-08**: WebSocket hook handles hybrid binary/JSON protocol with auth and auto-reconnect
@@ -309,11 +309,11 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TERM-01 | Phase 17 | Pending |
-| TERM-02 | Phase 17 | Pending |
-| TERM-03 | Phase 17 | Pending |
-| TERM-04 | Phase 17 | Pending |
-| TERM-05 | Phase 17 | Pending |
+| TERM-01 | Phase 17 | Complete |
+| TERM-02 | Phase 17 | Complete |
+| TERM-03 | Phase 17 | Complete |
+| TERM-04 | Phase 17 | Complete |
+| TERM-05 | Phase 17 | Complete |
 | TERM-06 | Phase 17 | Complete |
 | TERM-07 | Phase 17 | Complete |
 | TERM-08 | Phase 17 | Complete |
