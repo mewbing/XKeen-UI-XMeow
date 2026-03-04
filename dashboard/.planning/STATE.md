@@ -111,6 +111,10 @@ v2.0 progress: [████████████████] 100% (Phase 12
 - [Phase 16]: 3s delay before health polling to avoid false-positive from old server
 - [Phase 16]: Dist update skips health polling -- server never restarts
 
+### Roadmap Evolution
+
+- Phase 17 added: Web terminal with PTY backend and xterm.js frontend for remote shell access to router
+
 ### Pending Todos
 
 - None
