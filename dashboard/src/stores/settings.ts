@@ -36,12 +36,12 @@ interface SettingsState {
   proxiesShowAutoInfo: boolean
 
   // Rules editor
-  rulesGrouping: 'proxy-group' | 'sections' | 'two-level'
-  rulesLayout: 'list' | 'grid' | 'proxies'
   rulesDensity: 'min' | 'detailed'
   rulesConfirmDelete: boolean
   rulesShowDiffBeforeApply: boolean
-  rulesNewBlockMode: 'dialog' | 'inline'
+
+  // Updates
+  autoCheckUpdates: boolean
 
   // Actions
   setConfigured: (config: {
@@ -66,12 +66,11 @@ interface SettingsState {
   setLatencyTargets: (targets: Array<{ name: string; url: string }>) => void
   addLatencyTarget: (target: { name: string; url: string }) => void
   removeLatencyTarget: (index: number) => void
-  setRulesGrouping: (v: 'proxy-group' | 'sections' | 'two-level') => void
-  setRulesLayout: (v: 'list' | 'grid' | 'proxies') => void
   setRulesDensity: (v: 'min' | 'detailed') => void
   setRulesConfirmDelete: (v: boolean) => void
   setRulesShowDiffBeforeApply: (v: boolean) => void
-  setRulesNewBlockMode: (v: 'dialog' | 'inline') => void
+  setAutoCheckUpdates: (v: boolean) => void
+  setMihomoSecret: (s: string) => void
   resetConfig: () => void
 }
 
@@ -102,12 +101,10 @@ const initialState = {
   splitMode: 'none' as const,
   syncScroll: false,
   maxLogEntries: 1000,
-  rulesGrouping: 'proxy-group' as const,
-  rulesLayout: 'list' as const,
   rulesDensity: 'min' as const,
   rulesConfirmDelete: true,
   rulesShowDiffBeforeApply: true,
-  rulesNewBlockMode: 'dialog' as const,
+  autoCheckUpdates: true,
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -154,18 +151,27 @@ export const useSettingsStore = create<SettingsState>()(
           latencyTargets: state.latencyTargets.filter((_, i) => i !== index),
         })),
 
-      setRulesGrouping: (v) => set({ rulesGrouping: v }),
-      setRulesLayout: (v) => set({ rulesLayout: v }),
       setRulesDensity: (v) => set({ rulesDensity: v }),
       setRulesConfirmDelete: (v) => set({ rulesConfirmDelete: v }),
       setRulesShowDiffBeforeApply: (v) => set({ rulesShowDiffBeforeApply: v }),
-      setRulesNewBlockMode: (v) => set({ rulesNewBlockMode: v }),
+
+      setAutoCheckUpdates: (v) => set({ autoCheckUpdates: v }),
+
+      setMihomoSecret: (s) => set({ mihomoSecret: s }),
 
       resetConfig: () => set({ ...initialState }),
     }),
     {
       name: 'mihomo-dashboard-settings',
       storage: createJSONStorage(() => localStorage),
+      merge: (persisted, current) => {
+        const merged = { ...current, ...(persisted as object) }
+        // Clean up removed fields from localStorage
+        delete (merged as any).rulesGrouping
+        delete (merged as any).rulesLayout
+        delete (merged as any).rulesNewBlockMode
+        return merged as typeof current
+      },
     }
   )
 )

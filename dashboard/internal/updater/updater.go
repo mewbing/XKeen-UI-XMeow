@@ -24,6 +24,7 @@ type ReleaseInfo struct {
 	AssetSize      int64     `json:"asset_size"`
 	DistSize       int64     `json:"dist_size,omitempty"`
 	IsPrerelease   bool      `json:"is_prerelease"`
+	IsExternalUI   bool      `json:"is_external_ui"`
 
 	// Internal fields (not serialized) -- used by Apply()
 	assetURL    string
@@ -87,6 +88,7 @@ func (u *Updater) Check(ctx context.Context) (*ReleaseInfo, error) {
 		AssetName:      binaryAsset.Name,
 		AssetSize:      binaryAsset.Size,
 		IsPrerelease:   release.Prerelease,
+		IsExternalUI:   u.IsExternalUI(),
 		assetURL:       binaryAsset.BrowserDownloadURL,
 	}
 
