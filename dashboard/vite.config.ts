@@ -54,6 +54,12 @@ export default defineConfig({
         target: 'http://172.16.10.1:5000',
         changeOrigin: true,
       },
+      // WebSocket terminal SSH bridge
+      '/ws/terminal': {
+        target: 'http://172.16.10.1:5000',
+        changeOrigin: true,
+        ws: true,
+      },
       // WebSocket log streaming
       '/ws': {
         target: 'http://172.16.10.1:5000',
