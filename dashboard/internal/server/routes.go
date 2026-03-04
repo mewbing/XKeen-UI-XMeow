@@ -11,13 +11,14 @@ import (
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/handler"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/logwatch"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/proxy"
+	"github.com/mewbing/XKeen-UI-Xmeow/internal/terminal"
 	"github.com/mewbing/XKeen-UI-Xmeow/internal/updater"
 )
 
 // NewRouter creates a chi.Mux with all route registrations.
 // spaHandler serves the embedded SPA as a catch-all fallback.
 // logHub manages WebSocket clients and file watchers.
-func NewRouter(cfg *config.AppConfig, spaHandler http.Handler, logHub *logwatch.LogHub, upd *updater.Updater) *chi.Mux {
+func NewRouter(cfg *config.AppConfig, spaHandler http.Handler, logHub *logwatch.LogHub, upd *updater.Updater, termHub *terminal.Hub) *chi.Mux {
 	r := chi.NewRouter()
 
 	// Global middleware
@@ -91,9 +92,13 @@ func NewRouter(cfg *config.AppConfig, spaHandler http.Handler, logHub *logwatch.
 		})
 	})
 
-	// WebSocket route (outside /api group, no auth on WS upgrade)
+	// WebSocket routes (outside /api group)
 	wsLogHandler := handler.NewWsLogHandler(logHub, cfg)
 	r.Get("/ws/logs", wsLogHandler.ServeHTTP)
+
+	// Terminal WebSocket (has its own auth check in handler -- token as query param)
+	wsTermHandler := handler.NewWsTerminalHandler(termHub, cfg)
+	r.Get("/ws/terminal", wsTermHandler.ServeHTTP)
 
 	// Mihomo reverse proxy -- forwards /api/mihomo/* to mihomo external-controller
 	// with automatic Authorization header injection (reads from config.yaml)
