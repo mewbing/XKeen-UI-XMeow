@@ -292,6 +292,21 @@ Plans:
 - [ ] 17-02-PLAN.md -- Frontend infrastructure: xterm.js deps + Zustand store + WS hook + settings SSH fields
 - [ ] 17-03-PLAN.md -- Frontend UI: TerminalModal + TerminalView + TerminalToolbar + ConnectDialog + Header integration
 
+### Phase 18: Unified Version Dialog
+**Goal**: Заменить 3 отдельных диалога версий (XkeenInfoDialog, MihomoVersionsDialog, XMeowInfoDialog) одним общим модальным окном с вкладками. Клик по версии в sidebar открывает нужную вкладку. Переключение между XKeen/Mihomo/Dashboard без закрытия диалога.
+**Depends on**: Phase 16, Phase 17
+**Requirements**: (to be defined)
+**Success Criteria** (what must be TRUE):
+  1. Один диалог VersionsDialog с 3 вкладками: XKeen, Mihomo, Dashboard
+  2. Клик по версии в sidebar открывает диалог на соответствующей вкладке
+  3. Переключение между вкладками без закрытия/переоткрытия диалога
+  4. Вся функциональность из старых 3 диалогов сохранена
+  5. Старые 3 компонента диалогов удалены
+  6. Анимации переключения вкладок плавные
+
+Plans:
+(none yet)
+
 ## Progress
 
 **Execution Order:**
