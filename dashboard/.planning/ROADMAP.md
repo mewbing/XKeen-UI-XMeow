@@ -303,7 +303,7 @@ Plans:
   4. Вся функциональность из старых 3 диалогов сохранена
   5. Старые 3 компонента диалогов удалены
   6. Анимации переключения вкладок плавные
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 18-01-PLAN.md -- Create unified VersionsDialog with 3 tab components and shared utilities

@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Dashboard
 status: unknown
-last_updated: "2026-03-04T12:15:46.371Z"
+last_updated: "2026-03-05T12:27:33Z"
 progress:
-  total_phases: 12
+  total_phases: 13
   completed_phases: 11
-  total_plans: 35
-  completed_plans: 33
+  total_plans: 37
+  completed_plans: 34
 ---
 
 # Project State
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 17 -- Web Terminal (SSH access via xterm.js)
+**Current focus:** Phase 18 -- Unified Version Dialog
 
 ## Current Position
 
-Phase: 17 of 17 (Web Terminal)
-Plan: 1 of 3 in current phase (plan 01 complete)
-Status: Executing phase 17 -- Go backend terminal package done, frontend next
-Last activity: 2026-03-04 -- Completed 17-01 Go Backend SSH Terminal
+Phase: 18 of 18 (Unified Version Dialog)
+Plan: 1 of 2 in current phase (plan 01 complete)
+Status: Executing phase 18 -- VersionsDialog components created, sidebar integration next
+Last activity: 2026-03-05 -- Completed 18-01 Unified Version Dialog Components
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
 v2.0 progress: [████████████████] 100% (Phase 12-16 all complete)
@@ -33,9 +33,9 @@ v2.0 progress: [████████████████] 100% (Phase 12
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32
+- Total plans completed: 34
 - Average duration: 4 min
-- Total execution time: 2.01 hours
+- Total execution time: 2.06 hours
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -72,6 +72,7 @@ v2.0 progress: [████████████████] 100% (Phase 12
 | 16 | 01 | 4min | 2 | 8 |
 | 16 | 02 | 4min | 2 | 4 |
 | 17 | 01 | 3min | 2 | 7 |
+| 18 | 01 | 3min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -115,10 +116,15 @@ v2.0 progress: [████████████████] 100% (Phase 12
 - [Phase 17]: Channel-based output reader wrapping blocking session.Read() for context-cancellable select
 - [Phase 17]: Auth check before WS upgrade with token query param fallback
 - [Phase 17]: Session.Shell() uses default login shell -- no explicit shell detection
+- [Phase 18]: Static dialog title "Версии и обновления" instead of per-tab titles
+- [Phase 18]: Shared AlertDialog at dialog level instead of per-tab AlertDialogs
+- [Phase 18]: forceMount + data-[state=inactive]:hidden for tab state preservation
+- [Phase 18]: active prop lazy fetch guard to prevent simultaneous API calls on forceMount
 
 ### Roadmap Evolution
 
 - Phase 17 added: Web terminal with PTY backend and xterm.js frontend for remote shell access to router
+- Phase 18 added: Unified version dialog consolidating 3 separate dialogs into 1 tabbed component
 
 ### Pending Todos
 
@@ -130,6 +136,6 @@ None currently.
 
 ## Session Continuity
 
-Last session: 2026-03-04
-Stopped at: Completed 17-01-PLAN.md (Go Backend SSH Terminal)
+Last session: 2026-03-05
+Stopped at: Completed 18-01-PLAN.md (Unified Version Dialog Components)
 Resume file: None
