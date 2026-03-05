@@ -168,6 +168,15 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 - [ ] **TERM-12**: Toolbar with Connect/Disconnect, Clear, Search, Font size +/-, Fullscreen
 - [ ] **TERM-13**: Connect dialog prompts for SSH credentials (login saved, password never saved)
 
+### Unified Version Dialog
+
+- [ ] **VDLG-01**: Single VersionsDialog component with 3 tabs (XKeen, Mihomo, Dashboard)
+- [ ] **VDLG-02**: Sidebar version click opens dialog on corresponding tab
+- [ ] **VDLG-03**: Tab switching without closing/reopening dialog (forceMount preserves state)
+- [ ] **VDLG-04**: All functionality from old 3 dialogs preserved (install, update, rollback, terminal link, copy)
+- [ ] **VDLG-05**: Old 3 dialog components deleted (XkeenInfoDialog, MihomoVersionsDialog, XMeowInfoDialog)
+- [ ] **VDLG-06**: Smooth fade animations on tab switch (~200ms)
+
 ## Future Requirements
 
 ### Deferred from v2.0
@@ -323,13 +332,25 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 | TERM-12 | Phase 17 | Pending |
 | TERM-13 | Phase 17 | Pending |
 
+### Phase 18 (Unified Version Dialog)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| VDLG-01 | Phase 18 | Pending |
+| VDLG-02 | Phase 18 | Pending |
+| VDLG-03 | Phase 18 | Pending |
+| VDLG-04 | Phase 18 | Pending |
+| VDLG-05 | Phase 18 | Pending |
+| VDLG-06 | Phase 18 | Pending |
+
 **Coverage:**
 - v1.0 requirements: 55 total (52 active + 3 superseded)
 - v2.0 requirements: 29 total
 - Phase 17 requirements: 13 total
-- Mapped to phases: 94 (52 v1.0 + 29 v2.0 + 13 Phase 17)
+- Phase 18 requirements: 6 total
+- Mapped to phases: 100 (52 v1.0 + 29 v2.0 + 13 Phase 17 + 6 Phase 18)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-03-04 — added TERM-01..TERM-13 for Phase 17 (Web Terminal)*
+*Last updated: 2026-03-05 — added VDLG-01..VDLG-06 for Phase 18 (Unified Version Dialog)*

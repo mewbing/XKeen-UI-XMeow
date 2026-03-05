@@ -295,7 +295,7 @@ Plans:
 ### Phase 18: Unified Version Dialog
 **Goal**: Заменить 3 отдельных диалога версий (XkeenInfoDialog, MihomoVersionsDialog, XMeowInfoDialog) одним общим модальным окном с вкладками. Клик по версии в sidebar открывает нужную вкладку. Переключение между XKeen/Mihomo/Dashboard без закрытия диалога.
 **Depends on**: Phase 16, Phase 17
-**Requirements**: (to be defined)
+**Requirements**: VDLG-01, VDLG-02, VDLG-03, VDLG-04, VDLG-05, VDLG-06
 **Success Criteria** (what must be TRUE):
   1. Один диалог VersionsDialog с 3 вкладками: XKeen, Mihomo, Dashboard
   2. Клик по версии в sidebar открывает диалог на соответствующей вкладке
@@ -303,9 +303,11 @@ Plans:
   4. Вся функциональность из старых 3 диалогов сохранена
   5. Старые 3 компонента диалогов удалены
   6. Анимации переключения вкладок плавные
+**Plans:** 2 plans
 
 Plans:
-(none yet)
+- [ ] 18-01-PLAN.md -- Create unified VersionsDialog with 3 tab components and shared utilities
+- [ ] 18-02-PLAN.md -- Rewire AppSidebar integration + delete old dialog files + visual verification
 
 ## Progress
 
