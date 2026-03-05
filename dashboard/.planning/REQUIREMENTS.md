@@ -171,10 +171,10 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 ### Unified Version Dialog
 
 - [x] **VDLG-01**: Single VersionsDialog component with 3 tabs (XKeen, Mihomo, Dashboard)
-- [ ] **VDLG-02**: Sidebar version click opens dialog on corresponding tab
+- [x] **VDLG-02**: Sidebar version click opens dialog on corresponding tab
 - [x] **VDLG-03**: Tab switching without closing/reopening dialog (forceMount preserves state)
 - [x] **VDLG-04**: All functionality from old 3 dialogs preserved (install, update, rollback, terminal link, copy)
-- [ ] **VDLG-05**: Old 3 dialog components deleted (XkeenInfoDialog, MihomoVersionsDialog, XMeowInfoDialog)
+- [x] **VDLG-05**: Old 3 dialog components deleted (XkeenInfoDialog, MihomoVersionsDialog, XMeowInfoDialog)
 - [x] **VDLG-06**: Smooth fade animations on tab switch (~200ms)
 
 ## Future Requirements
@@ -337,10 +337,10 @@ Go backend rewrite + auto-update + installer. Replaces Python Flask with compile
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | VDLG-01 | Phase 18 | Complete |
-| VDLG-02 | Phase 18 | Pending |
+| VDLG-02 | Phase 18 | Complete |
 | VDLG-03 | Phase 18 | Complete |
 | VDLG-04 | Phase 18 | Complete |
-| VDLG-05 | Phase 18 | Pending |
+| VDLG-05 | Phase 18 | Complete |
 | VDLG-06 | Phase 18 | Complete |
 
 **Coverage:**
