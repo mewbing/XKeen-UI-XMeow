@@ -17,8 +17,6 @@ import {
   TooltipProvider,
 } from '@/components/ui/tooltip'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Toggle } from '@/components/ui/toggle'
-import { Separator } from '@/components/ui/separator'
 import { useSettingsStore } from '@/stores/settings'
 
 export function ProxiesSettingsPopover() {
@@ -30,8 +28,6 @@ export function ProxiesSettingsPopover() {
   const setSort = useSettingsStore((s) => s.setProxiesSort)
   const typeStyle = useSettingsStore((s) => s.proxiesTypeStyle)
   const setTypeStyle = useSettingsStore((s) => s.setProxiesTypeStyle)
-  const showAutoInfo = useSettingsStore((s) => s.proxiesShowAutoInfo)
-  const setShowAutoInfo = useSettingsStore((s) => s.setProxiesShowAutoInfo)
 
   return (
     <Popover>
@@ -48,112 +44,66 @@ export function ProxiesSettingsPopover() {
         </Tooltip>
       </TooltipProvider>
 
-      <PopoverContent className="w-[300px]" align="end">
-        <div className="space-y-4">
-          {/* Grid columns */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Сетка
-            </label>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              value={String(gridColumns)}
-              onValueChange={(v) => {
-                if (v) setGridColumns(Number(v) as 1 | 2 | 3)
-              }}
-            >
-              <ToggleGroupItem value="1" aria-label="1 колонка">
-                <LayoutList className="size-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="2" aria-label="2 колонки">
-                <Columns2 className="size-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="3" aria-label="3 колонки">
-                <Columns3 className="size-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
+      <PopoverContent className="w-auto p-3" align="end">
+        <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2">
+          <label className="text-xs text-muted-foreground">Сетка</label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            value={String(gridColumns)}
+            onValueChange={(v) => { if (v) setGridColumns(Number(v) as 1 | 2 | 3) }}
+          >
+            <ToggleGroupItem value="1" aria-label="1 колонка" className="px-2">
+              <LayoutList className="size-3.5" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="2" aria-label="2 колонки" className="px-2">
+              <Columns2 className="size-3.5" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="3" aria-label="3 колонки" className="px-2">
+              <Columns3 className="size-3.5" />
+            </ToggleGroupItem>
+          </ToggleGroup>
 
-          <Separator />
+          <label className="text-xs text-muted-foreground">Плотность</label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            value={density}
+            onValueChange={(v) => { if (v) setDensity(v as 'min' | 'mid' | 'max') }}
+          >
+            <ToggleGroupItem value="min" className="text-xs px-2">Мин</ToggleGroupItem>
+            <ToggleGroupItem value="mid" className="text-xs px-2">Сред</ToggleGroupItem>
+            <ToggleGroupItem value="max" className="text-xs px-2">Макс</ToggleGroupItem>
+          </ToggleGroup>
 
-          {/* Density */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Плотность
-            </label>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              value={density}
-              onValueChange={(v) => {
-                if (v) setDensity(v as 'min' | 'mid' | 'max')
-              }}
-            >
-              <ToggleGroupItem value="min">Мин</ToggleGroupItem>
-              <ToggleGroupItem value="mid">Сред</ToggleGroupItem>
-              <ToggleGroupItem value="max">Макс</ToggleGroupItem>
-            </ToggleGroup>
-          </div>
+          <label className="text-xs text-muted-foreground">Сортировка</label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            value={sort}
+            onValueChange={(v) => { if (v) setSort(v as 'name' | 'delay' | 'default') }}
+          >
+            <ToggleGroupItem value="default" className="text-xs px-2">Умлч</ToggleGroupItem>
+            <ToggleGroupItem value="name" className="text-xs px-2">Имя</ToggleGroupItem>
+            <ToggleGroupItem value="delay" className="text-xs px-2">Задержка</ToggleGroupItem>
+          </ToggleGroup>
 
-          <Separator />
-
-          {/* Sort */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Сортировка прокси
-            </label>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              value={sort}
-              onValueChange={(v) => {
-                if (v) setSort(v as 'name' | 'delay' | 'default')
-              }}
-            >
-              <ToggleGroupItem value="default">По умолч.</ToggleGroupItem>
-              <ToggleGroupItem value="name">Имя</ToggleGroupItem>
-              <ToggleGroupItem value="delay">Задержка</ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-
-          <Separator />
-
-          {/* Type style */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Стиль типов групп
-            </label>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              value={typeStyle}
-              onValueChange={(v) => {
-                if (v) setTypeStyle(v as 'badge' | 'border' | 'icon')
-              }}
-            >
-              <ToggleGroupItem value="badge">Бейдж</ToggleGroupItem>
-              <ToggleGroupItem value="border">Рамка</ToggleGroupItem>
-              <ToggleGroupItem value="icon">Иконка</ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-
-          <Separator />
-
-          {/* Show auto info */}
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-muted-foreground">
-              Инфо автогрупп
-            </label>
-            <Toggle
-              variant="outline"
-              size="sm"
-              pressed={showAutoInfo}
-              onPressedChange={setShowAutoInfo}
-            >
-              {showAutoInfo ? 'Вкл' : 'Выкл'}
-            </Toggle>
-          </div>
+          <label className="text-xs text-muted-foreground">Тип</label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            value={typeStyle}
+            onValueChange={(v) => { if (v) setTypeStyle(v as 'badge' | 'border' | 'icon' | 'none') }}
+          >
+            <ToggleGroupItem value="badge" className="text-xs px-2">Бейдж</ToggleGroupItem>
+            <ToggleGroupItem value="border" className="text-xs px-2">Рамка</ToggleGroupItem>
+            <ToggleGroupItem value="icon" className="text-xs px-2">Иконка</ToggleGroupItem>
+            <ToggleGroupItem value="none" className="text-xs px-2">Нет</ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </PopoverContent>
     </Popover>

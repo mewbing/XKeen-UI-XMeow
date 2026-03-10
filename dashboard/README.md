@@ -1,44 +1,74 @@
-# XMeow UI
+# ✨ XMeow UI
 
-Dashboard для [mihomo](https://github.com/MetaCubeX/mihomo) proxy на роутерах Keenetic.
+Панель управления для [mihomo](https://github.com/MetaCubeX/mihomo) на роутерах **Keenetic**.
 
-Единый Go-бинарник со встроенным SPA — без внешних зависимостей, готов к запуску на ARM/MIPS роутерах.
+Go-сервер + SPA-дашборд. Без внешних зависимостей, работает на ARM/MIPS роутерах.
 
-## Возможности
-
-- Обзор системы: трафик, соединения, DNS-статистика
-- Управление прокси-группами и нодами с тестированием задержки
-- Визуальный редактор правил маршрутизации
-- Редактор конфигурации с подсветкой синтаксиса и diff-превью
-- Просмотр логов и соединений в реальном времени через WebSocket
-
-## Запуск
+## ⚡ Быстрый старт
 
 ```bash
-./xmeow-ui
+curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/main/setup.sh | sh
 ```
 
-По умолчанию запускается на порту **5000**.
+## ✨ Особенности
 
-### Переменные окружения
+- 📊 Обзор системы: трафик, память, CPU, соединения, тесты задержки
+- 🔀 Управление прокси-группами и нодами с тестированием задержки
+- 📝 Визуальный редактор правил маршрутизации с drag & drop
+- ⚙️ Редактор конфигурации с подсветкой синтаксиса и diff-превью
+- 📜 Логи и соединения в реальном времени через WebSocket
+- 💻 Веб-терминал (SSH/PTY) для управления роутером
+- 🔄 Управление версиями: mihomo, XKeen, XMeow — обновление и откат
+- 🚀 Работает без Go-бэкенда (базовый режим через mihomo API)
+- ⛔ Без внешних зависимостей — один бинарник
+- 📉 Минимальное потребление ресурсов
+
+## 🖥️ Поддерживаемые архитектуры
+
+| Архитектура | Роутеры |
+|---|---|
+| `linux_arm64` | Keenetic KN-1811, KN-1812 и новее (aarch64) |
+| `linux_armv7` | Keenetic Giga, Ultra старых ревизий (ARMv7) |
+| `linux_mipsle` | Keenetic 4G, Lite и др. (MIPS little-endian) |
+
+## ⚙️ Конфигурация
+
+Файл конфигурации: `/opt/etc/xmeow-ui/xmeow-ui.conf`
 
 | Переменная | Описание | По умолчанию |
 |---|---|---|
-| `XMEOW_PORT` | Порт веб-интерфейса | `5000` |
+| `PORT` | Порт API-сервера | `5000` |
 | `MIHOMO_CONFIG_PATH` | Путь к config.yaml mihomo | `/opt/etc/mihomo/config.yaml` |
-| `MIHOMO_API_URL` | URL API mihomo | `http://127.0.0.1:9090` |
-| `XMEOW_SECRET` | Секретный ключ для аутентификации | (не задан) |
+| `XKEEN_DIR` | Директория XKeen | `/opt/etc/xkeen` |
+| `XKEEN_LOG_DIR` | Директория логов | `/opt/var/log/xray` |
 
-## Поддерживаемые архитектуры
+## 🎛️ Управление сервисом
 
-| Архитектура | Описание |
-|---|---|
-| `linux_arm64` | Keenetic KN-1811, KN-1812 и др. (aarch64) |
-| `linux_armv7` | Keenetic Giga, Ultra и др. (ARMv7) |
-| `linux_mipsle` | Keenetic 4G, Lite и др. (MIPS little-endian) |
-| `linux_mips` | Keenetic Omni и др. (MIPS big-endian) |
-| `linux_amd64` | x86_64 серверы и ПК |
+```bash
+/opt/etc/init.d/S99xmeow-ui start    # Запуск
+/opt/etc/init.d/S99xmeow-ui stop     # Остановка
+/opt/etc/init.d/S99xmeow-ui restart  # Перезапуск
+/opt/etc/init.d/S99xmeow-ui status   # Статус
+```
 
-## Ссылки
+Dashboard доступен по адресу: `http://<router-ip>:9090/ui/`
 
-- [GitHub](https://github.com/mewbing/XKeen-UI-Xmeow)
+## 🔗 external-ui-url
+
+Для автоматической загрузки дашборда через mihomo, добавьте в `config.yaml`:
+
+```yaml
+external-ui: ui
+external-ui-url: https://github.com/mewbing/XKeen-UI-XMeow/releases/latest/download/dist.tar.gz
+```
+
+## 🪙 Понравился проект?
+
+[Поддержать автора](https://pay.cloudtips.ru/p/9752caf9)
+
+## 🙏 Благодарности
+
+- [zxc-rv/XKeen-UI](https://github.com/zxc-rv/XKeen-UI) — оригинальный XKeen UI для Keenetic
+- [MetaCubeX/Zashboard](https://github.com/MetaCubeX/Zashboard) — mihomo dashboard
+- [MetaCubeX/mihomo](https://github.com/MetaCubeX/mihomo) — ядро прокси-сервера
+- [jameszeroX/XKeen](https://github.com/jameszeroX/XKeen) — XKeen для Keenetic

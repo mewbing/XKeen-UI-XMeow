@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 04-connections-logs
 source: [04-01-SUMMARY.md, 04-02-SUMMARY.md, 04-03-SUMMARY.md]
 started: 2026-02-28T12:00:00Z
@@ -78,7 +78,13 @@ skipped: 1
   reason: "User reported: поиск не работает, ввожу данные ничего не происходит а очистка работает"
   severity: major
   test: 11
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "LogsTab.tsx не подписывается на searchQuery и activeLevels — Zustand не триггерит ре-рендер при изменении фильтров. filteredEntries это ссылка на функцию (всегда одинаковая), поэтому Object.is() не видит изменений."
+  artifacts:
+    - path: "src/components/logs/LogsTab.tsx"
+      issue: "Отсутствуют подписки на searchQuery и activeLevels (строки 7-11)"
+    - path: "src/stores/logs.ts"
+      issue: "filteredEntries — plain function, не реактивный селектор (строки 53-71)"
+  missing:
+    - "Добавить useLogsStore((s) => s.searchQuery) в LogsTab.tsx"
+    - "Добавить useLogsStore((s) => s.activeLevels) в LogsTab.tsx"
+  debug_session: ".planning/debug/logs-search-filter-broken.md"

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/config"
 )
 
 // LogHub manages WebSocket clients and a lazy file watcher.

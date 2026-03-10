@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useMonacoTheme, registerMonacoTheme } from '@/hooks/use-theme'
 
 interface DiffPreviewProps {
   open: boolean
@@ -36,22 +37,25 @@ export function DiffPreview({
   language,
   onConfirmApply,
 }: DiffPreviewProps) {
+  const monacoTheme = useMonacoTheme()
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-4xl">
+      <AlertDialogContent className="!max-w-[95vw] w-[95vw]">
         <AlertDialogHeader>
           <AlertDialogTitle>Изменения перед Apply</AlertDialogTitle>
           <AlertDialogDescription>
-            Просмотрите изменения. Слева -- исходная версия, справа -- текущая.
+            Слева — исходная версия, справа — изменённая.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="h-[60vh] border rounded-md overflow-hidden">
+        <div className="h-[75vh] border rounded-md overflow-hidden">
           <DiffEditor
             original={original}
             modified={modified}
             language={language}
-            theme="vs-dark"
+            beforeMount={registerMonacoTheme}
+            theme={monacoTheme}
             options={{
               readOnly: true,
               renderSideBySide: true,

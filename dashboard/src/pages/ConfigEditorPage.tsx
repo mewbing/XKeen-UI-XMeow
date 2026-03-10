@@ -2,43 +2,38 @@
  * Config editor page -- full assembly with resizable layout.
  *
  * VS Code-style layout: EditorToolbar on top, Monaco editor in the
- * upper resizable panel, log panel in the lower collapsible panel.
+ * upper resizable panel, log panel in the lower panel.
  * Apply workflow: optional diff preview -> start log stream -> save -> restart.
  * Navigation guard warns about unsaved changes on page leave.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import type { PanelImperativeHandle, PanelSize } from 'react-resizable-panels'
 
+import { useHealthCheck, isHealthy } from '@/hooks/useHealthCheck'
+import { SetupGuide } from '@/components/shared/SetupGuide'
 import {
   ResizablePanelGroup,
   ResizablePanel,
   ResizableHandle,
 } from '@/components/ui/resizable'
+import { Card, CardContent } from '@/components/ui/card'
 import { ConfigEditor } from '@/components/config-editor/ConfigEditor'
 import { EditorToolbar } from '@/components/config-editor/EditorToolbar'
 import { EditorLogPanel } from '@/components/config-editor/EditorLogPanel'
 import { DiffPreview } from '@/components/config-editor/DiffPreview'
 import { useConfigEditorStore } from '@/stores/config-editor'
 import { useSettingsStore } from '@/stores/settings'
-import { saveConfig, saveXkeenFile } from '@/lib/config-api'
-import { restartMihomo } from '@/lib/mihomo-api'
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
+import { saveConfig, saveXkeenFile, serviceAction } from '@/lib/config-api'
 
 export default function ConfigEditorPage() {
-  const logPanelRef = useRef<PanelImperativeHandle | null>(null)
-  const [logPanelCollapsed, setLogPanelCollapsed] = useState(false)
+  const health = useHealthCheck({ requireConfigApi: true })
+
   const [diffOpen, setDiffOpen] = useState(false)
 
   const activeTab = useConfigEditorStore((s) => s.activeTab)
   const tabs = useConfigEditorStore((s) => s.tabs)
   const markSaved = useConfigEditorStore((s) => s.markSaved)
-  const startLogStream = useConfigEditorStore((s) => s.startLogStream)
-  const stopLogStream = useConfigEditorStore((s) => s.stopLogStream)
   const hasDirtyTabs = useConfigEditorStore((s) => s.hasDirtyTabs)
   const showDiffBeforeApply = useSettingsStore((s) => s.showDiffBeforeApply)
 
@@ -53,46 +48,9 @@ export default function ConfigEditorPage() {
     return () => window.removeEventListener('beforeunload', handler)
   }, [hasDirtyTabs])
 
-  // --- Log panel collapse handling ---
-  const handleToggleCollapse = useCallback(() => {
-    const panel = logPanelRef.current
-    if (!panel) return
-
-    if (panel.isCollapsed()) {
-      panel.expand()
-    } else {
-      panel.collapse()
-      // Stop streaming when collapsing
-      stopLogStream()
-    }
-  }, [stopLogStream])
-
-  const handleLogPanelResize = useCallback(
-    (panelSize: PanelSize) => {
-      const collapsed = panelSize.asPercentage === 0
-      setLogPanelCollapsed(collapsed)
-      if (collapsed) {
-        stopLogStream()
-      }
-    },
-    [stopLogStream]
-  )
-
   // --- Core Apply logic (called after all confirmations) ---
   const executeApply = useCallback(async () => {
     try {
-      // 1. Start log streaming (EditorLogPanel will react and connect WS)
-      startLogStream()
-
-      // 2. Expand log panel if collapsed
-      if (logPanelRef.current?.isCollapsed()) {
-        logPanelRef.current.expand()
-      }
-
-      // 3. Wait for WS to connect
-      await sleep(500)
-
-      // 4. Save current tab content
       const tab = useConfigEditorStore.getState().activeTab
       const content = useConfigEditorStore.getState().tabs[tab].current
 
@@ -103,22 +61,19 @@ export default function ConfigEditorPage() {
       }
       markSaved(tab)
 
-      // 5. Restart mihomo
-      await restartMihomo()
+      await serviceAction('restart')
 
-      toast.success('Конфиг применён, mihomo перезапускается')
+      toast.success('Конфиг применён, xkeen перезапускается')
     } catch (err) {
-      stopLogStream()
       toast.error(
-        `Ошибка Apply: ${err instanceof Error ? err.message : String(err)}`
+        `Ошибка: ${err instanceof Error ? err.message : String(err)}`
       )
     }
-  }, [startLogStream, markSaved, stopLogStream])
+  }, [markSaved])
 
   // --- Apply workflow entry point (from EditorToolbar) ---
   const handleApplyConfirmed = useCallback(async () => {
     if (showDiffBeforeApply) {
-      // Show diff preview first; actual apply happens in onConfirmApply
       setDiffOpen(true)
     } else {
       await executeApply()
@@ -158,45 +113,55 @@ export default function ConfigEditorPage() {
   // Current tab state for diff preview
   const currentTab = tabs[activeTab]
 
-  return (
-    <div className="flex flex-col h-full">
-      {/* Toolbar: tabs + action buttons */}
-      <EditorToolbar onApplyConfirmed={handleApplyConfirmed} />
+  if (!isHealthy(health)) {
+    return (
+      <SetupGuide
+        mihomoOk={health.mihomoOk}
+        configApiOk={health.configApiOk}
+        loading={health.loading}
+        onRetry={health.retry}
+      />
+    )
+  }
 
-      {/* Resizable layout: editor on top, logs on bottom */}
+  return (
+    <div className="flex flex-col h-full gap-2">
       <ResizablePanelGroup orientation="vertical" className="flex-1">
         {/* Editor panel */}
         <ResizablePanel defaultSize={70} minSize={30}>
-          <ConfigEditor onSave={handleSave} />
+          <div className="h-full pb-1">
+            <Card className="flex flex-col flex-1 h-full w-full gap-0 py-0 overflow-hidden">
+              <EditorToolbar onApplyConfirmed={handleApplyConfirmed} />
+              <CardContent className="flex flex-col flex-1 min-h-0 p-0 overflow-hidden">
+                <ConfigEditor onSave={handleSave} />
+              </CardContent>
+            </Card>
+          </div>
         </ResizablePanel>
 
-        <ResizableHandle withHandle />
+        <ResizableHandle withHandle className="bg-transparent" />
 
-        {/* Log panel (collapsible) */}
-        <ResizablePanel
-          defaultSize={30}
-          minSize={5}
-          collapsible
-          collapsedSize={0}
-          panelRef={logPanelRef}
-          onResize={handleLogPanelResize}
-        >
-          <EditorLogPanel
-            collapsed={logPanelCollapsed}
-            onToggleCollapse={handleToggleCollapse}
-          />
+        {/* Log panel */}
+        <ResizablePanel defaultSize={30} minSize={10}>
+          <div className="h-full pt-1">
+            <Card className="flex flex-col flex-1 h-full w-full gap-0 py-0 overflow-hidden">
+              <EditorLogPanel />
+            </Card>
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
 
       {/* Diff preview dialog */}
-      <DiffPreview
-        open={diffOpen}
-        onOpenChange={setDiffOpen}
-        original={currentTab.original}
-        modified={currentTab.current}
-        language={currentTab.language}
-        onConfirmApply={handleDiffConfirmApply}
-      />
+      {diffOpen && (
+        <DiffPreview
+          open={diffOpen}
+          onOpenChange={setDiffOpen}
+          original={currentTab.original}
+          modified={currentTab.current}
+          language={currentTab.language}
+          onConfirmApply={handleDiffConfirmApply}
+        />
+      )}
     </div>
   )
 }

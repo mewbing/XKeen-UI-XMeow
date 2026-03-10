@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { UpdateOverlay } from '@/components/update/UpdateOverlay'
 import { useReleasesStore } from '@/stores/releases'
+import { useBackendAvailable } from '@/hooks/useBackendAvailable'
 import { XKeenTab } from './XKeenTab'
 import { MihomoTab } from './MihomoTab'
 import { DashboardTab } from './DashboardTab'
@@ -39,21 +40,76 @@ export function VersionsDialog({ open, defaultTab, onClose }: VersionsDialogProp
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [overlayMode, setOverlayMode] = useState<'server' | 'dist'>('server')
+  const [panelHeight, setPanelHeight] = useState<number | null>(null)
 
+  const panelRef = useRef<HTMLDivElement>(null)
+  const hasInitialHeight = useRef(false)
   const mihomoInstalling = useReleasesStore((s) => s.mihomoInstalling)
+  const xmeowInstalling = useReleasesStore((s) => s.xmeowInstalling)
+  const anyInstalling = mihomoInstalling || xmeowInstalling
+  const backendAvailable = useBackendAvailable()
 
-  // Sync tab to defaultTab when dialog opens (Pitfall 6 prevention)
+  // Sync tab to defaultTab when dialog opens
+  // If xkeen tab requested but backend unavailable, fall back to mihomo
   useEffect(() => {
-    if (open) setActiveTab(defaultTab)
+    if (open) {
+      const tab = (!backendAvailable && defaultTab === 'xkeen') ? 'mihomo' : defaultTab
+      setActiveTab(tab)
+    } else {
+      setPanelHeight(null)
+      hasInitialHeight.current = false
+    }
   }, [open, defaultTab])
 
+  // Initial measurement BEFORE paint — ensures panelHeight is a number
+  // before user can interact. auto→px doesn't animate (good).
+  useLayoutEffect(() => {
+    if (!open || hasInitialHeight.current) return
+
+    const wrapper = panelRef.current
+    if (!wrapper) return
+    const active = wrapper.querySelector<HTMLElement>(':scope > [data-state="active"]')
+    if (active) {
+      setPanelHeight(active.scrollHeight + 8)
+      hasInitialHeight.current = true
+    }
+  }, [open, activeTab])
+
+  // Animated measurement on tab switch (rAF lets browser paint old height first → transition)
+  // + ResizeObserver for content changes within active tab
+  useEffect(() => {
+    if (!open || !hasInitialHeight.current) return
+
+    const wrapper = panelRef.current
+    if (!wrapper) return
+
+    const measure = () => {
+      const active = wrapper.querySelector<HTMLElement>(':scope > [data-state="active"]')
+      if (active) setPanelHeight(active.scrollHeight + 8)
+    }
+
+    const frame = requestAnimationFrame(measure)
+
+    const active = wrapper.querySelector<HTMLElement>(':scope > [data-state="active"]')
+    if (!active) return () => cancelAnimationFrame(frame)
+
+    const ro = new ResizeObserver(measure)
+    ro.observe(active)
+    Array.from(active.children).forEach((child) => ro.observe(child))
+
+    return () => {
+      cancelAnimationFrame(frame)
+      ro.disconnect()
+    }
+  }, [activeTab, open])
+
   const handleClose = () => {
-    if (mihomoInstalling) return
+    if (anyInstalling) return
     onClose()
   }
 
   const handleTabChange = (value: string) => {
-    if (mihomoInstalling) return
+    if (anyInstalling) return
     setActiveTab(value)
   }
 
@@ -69,73 +125,88 @@ export function VersionsDialog({ open, defaultTab, onClose }: VersionsDialogProp
         onOpenChange={(o) => { if (!o) handleClose() }}
       >
         <DialogContent
-          className="!max-w-2xl max-h-[85vh] flex flex-col"
-          onInteractOutside={(e) => { if (mihomoInstalling) e.preventDefault() }}
+          className="!max-w-2xl max-h-[85vh] flex flex-col !top-[15vh] !translate-y-0"
+          onInteractOutside={(e) => { if (anyInstalling) e.preventDefault() }}
         >
           <DialogHeader className="shrink-0">
-            <DialogTitle>Версии и обновления</DialogTitle>
+            <DialogTitle className="text-center">Управление обновлениями</DialogTitle>
           </DialogHeader>
 
           <Tabs
             value={activeTab}
             onValueChange={handleTabChange}
-            className="flex-1 min-h-0 flex flex-col"
+            className="min-h-0"
           >
-            <TabsList className="shrink-0">
-              <TabsTrigger
-                value="xkeen"
-                disabled={mihomoInstalling && activeTab !== 'xkeen'}
-              >
-                XKeen
-              </TabsTrigger>
+            <TabsList className="shrink-0 w-full">
+              {backendAvailable && (
+                <TabsTrigger
+                  value="xkeen"
+                  className="flex-1"
+                  disabled={anyInstalling && activeTab !=='xkeen'}
+                >
+                  XKeen
+                </TabsTrigger>
+              )}
               <TabsTrigger
                 value="mihomo"
-                disabled={mihomoInstalling && activeTab !== 'mihomo'}
+                className="flex-1"
+                disabled={anyInstalling && activeTab !=='mihomo'}
               >
                 Mihomo
               </TabsTrigger>
               <TabsTrigger
                 value="dashboard"
-                disabled={mihomoInstalling && activeTab !== 'dashboard'}
+                className="flex-1"
+                disabled={anyInstalling && activeTab !=='dashboard'}
               >
                 Dashboard
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent
-              value="xkeen"
-              forceMount
-              className="flex-1 min-h-0 data-[state=inactive]:hidden"
+            {/* Animated height wrapper — smooth resize between tabs */}
+            <div
+              className="overflow-hidden transition-[height] duration-300 ease-out"
+              style={panelHeight !== null ? { height: panelHeight } : undefined}
             >
-              <XKeenTab
-                active={activeTab === 'xkeen' && open}
-                onClose={handleClose}
-              />
-            </TabsContent>
+              <div ref={panelRef}>
+                {backendAvailable && (
+                  <TabsContent
+                    value="xkeen"
+                    forceMount
+                    className="mt-2 data-[state=inactive]:hidden"
+                  >
+                    <XKeenTab
+                      active={activeTab === 'xkeen' && open}
+                      onClose={handleClose}
+                    />
+                  </TabsContent>
+                )}
 
-            <TabsContent
-              value="mihomo"
-              forceMount
-              className="flex-1 min-h-0 data-[state=inactive]:hidden"
-            >
-              <MihomoTab
-                active={activeTab === 'mihomo' && open}
-                onConfirm={setConfirmAction}
-              />
-            </TabsContent>
+                <TabsContent
+                  value="mihomo"
+                  forceMount
+                  className="mt-2 data-[state=inactive]:hidden"
+                >
+                  <MihomoTab
+                    active={activeTab === 'mihomo' && open}
+                    onConfirm={setConfirmAction}
+                  />
+                </TabsContent>
 
-            <TabsContent
-              value="dashboard"
-              forceMount
-              className="flex-1 min-h-0 data-[state=inactive]:hidden"
-            >
-              <DashboardTab
-                active={activeTab === 'dashboard' && open}
-                onClose={handleClose}
-                onConfirm={setConfirmAction}
-                onOverlay={handleOverlay}
-              />
-            </TabsContent>
+                <TabsContent
+                  value="dashboard"
+                  forceMount
+                  className="mt-2 data-[state=inactive]:hidden"
+                >
+                  <DashboardTab
+                    active={activeTab === 'dashboard' && open}
+                    onClose={handleClose}
+                    onConfirm={setConfirmAction}
+                    onOverlay={handleOverlay}
+                  />
+                </TabsContent>
+              </div>
+            </div>
           </Tabs>
         </DialogContent>
       </Dialog>

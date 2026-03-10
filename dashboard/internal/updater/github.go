@@ -3,6 +3,7 @@ package updater
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,8 +14,11 @@ import (
 	"time"
 )
 
+// ErrNoRelease is returned when the GitHub repo or release does not exist yet.
+var ErrNoRelease = errors.New("no release found")
+
 const (
-	githubRepo = "mewbing/XKeen-UI-Xmeow"
+	githubRepo = "mewbing/XKeen-UI-XMeow"
 	githubAPI  = "https://api.github.com/repos/" + githubRepo + "/releases/latest"
 )
 
@@ -51,6 +55,9 @@ func fetchLatestRelease(ctx context.Context, userAgent string) (*githubRelease, 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, ErrNoRelease
+		}
 		if resp.StatusCode == http.StatusForbidden {
 			return nil, fmt.Errorf("github API returned 403: rate limit exceeded, try again later")
 		}
@@ -88,46 +95,135 @@ func findAssets(assets []githubAsset) (binaryAsset, checksumAsset, distAsset *gi
 	return
 }
 
-// compareVersions compares two semver version strings.
+// CompareVersions compares two version strings with arbitrary segment count.
 // Returns -1 if current < latest, 0 if equal, 1 if current > latest.
 // Strips "v" prefix and ignores prerelease suffixes (e.g., "-beta.1").
-func compareVersions(current, latest string) int {
+// Supports 2+ segments: "1.19.0", "1.1.3.9", etc.
+func CompareVersions(current, latest string) int {
 	current = strings.TrimPrefix(current, "v")
 	latest = strings.TrimPrefix(latest, "v")
 
-	// Separate prerelease suffix (compare only major.minor.patch)
+	// Separate prerelease suffix
 	currentCore := strings.SplitN(current, "-", 2)[0]
 	latestCore := strings.SplitN(latest, "-", 2)[0]
 
 	cv := parseVersion(currentCore)
 	lv := parseVersion(latestCore)
 
-	for i := 0; i < 3; i++ {
-		if cv[i] < lv[i] {
+	maxLen := len(cv)
+	if len(lv) > maxLen {
+		maxLen = len(lv)
+	}
+
+	for i := 0; i < maxLen; i++ {
+		var a, b int
+		if i < len(cv) {
+			a = cv[i]
+		}
+		if i < len(lv) {
+			b = lv[i]
+		}
+		if a < b {
 			return -1
 		}
-		if cv[i] > lv[i] {
+		if a > b {
 			return 1
 		}
 	}
 	return 0
 }
 
-// parseVersion splits a "major.minor.patch" string into [3]int.
-func parseVersion(s string) [3]int {
-	var v [3]int
-	parts := strings.SplitN(s, ".", 3)
+// parseVersion splits a dotted version string into a slice of ints.
+func parseVersion(s string) []int {
+	parts := strings.Split(s, ".")
+	v := make([]int, len(parts))
 	for i, p := range parts {
-		if i < 3 {
-			v[i], _ = strconv.Atoi(p)
-		}
+		v[i], _ = strconv.Atoi(p)
 	}
 	return v
 }
 
+// progressWriter wraps an io.Writer and reports download progress via callback.
+type progressWriter struct {
+	w          io.Writer
+	total      int64
+	written    int64
+	onProgress func(pct int)
+	lastPct    int
+	lastReport time.Time
+}
+
+func (pw *progressWriter) Write(p []byte) (int, error) {
+	n, err := pw.w.Write(p)
+	pw.written += int64(n)
+
+	if pw.onProgress != nil && pw.total > 0 {
+		pct := int(pw.written * 100 / pw.total)
+		now := time.Now()
+		if pct != pw.lastPct && now.Sub(pw.lastReport) >= 500*time.Millisecond {
+			pw.lastPct = pct
+			pw.lastReport = now
+			pw.onProgress(pct)
+		}
+	}
+
+	return n, err
+}
+
+// DownloadFileWithProgress downloads a URL to a local file path with progress reporting.
+// totalSize is the expected file size. onProgress receives percent (0-100), throttled to 500ms.
+func DownloadFileWithProgress(ctx context.Context, url, destPath string, totalSize int64, onProgress func(pct int)) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return fmt.Errorf("create download request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("download failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("download returned HTTP %d", resp.StatusCode)
+	}
+
+	if totalSize <= 0 {
+		totalSize = resp.ContentLength
+	}
+
+	f, err := os.Create(destPath)
+	if err != nil {
+		return fmt.Errorf("create file %s: %w", destPath, err)
+	}
+
+	pw := &progressWriter{
+		w:          f,
+		total:      totalSize,
+		onProgress: onProgress,
+	}
+
+	if _, err := io.Copy(pw, resp.Body); err != nil {
+		f.Close()
+		os.Remove(destPath)
+		return fmt.Errorf("write file %s: %w", destPath, err)
+	}
+
+	if onProgress != nil {
+		onProgress(100)
+	}
+
+	if err := f.Close(); err != nil {
+		os.Remove(destPath)
+		return fmt.Errorf("close file %s: %w", destPath, err)
+	}
+
+	return nil
+}
+
 // downloadFile downloads a URL to a local file path using streaming copy.
 // On error, the partially downloaded file is removed.
-func downloadFile(ctx context.Context, url, destPath string) error {
+func DownloadFile(ctx context.Context, url, destPath string) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return fmt.Errorf("create download request: %w", err)

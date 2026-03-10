@@ -5,10 +5,9 @@ interface PlaceholderPageProps {
   title: string
   description: string
   icon: LucideIcon
-  phase: string
 }
 
-export function PlaceholderPage({ title, description, icon: Icon, phase }: PlaceholderPageProps) {
+export function PlaceholderPage({ title, description, icon: Icon }: PlaceholderPageProps) {
   return (
     <div className="flex flex-1 items-center justify-center p-6">
       <Card className="w-full max-w-md border-dashed">
@@ -23,7 +22,7 @@ export function PlaceholderPage({ title, description, icon: Icon, phase }: Place
             </p>
           </div>
           <span className="inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
-            Phase {phase}
+            В разработке
           </span>
         </CardContent>
       </Card>

@@ -61,7 +61,7 @@ export function formatUptime(startTime: number | null): string {
  * @example formatDelay(undefined) -> "--"
  */
 export function formatDelay(delay: number | undefined): string {
-  if (delay === undefined) return '--'
+  if (delay === undefined) return '\u2014'
   if (delay === 0) return 'timeout'
   return `${delay}ms`
 }

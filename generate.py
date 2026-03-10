@@ -3,7 +3,10 @@
 
 Скрипт читает базовый config.yaml и создаёт:
 - config-personal.yaml — полная копия (все правила включены)
-- config-work.yaml — без adult-контента (блоки между маркерами # >>> ADULT / # <<< ADULT удалены)
+- config-work.yaml — без кам-сайтов (блоки между маркерами # >>> CAM / # <<< CAM удалены)
+
+Work-конфиг сохраняет остальной adult-контент (OnlyFans, PornHub, hentai и т.д.),
+удаляя только Chaturbate, Stripchat, Bongacams и SinParty.
 
 Выходные файлы сохраняются в директорию output/.
 Перед перезаписью существующих файлов создаётся бэкап (.bak).
@@ -35,20 +38,16 @@ OUTPUT_DIR = Path(__file__).parent / "output"
 PERSONAL_OUTPUT = OUTPUT_DIR / "config-personal.yaml"
 WORK_OUTPUT = OUTPUT_DIR / "config-work.yaml"
 
-ADULT_START = "# >>> ADULT"
-ADULT_END = "# <<< ADULT"
+CAM_START = "# >>> CAM"
+CAM_END = "# <<< CAM"
 
-ADULT_KEYWORDS = [
-    "pornhub",
-    "stripchat",
+CAM_KEYWORDS = [
     "chaturbate",
+    "stripchat",
     "bongacams",
-    "onlyfans",
-    "fansly",
-    "hentai",
-    "rule34",
-    "nsfw",
-    "porn",
+    "bongacam",
+    "bongamodels",
+    "sinparty",
 ]
 
 # --- ANSI-цвета ---
@@ -84,52 +83,52 @@ def read_config(path: Path) -> list[str]:
         return f.readlines()
 
 
-def filter_adult_blocks(lines: list[str]) -> tuple[list[str], list[dict], list[str]]:
-    """Удаляет строки между маркерами # >>> ADULT и # <<< ADULT (включительно).
+def filter_cam_blocks(lines: list[str]) -> tuple[list[str], list[dict], list[str]]:
+    """Удаляет строки между маркерами # >>> CAM и # <<< CAM (включительно).
 
     Возвращает:
-        - Отфильтрованные строки (без adult-блоков)
+        - Отфильтрованные строки (без кам-блоков)
         - Список удалённых блоков [{start, end, lines_count}]
         - Список предупреждений (непарные маркеры и т.д.)
     """
     result = []
     removed_blocks = []
     warnings = []
-    inside_adult = False
+    inside_cam = False
     block_start = -1
     block_lines = 0
 
     for i, line in enumerate(lines, 1):
         stripped = line.strip()
-        if stripped == ADULT_START:
-            if inside_adult:
+        if stripped == CAM_START:
+            if inside_cam:
                 warnings.append(
-                    f"Строка {i}: вложенный маркер '{ADULT_START}' "
+                    f"Строка {i}: вложенный маркер '{CAM_START}' "
                     f"(предыдущий открыт на строке {block_start})"
                 )
-            inside_adult = True
+            inside_cam = True
             block_start = i
             block_lines = 0
             continue
-        if stripped == ADULT_END:
-            if not inside_adult:
+        if stripped == CAM_END:
+            if not inside_cam:
                 warnings.append(
-                    f"Строка {i}: закрывающий маркер '{ADULT_END}' без открывающего"
+                    f"Строка {i}: закрывающий маркер '{CAM_END}' без открывающего"
                 )
                 continue
-            inside_adult = False
+            inside_cam = False
             removed_blocks.append(
                 {"start": block_start, "end": i, "lines_count": block_lines}
             )
             continue
-        if inside_adult:
+        if inside_cam:
             block_lines += 1
             continue
         result.append(line)
 
-    if inside_adult:
+    if inside_cam:
         warnings.append(
-            f"Строка {block_start}: незакрытый маркер '{ADULT_START}' — "
+            f"Строка {block_start}: незакрытый маркер '{CAM_START}' — "
             f"всё после строки {block_start} удалено ({block_lines} строк)"
         )
         removed_blocks.append(
@@ -151,16 +150,16 @@ def validate_yaml(content: str) -> tuple[bool, str | None]:
         return False, str(e)
 
 
-def check_adult_keywords(lines: list[str]) -> dict[str, list[int]]:
-    """Проверяет наличие adult-ключевых слов в строках (case-insensitive).
+def check_cam_keywords(lines: list[str]) -> dict[str, list[int]]:
+    """Проверяет наличие кам-сайт ключевых слов в строках (case-insensitive).
 
     Возвращает словарь {keyword: [номера_строк_где_найдено]}.
     Пустой список означает, что keyword не найден.
     """
-    findings: dict[str, list[int]] = {kw: [] for kw in ADULT_KEYWORDS}
+    findings: dict[str, list[int]] = {kw: [] for kw in CAM_KEYWORDS}
     for i, line in enumerate(lines, 1):
         lower = line.lower()
-        for kw in ADULT_KEYWORDS:
+        for kw in CAM_KEYWORDS:
             if kw in lower:
                 findings[kw].append(i)
     return findings
@@ -213,6 +212,7 @@ def print_report(
 
     print(f"\n{BOLD}{'=' * 50}")
     print(f" Генерация конфигов mihomo")
+    print(f" (work = без кам-сайтов)")
     print(f"{'=' * 50}{RESET}\n")
 
     # Источник
@@ -229,7 +229,7 @@ def print_report(
 
     # Удалённые блоки
     total_removed = sum(b["lines_count"] for b in removed_blocks)
-    print(f"{BOLD}Удалённые adult-блоки:{RESET}")
+    print(f"{BOLD}Удалённые CAM-блоки:{RESET}")
     if removed_blocks:
         for b in removed_blocks:
             print(
@@ -241,10 +241,10 @@ def print_report(
         print(f"  {YELLOW}Блоки не найдены{RESET}")
     print()
 
-    # Проверка adult-keywords
-    print(f"{BOLD}Проверка adult-ключевых слов в work-конфиге:{RESET}")
+    # Проверка cam-keywords
+    print(f"{BOLD}Проверка кам-сайт ключевых слов в work-конфиге:{RESET}")
     keywords_found = False
-    for kw in ADULT_KEYWORDS:
+    for kw in CAM_KEYWORDS:
         line_nums = keyword_results[kw]
         if line_nums:
             keywords_found = True
@@ -254,7 +254,7 @@ def print_report(
         else:
             print(f"  {GREEN}OK{RESET}       {kw}")
     if keywords_found:
-        errors.append("Adult-ключевые слова найдены в work-конфиге")
+        errors.append("Кам-сайт ключевые слова найдены в work-конфиге")
     print()
 
     # Валидация YAML
@@ -306,8 +306,8 @@ def main() -> None:
     # Чтение базового конфига
     lines = read_config(BASE_CONFIG)
 
-    # Фильтрация adult-блоков для work-конфига
-    work_lines, removed_blocks, marker_warnings = filter_adult_blocks(lines)
+    # Фильтрация CAM-блоков для work-конфига
+    work_lines, removed_blocks, marker_warnings = filter_cam_blocks(lines)
 
     # Запись файлов
     personal_backed_up = write_output(PERSONAL_OUTPUT, lines, args.dry_run)
@@ -326,8 +326,8 @@ def main() -> None:
     personal_valid = validate_yaml(personal_content)
     work_valid = validate_yaml(work_content)
 
-    # Проверка adult-keywords в work-конфиге
-    keyword_results = check_adult_keywords(work_lines)
+    # Проверка cam-keywords в work-конфиге
+    keyword_results = check_cam_keywords(work_lines)
 
     # Отчёт
     errors = print_report(

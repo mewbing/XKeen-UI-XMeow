@@ -10,11 +10,11 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/terminal"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/config"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/terminal"
 )
 
-// WsTerminalHandler handles WebSocket connections for the SSH terminal.
+// WsTerminalHandler handles WebSocket connections for the terminal.
 // Auth is validated before the WebSocket upgrade (unlike /ws/logs).
 type WsTerminalHandler struct {
 	hub *terminal.Hub
@@ -33,16 +33,18 @@ type termCmd struct {
 	Port     int    `json:"port,omitempty"`
 	User     string `json:"user,omitempty"`
 	Password string `json:"password,omitempty"`
+	Command  string `json:"command,omitempty"`
 	Cols     int    `json:"cols,omitempty"`
 	Rows     int    `json:"rows,omitempty"`
 }
 
 // termReply represents a JSON response sent to the client.
 type termReply struct {
-	Type    string `json:"type"`
-	Message string `json:"message,omitempty"`
-	Reused  bool   `json:"reused,omitempty"`
-	Reason  string `json:"reason,omitempty"`
+	Type        string `json:"type"`
+	Message     string `json:"message,omitempty"`
+	Reused      bool   `json:"reused,omitempty"`
+	Reason      string `json:"reason,omitempty"`
+	SessionType string `json:"session_type,omitempty"`
 }
 
 // ServeHTTP validates auth, upgrades to WebSocket, and runs the terminal message loop.
@@ -110,7 +112,7 @@ func (h *WsTerminalHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		switch msgType {
 		case websocket.BinaryMessage:
-			// Terminal input -> SSH stdin
+			// Terminal input -> session stdin
 			sess := h.hub.GetSession()
 			if sess != nil {
 				if _, err := sess.Write(data); err != nil {
@@ -129,6 +131,9 @@ func (h *WsTerminalHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			switch cmd.Type {
 			case "connect":
 				h.handleConnect(conn, &cmd, &outputCancel, &outputWg)
+
+			case "exec":
+				h.handleExec(conn, &cmd, &outputCancel, &outputWg)
 
 			case "resize":
 				if sess := h.hub.GetSession(); sess != nil {
@@ -159,7 +164,7 @@ func (h *WsTerminalHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleConnect processes the "connect" command.
+// handleConnect processes the "connect" command (SSH).
 func (h *WsTerminalHandler) handleConnect(
 	conn *websocket.Conn,
 	cmd *termCmd,
@@ -177,7 +182,7 @@ func (h *WsTerminalHandler) handleConnect(
 		if *outputCancel == nil {
 			*outputCancel = h.startOutputReader(conn, sess, outputWg)
 		}
-		sendJSON(conn, termReply{Type: "connected", Reused: true})
+		sendJSON(conn, termReply{Type: "connected", Reused: true, SessionType: "ssh"})
 		return
 	}
 
@@ -188,8 +193,10 @@ func (h *WsTerminalHandler) handleConnect(
 		*outputCancel = nil
 	}
 
-	// Create and connect new session
-	sess := h.hub.CreateSession()
+	// Create and connect new SSH session
+	sess := terminal.NewSession()
+	h.hub.SetSession(sess)
+
 	cols := cmd.Cols
 	rows := cmd.Rows
 	if cols <= 0 {
@@ -206,17 +213,61 @@ func (h *WsTerminalHandler) handleConnect(
 	}
 
 	log.Printf("[Terminal WS] SSH connected to %s:%d as %s", cmd.Host, cmd.Port, cmd.User)
-	sendJSON(conn, termReply{Type: "connected"})
+	sendJSON(conn, termReply{Type: "connected", SessionType: "ssh"})
 
 	// Start output reader
 	*outputCancel = h.startOutputReader(conn, sess, outputWg)
 }
 
-// startOutputReader starts a goroutine that reads from the SSH session stdout
+// handleExec processes the "exec" command (local PTY).
+func (h *WsTerminalHandler) handleExec(
+	conn *websocket.Conn,
+	cmd *termCmd,
+	outputCancel *context.CancelFunc,
+	outputWg *sync.WaitGroup,
+) {
+	// Stop old output reader
+	if *outputCancel != nil {
+		(*outputCancel)()
+		outputWg.Wait()
+		*outputCancel = nil
+	}
+
+	// Close existing session
+	if sess := h.hub.GetSession(); sess != nil {
+		sess.Close()
+	}
+
+	sess := terminal.NewExecSession()
+	h.hub.SetSession(sess)
+
+	cols := cmd.Cols
+	rows := cmd.Rows
+	if cols <= 0 {
+		cols = 80
+	}
+	if rows <= 0 {
+		rows = 24
+	}
+
+	if err := sess.Start(cmd.Command, cols, rows); err != nil {
+		log.Printf("[Terminal WS] Exec failed: %v", err)
+		sendJSON(conn, termReply{Type: "error", Message: err.Error()})
+		return
+	}
+
+	log.Printf("[Terminal WS] Exec started: %s", cmd.Command)
+	sendJSON(conn, termReply{Type: "connected", SessionType: "exec"})
+
+	// Start output reader
+	*outputCancel = h.startOutputReader(conn, sess, outputWg)
+}
+
+// startOutputReader starts a goroutine that reads from the session stdout
 // and sends binary frames to the WebSocket. Returns a cancel function.
 func (h *WsTerminalHandler) startOutputReader(
 	conn *websocket.Conn,
-	sess *terminal.Session,
+	sess terminal.TerminalSession,
 	wg *sync.WaitGroup,
 ) context.CancelFunc {
 	ctx, cancel := context.WithCancel(context.Background())

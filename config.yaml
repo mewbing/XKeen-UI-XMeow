@@ -24,7 +24,7 @@ tproxy-port: 7893 # Порт для TPROXY/UDP (используется Keeneti
 external-controller: '0.0.0.0:9090' # Порт для доступа к Web-интерфейсу (Dashboard)
 secret: 'admin' # TODO: Сменить пароль! Задайте сложный пароль вручную (не 'admin').
 external-ui: ui # Название папки с Web-интерфейсом
-external-ui-url: 'https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip' # URL для автоматической загрузки интерфейса
+external-ui-url: 'https://githubf.com/Zephyruso/zashboard/releases/latest/download/dist.zip' # URL для автоматической загрузки интерфейса
 profile:
   store-selected: true # Сохранять выбранный пользователем прокси для групп Select
 
@@ -216,8 +216,8 @@ proxy-groups:
     use:
       - subscription
     proxies:
-      - DIRECT
       - 🌍VPN
+      - DIRECT
     icon: 'https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png'
 
   - name: 'Speedtest'
@@ -491,9 +491,17 @@ proxy-groups:
       - DIRECT
       - 🌍VPN
     icon: "https://img.icons8.com/nolan/64/logitech.png"
+    
+  - name: 'Nvidia'
+    type: select
+    proxies:
+      - DIRECT
+      - 🌍VPN
+    icon: "https://img.icons8.com/color/480/nvidia.png"
 
 
   # >>> ADULT
+  # >>> CAM
   - name: 'Sin'
     type: select
     use:
@@ -538,6 +546,7 @@ proxy-groups:
       - 🌍VPN
       - DIRECT
     icon: 'https://status.bongamodels.com/img/svg/logo/logo-94714.svg'
+  # <<< CAM
   # <<< ADULT
 
   - name: GLOBAL
@@ -571,6 +580,7 @@ proxy-groups:
       - 'Discord'
       - 'Steam'
       - 'intel'
+      - 'Nvidia'
       - 'Netflix'
       - 'Twitch'
       - 'Spotify'
@@ -589,11 +599,13 @@ proxy-groups:
       - 'Ad-Filter'
       - 'ECH-Refilter'
       # >>> ADULT
+      # >>> CAM
       - 'Sin'
       - 'ST'
       - 'CB'
       - 'BG'
       - 'BGP'
+      # <<< CAM
       # <<< ADULT
       - 'QUIC'
       - 'SAFE'
@@ -979,6 +991,13 @@ rule-providers:
     url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/politic.list
     path: ./rule-sets/politic.list
     interval: 86400
+  blocked_domains:
+    type: http
+    behavior: classical
+    format: text
+    url: https://github.com/Anton111111/rule-lists/releases/download/lists-20260222-003136-835e3fe/domains.list
+    path: ./rule-sets/domains.list
+    interval: 86400
   telegram-ips:
     type: http
     behavior: classical
@@ -1136,6 +1155,13 @@ rule-providers:
     url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/ru-bundle/rule.mrs
     path: ./ru-bundle/rule.mrs
     interval: 86400
+  rknasnblock:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://github.com/legiz-ru/mihomo-rule-sets/raw/main/ru-bundle/rknasnblock.mrs
+    path: ./ru-bundle/rknasnblock.mrs
+    interval: 86400
   quic:
     type: inline
     behavior: classical
@@ -1143,6 +1169,7 @@ rule-providers:
       - AND,((NETWORK,udp),(DST-PORT,443))
 
   # >>> ADULT
+  # >>> CAM
   Sin_in:
     type: inline
     payload:
@@ -1193,6 +1220,7 @@ rule-providers:
       - DOMAIN-REGEX,^([A-Za-z0-9-]+\.)*chaturbate\.com$
       - DOMAIN-SUFFIX,chaturbate.com
     behavior: classical
+  # <<< CAM
   category-porn:
     type: http
     behavior: domain
@@ -1218,10 +1246,25 @@ rule-providers:
 
 # ==== ПРАВИЛА (нижний профиль + сервисные группы) ====
 rules:
+  # =====================================================================
+  # --- ПЕРСОНАЛЬНЫЕ ИСКЛЮЧЕНИЯ (НАИВЫСШИЙ ПРИОРИТЕТ) ---
+  # Эти правила обрабатываются ПЕРВЫМИ, до всех остальных.
+  # Используйте для принудительного DIRECT или VPN для конкретных устройств,
+  # доменов, IP-адресов, портов.
+  #
+  # Примеры:
+  # - SRC-IP-CIDR,10.10.10.245/32,DIRECT         # устройство без VPN
+  # - DOMAIN-SUFFIX,example.com,DIRECT            # домен напрямую
+  # - DOMAIN-SUFFIX,blocked-site.com,🌍VPN        # домен через VPN
+  # - IP-CIDR,8.8.8.8/32,DIRECT,no-resolve        # IP напрямую
+  # - DST-PORT,25565,DIRECT                        # порт напрямую
+  # =====================================================================
+  - DOMAIN-KEYWORD,nvidia,Nvidia            # домен напрямую
   # Делаем REJECT QUIC
   - RULE-SET,quic,QUIC
   - AND,((NETWORK,UDP),(DST-PORT,135,137,138,139)),SAFE
   # >>> ADULT
+  # >>> CAM
   - DOMAIN-SUFFIX,sinparty,Sin
   - DOMAIN-SUFFIX,stripchat,ST
   - DOMAIN-SUFFIX,bongacams,BG
@@ -1244,6 +1287,7 @@ rules:
   - RULE-SET,BG_in,BG
   - RULE-SET,BGP_in,BGP
   - RULE-SET,CB_in,CB
+  # <<< CAM
   - DOMAIN-SUFFIX,onlyfans.com,Other
   - DOMAIN-SUFFIX,fansly.com,Other
   - DOMAIN-SUFFIX,pornhub.org,Other
@@ -1321,8 +1365,8 @@ rules:
   - GEOSITE,microsoft,Microsoft
   - GEOSITE,amazon,Amazon
   - GEOSITE,cdn77,CDN77
-  - GEOSITE,category-anticensorship,Комьюнити
   # --- Telegram: консолидировано из 10 правил ---
+  # ВАЖНО: Telegram ВЫШЕ category-anticensorship, иначе часть трафика уйдёт в Комьюнити
   - DOMAIN-SUFFIX,antarcticwallet,Telegram
   - OR,((RULE-SET,telegram_ips),(RULE-SET,telegram_domains)),Telegram
   - RULE-SET,telegram-ips,Telegram
@@ -1330,6 +1374,7 @@ rules:
   - GEOIP,telegram,Telegram
   - PROCESS-NAME-REGEX,(?i).*ayugram.*,Telegram
   - PROCESS-NAME-REGEX,(?i).*telegram.*,Telegram
+  - GEOSITE,category-anticensorship,Комьюнити
   # --- Discord: консолидировано из 30+ правил ---
   - OR,((RULE-SET,discord_domains),(RULE-SET,discord_voiceips),(PROCESS-NAME,Discord.exe)),Discord
   - RULE-SET,discord_vc,Discord
@@ -1345,7 +1390,7 @@ rules:
   - DOMAIN-SUFFIX,7tv.app,Other
   - DOMAIN-SUFFIX,7tv.io,Other
   - DOMAIN-SUFFIX,localizeapi.com,Other
-
+ # OSU: inline-дополнения (сервера osu):
   - DOMAIN-SUFFIX,osu.ppy.sh,OSU
   - DOMAIN-SUFFIX,irc.ppy.sh,OSU
   - DOMAIN-SUFFIX,cho.ppy.sh,OSU
@@ -1374,7 +1419,6 @@ rules:
   - DOMAIN-SUFFIX,ipwho.is,2IP.IO
     # ПРАВИЛО №6: Необходимые сервисы с выбором
   - DOMAIN-SUFFIX,patreon.com,Other
-
   - DOMAIN-SUFFIX,elgato.com,Other
   - DOMAIN-SUFFIX,web.tribute.tg,Other
   - DOMAIN-KEYWORD,creatify,Other
@@ -1403,6 +1447,7 @@ rules:
   - DOMAIN-KEYWORD,clawd,Other
   - DOMAIN-KEYWORD,gryphline,Other
   - DOMAIN-KEYWORD,godaddy,Other
+  - DOMAIN-KEYWORD,fandom,Other
     # 🚫 Недоступные сайты
   - RULE-SET,ru-inside,Комьюнити
   - RULE-SET,ru-inline-banned,TV
@@ -1469,6 +1514,8 @@ rules:
   - GEOIP,RU,RU трафик,no-resolve
     # Русский бандл и re-filter → по умолчанию VPN (как в нижнем)
   - RULE-SET,ru-bundle,Комьюнити
+  - RULE-SET,rknasnblock,Комьюнити,no-resolve
+  - RULE-SET,blocked_domains,Комьюнити
   - RULE-SET,refilter_domains,Комьюнити
 
   # 0. ОБЯЗАТЕЛЬНЫЕ ИСКЛЮЧЕНИЯ (Локальный и системный трафик)
@@ -1489,8 +1536,8 @@ rules:
 
   # 3. СЕРВИСЫ (DOMAIN/IP) - требуют прокси
   - RULE-SET,github-ai,AI
-  - RULE-SET,other_domains,🌍VPN
-  - RULE-SET,politic_domains,🌍VPN
+  - RULE-SET,other_domains,Комьюнити
+  - RULE-SET,politic_domains,Комьюнити
 
   # --- Refilter ECH-логика ---
   - DOMAIN,cloudflare-ech.com,🌍VPN

@@ -1,2 +1,16 @@
 # Generated config files
 output/
+
+# Local config files
+config.yaml
+config.yaml.bak
+generate.py
+
+# Windows artifacts
+nul
+
+# Claude Code
+.claude/
+
+# Documentation (local)
+docs/

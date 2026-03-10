@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useSettingsStore } from '@/stores/settings'
 import { useUpdateStore } from '@/stores/update'
+import { useOverviewStore } from '@/stores/overview'
 import { useResolvedTheme } from '@/hooks/use-theme'
 import { Toaster } from '@/components/ui/sonner'
 import SetupWizard from '@/components/wizard/SetupWizard'
@@ -14,7 +15,8 @@ import RulesPage from '@/pages/RulesPage'
 import GroupsPage from '@/pages/GroupsPage'
 import ProvidersPage from '@/pages/ProvidersPage'
 import GeodataPage from '@/pages/GeodataPage'
-import UpdatesPage from '@/pages/UpdatesPage'
+import { fetchVersions } from '@/lib/config-api'
+import { fetchMihomoVersion } from '@/lib/mihomo-api'
 
 /** Resolves start page path from settings store value */
 function resolveStartPage(startPage: string, lastVisitedPage: string): string {
@@ -140,6 +142,27 @@ function App() {
     return () => clearInterval(id)
   }, [isConfigured, autoCheckUpdates])
 
+  // Fetch component versions on startup
+  useEffect(() => {
+    if (!isConfigured) return
+
+    const setVersions = useOverviewStore.getState().setVersions
+
+    // Dashboard version known at build time — always available, even without backend
+    setVersions({ dashboard: __APP_VERSION__ })
+
+    fetchMihomoVersion()
+      .then((data) => setVersions({ mihomo: data.version }))
+      .catch(() => {})
+
+    fetchVersions()
+      .then((data) => setVersions({
+        server: data.server,
+        xkeen: data.xkeen,
+      }))
+      .catch(() => {})
+  }, [isConfigured])
+
   // Show nothing while hydrating to prevent flash
   if (!hydrated) {
     return null
@@ -165,7 +188,6 @@ function App() {
           <Route path="groups" element={<GroupsPage />} />
           <Route path="providers" element={<ProvidersPage />} />
           <Route path="geodata" element={<GeodataPage />} />
-          <Route path="updates" element={<UpdatesPage />} />
           <Route path="*" element={<Navigate to="/overview" replace />} />
         </Route>
       </Routes>

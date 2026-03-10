@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-// Hub manages a single SSH terminal session with inactivity timeout.
+// Hub manages a single terminal session (SSH or local exec) with inactivity timeout.
 // It tracks the number of attached WebSocket clients but does not
 // manage WS connections directly -- the WS handler does that.
 type Hub struct {
 	mu      sync.Mutex
-	session *Session
+	session TerminalSession
 	clients int
 	timeout time.Duration
 	done    chan struct{}
@@ -29,7 +29,7 @@ func NewHub(timeout time.Duration) *Hub {
 }
 
 // GetSession returns the current session if alive, nil otherwise.
-func (h *Hub) GetSession() *Session {
+func (h *Hub) GetSession() TerminalSession {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -39,20 +39,15 @@ func (h *Hub) GetSession() *Session {
 	return nil
 }
 
-// CreateSession creates a new SSH session, closing any existing one.
-// The returned session is not yet connected -- caller must call Connect.
-func (h *Hub) CreateSession() *Session {
+// SetSession replaces the current session, closing any existing one.
+func (h *Hub) SetSession(s TerminalSession) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	// Close existing session if alive
 	if h.session != nil && h.session.Alive() {
 		h.session.Close()
 	}
-
-	s := NewSession()
 	h.session = s
-	return s
 }
 
 // AttachClient increments the WebSocket client count.

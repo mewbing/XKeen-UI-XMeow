@@ -1,7 +1,9 @@
 import { Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getDisplayName } from '@/lib/flags'
 import { Button } from '@/components/ui/button'
 import { ProxyLatencyBadge } from './ProxyLatencyBadge'
+import { ProxyFlag } from './ProxyFlag'
 
 interface ProxyNodeItemProps {
   name: string
@@ -33,7 +35,8 @@ export function ProxyNodeItem({
       )}
       onClick={canSelect ? onSelect : undefined}
     >
-      <span className="text-sm truncate flex-1">{name}</span>
+      <ProxyFlag name={name} className="h-3 w-auto" />
+      <span className="text-sm truncate flex-1">{getDisplayName(name)}</span>
       <ProxyLatencyBadge delay={delay} testing={testing} />
       <Button
         variant="ghost"

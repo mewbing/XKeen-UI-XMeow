@@ -11,6 +11,7 @@ import {
   Database,
   Map,
   ArrowUpCircle,
+  MessageCircleWarning,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -34,7 +35,11 @@ import {
 import { VersionsDialog } from '@/components/versions/VersionsDialog'
 import { useOverviewStore } from '@/stores/overview'
 import { useUpdateStore } from '@/stores/update'
+import { useBackendAvailable } from '@/hooks/useBackendAvailable'
 import type { LucideIcon } from 'lucide-react'
+
+/** URL для кнопки "Сообщить о проблеме" */
+const BUG_REPORT_URL = 'https://github.com/mewbing/XKeen-UI-XMeow/issues'
 
 interface MenuItem {
   title: string
@@ -94,15 +99,20 @@ export function AppSidebar() {
   const mihomoVersion = useOverviewStore((s) => s.mihomoVersion)
   const xkeenVersion = useOverviewStore((s) => s.xkeenVersion)
   const dashboardVersion = useOverviewStore((s) => s.dashboardVersion)
+  const backendAvailable = useBackendAvailable()
 
   const [versionTab, setVersionTab] = useState<string | null>(null)
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="h-14 items-center justify-center border-b">
-        <span className="text-sm font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
-          Mihomo
-        </span>
+        <div className="flex items-baseline gap-1.5 group-data-[collapsible=icon]:hidden">
+          <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+            XMeow
+          </span>
+          <span className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-widest">ui</span>
+        </div>
+        <span className="text-lg font-bold bg-gradient-to-r from-blue-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent hidden group-data-[collapsible=icon]:block">X</span>
       </SidebarHeader>
 
       <SidebarContent>
@@ -132,23 +142,36 @@ export function AppSidebar() {
         <SidebarSeparator />
 
         {/* Version info -- hidden when sidebar collapsed */}
-        <div className="px-3 py-2 space-y-0.5 group-data-[collapsible=icon]:hidden">
-          <VersionRow
-            label="xkeen"
-            version={xkeenVersion}
-            onClick={() => setVersionTab('xkeen')}
-          />
-          <VersionRow
-            label="mihomo"
-            version={mihomoVersion}
-            onClick={() => setVersionTab('mihomo')}
-          />
-          <VersionRow
-            label="dashboard"
-            version={dashboardVersion}
-            hasUpdate={hasUpdate}
-            onClick={() => setVersionTab('dashboard')}
-          />
+        <div className="px-3 py-2 space-y-1 group-data-[collapsible=icon]:hidden">
+          <div className="space-y-0.5">
+            {backendAvailable && (
+              <VersionRow
+                label="xkeen"
+                version={xkeenVersion}
+                onClick={() => setVersionTab('xkeen')}
+              />
+            )}
+            <VersionRow
+              label="mihomo"
+              version={mihomoVersion}
+              onClick={() => setVersionTab('mihomo')}
+            />
+            <VersionRow
+              label="dashboard"
+              version={dashboardVersion}
+              hasUpdate={hasUpdate}
+              onClick={() => setVersionTab('dashboard')}
+            />
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-full text-[10px] text-muted-foreground hover:text-foreground gap-1"
+            onClick={() => window.open(BUG_REPORT_URL, '_blank')}
+          >
+            <MessageCircleWarning className="size-3" />
+            Сообщить о проблеме
+          </Button>
         </div>
 
         {/* Collapsed mode: version indicator icon */}
@@ -169,13 +192,15 @@ export function AppSidebar() {
             </PopoverTrigger>
             <PopoverContent side="right" align="end" className="w-48 p-2">
               <div className="space-y-1 text-xs">
-                <button
-                  className="flex items-center justify-between w-full text-muted-foreground px-1 py-0.5 rounded hover:bg-accent/50"
-                  onClick={() => setVersionTab('xkeen')}
-                >
-                  <span>xkeen</span>
-                  <span className="font-mono">{formatVersion(xkeenVersion)}</span>
-                </button>
+                {backendAvailable && (
+                  <button
+                    className="flex items-center justify-between w-full text-muted-foreground px-1 py-0.5 rounded hover:bg-accent/50"
+                    onClick={() => setVersionTab('xkeen')}
+                  >
+                    <span>xkeen</span>
+                    <span className="font-mono">{formatVersion(xkeenVersion)}</span>
+                  </button>
+                )}
                 <button
                   className="flex items-center justify-between w-full text-muted-foreground px-1 py-0.5 rounded hover:bg-accent/50"
                   onClick={() => setVersionTab('mihomo')}
@@ -201,7 +226,7 @@ export function AppSidebar() {
         {/* Unified version dialog */}
         <VersionsDialog
           open={versionTab !== null}
-          defaultTab={versionTab || 'xkeen'}
+          defaultTab={versionTab || 'mihomo'}
           onClose={() => setVersionTab(null)}
         />
       </SidebarFooter>

@@ -21,8 +21,6 @@ import { cn } from '@/lib/utils'
 export function TerminalModal() {
   const isOpen = useTerminalStore((s) => s.isOpen)
   const isFullscreen = useTerminalStore((s) => s.isFullscreen)
-  const fontSize = useTerminalStore((s) => s.fontSize)
-
   const terminalApiRef = useRef<TerminalApi | null>(null)
   const [connectDialogOpen, setConnectDialogOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)

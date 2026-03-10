@@ -7,7 +7,6 @@ export default function GeodataPage() {
       title="Геоданные"
       description="Просмотр GeoSite/GeoIP файлов"
       icon={Map}
-      phase="9"
     />
   )
 }

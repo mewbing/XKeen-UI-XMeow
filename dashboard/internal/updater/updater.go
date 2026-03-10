@@ -2,6 +2,7 @@ package updater
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/config"
 )
 
 // ReleaseInfo contains version comparison and release metadata.
@@ -67,6 +68,21 @@ func (u *Updater) Check(ctx context.Context) (*ReleaseInfo, error) {
 	// Fetch from GitHub API
 	release, err := fetchLatestRelease(ctx, "XMeow-UI/"+u.cfg.Version)
 	if err != nil {
+		// No repo/release yet — return "no update" instead of error
+		if errors.Is(err, ErrNoRelease) {
+			info := &ReleaseInfo{
+				CurrentVersion: u.cfg.Version,
+				LatestVersion:  u.cfg.Version,
+				HasUpdate:      false,
+				IsExternalUI:   u.IsExternalUI(),
+			}
+			u.mu.Lock()
+			u.cached = info
+			u.cachedAt = time.Now()
+			u.mu.Unlock()
+			copy := *info
+			return &copy, nil
+		}
 		return nil, err
 	}
 
@@ -77,7 +93,7 @@ func (u *Updater) Check(ctx context.Context) (*ReleaseInfo, error) {
 	}
 
 	// Compare versions
-	hasUpdate := compareVersions(u.cfg.Version, release.TagName) < 0
+	hasUpdate := CompareVersions(u.cfg.Version, release.TagName) < 0
 
 	info := &ReleaseInfo{
 		CurrentVersion: u.cfg.Version,
@@ -142,13 +158,13 @@ func (u *Updater) Apply(ctx context.Context) error {
 	destDir := filepath.Dir(exePath)
 
 	// Check disk space (3x asset size for archive + binary + safety)
-	if err := checkDiskSpace(destDir, info.AssetSize*3); err != nil {
+	if err := CheckDiskSpace(destDir, info.AssetSize*3); err != nil {
 		return err
 	}
 
 	// Download archive to same directory (NOT /tmp -- must be same FS for rename)
 	tmpArchivePath := filepath.Join(destDir, ".xmeow-update.tar.gz")
-	if err := downloadFile(ctx, info.assetURL, tmpArchivePath); err != nil {
+	if err := DownloadFile(ctx, info.assetURL, tmpArchivePath); err != nil {
 		return fmt.Errorf("download update: %w", err)
 	}
 	defer os.Remove(tmpArchivePath)
@@ -156,18 +172,18 @@ func (u *Updater) Apply(ctx context.Context) error {
 	// Verify SHA256 checksum
 	if info.checksumURL != "" {
 		checksumPath := filepath.Join(destDir, ".checksums.txt")
-		if err := downloadFile(ctx, info.checksumURL, checksumPath); err != nil {
+		if err := DownloadFile(ctx, info.checksumURL, checksumPath); err != nil {
 			return fmt.Errorf("download checksums: %w", err)
 		}
 		defer os.Remove(checksumPath)
 
-		if err := verifyChecksum(tmpArchivePath, checksumPath, info.AssetName); err != nil {
+		if err := VerifyChecksum(tmpArchivePath, checksumPath, info.AssetName); err != nil {
 			return err
 		}
 	}
 
 	// Extract binary from tar.gz
-	newBinaryPath, err := extractBinaryFromTarGz(tmpArchivePath, "xmeow-server", destDir)
+	newBinaryPath, err := ExtractBinaryFromTarGz(tmpArchivePath, "xmeow-server", destDir)
 	if err != nil {
 		return fmt.Errorf("extract binary: %w", err)
 	}
@@ -266,13 +282,13 @@ func (u *Updater) ApplyDist(ctx context.Context, destDir string) error {
 	if requiredSpace < 10*1024*1024 {
 		requiredSpace = 10 * 1024 * 1024 // minimum 10 MB
 	}
-	if err := checkDiskSpace(destDir, requiredSpace); err != nil {
+	if err := CheckDiskSpace(destDir, requiredSpace); err != nil {
 		return err
 	}
 
 	// Download dist.tar.gz to temp file in destDir
 	tmpPath := filepath.Join(destDir, ".dist-update.tar.gz")
-	if err := downloadFile(ctx, info.distURL, tmpPath); err != nil {
+	if err := DownloadFile(ctx, info.distURL, tmpPath); err != nil {
 		return fmt.Errorf("download dist.tar.gz: %w", err)
 	}
 	defer os.Remove(tmpPath)
@@ -280,18 +296,18 @@ func (u *Updater) ApplyDist(ctx context.Context, destDir string) error {
 	// Verify SHA256 checksum if checksums.txt is available
 	if info.checksumURL != "" {
 		checksumPath := filepath.Join(destDir, ".checksums.txt")
-		if err := downloadFile(ctx, info.checksumURL, checksumPath); err != nil {
+		if err := DownloadFile(ctx, info.checksumURL, checksumPath); err != nil {
 			return fmt.Errorf("download checksums: %w", err)
 		}
 		defer os.Remove(checksumPath)
 
-		if err := verifyChecksum(tmpPath, checksumPath, "dist.tar.gz"); err != nil {
+		if err := VerifyChecksum(tmpPath, checksumPath, "dist.tar.gz"); err != nil {
 			return err
 		}
 	}
 
 	// Extract dist.tar.gz contents into destDir (overwrites existing files)
-	if err := extractDistTarGz(tmpPath, destDir); err != nil {
+	if err := ExtractDistTarGz(tmpPath, destDir); err != nil {
 		return fmt.Errorf("extract dist.tar.gz: %w", err)
 	}
 

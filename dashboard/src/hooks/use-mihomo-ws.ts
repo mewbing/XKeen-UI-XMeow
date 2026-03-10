@@ -74,9 +74,17 @@ export function useMihomoWs<T>(
         reconnectRef.current = null
       }
       if (wsRef.current) {
+        const ws = wsRef.current
         // Prevent onclose from triggering reconnect during cleanup
-        wsRef.current.onclose = null
-        wsRef.current.close()
+        ws.onclose = null
+        ws.onerror = null
+        // Only close if already open; if still CONNECTING, let it
+        // open first then close (avoids browser "closed before established" warning)
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close()
+        } else if (ws.readyState === WebSocket.CONNECTING) {
+          ws.onopen = () => ws.close()
+        }
         wsRef.current = null
       }
     }

@@ -70,7 +70,7 @@ Each task was committed atomically:
 1. **Task 1: Install dependencies and create rules parser** - `ad16485` (feat)
 2. **Task 2: Zustand store with undo/redo and settings extensions** - `06a4b53` (feat)
 
-**Plan metadata:** TBD (docs: complete plan)
+**Plan metadata:** `b394a79` (docs: complete plan)
 
 ## Files Created/Modified
 - `src/lib/rules-parser.ts` - Comment-preserving YAML parser with 3 grouping modes, serialization, and compound rule support (327 lines)

@@ -9,14 +9,12 @@
 
 import { useState } from 'react'
 import {
-  Layers, BookOpen, GitBranch, List, LayoutGrid, CreditCard,
   AlignJustify, FileText, Search, Undo2, Redo2, RotateCcw, Save, Play, Plus,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader,
   AlertDialogTitle, AlertDialogDescription, AlertDialogFooter,
@@ -27,46 +25,36 @@ import { useRulesEditorStore } from '@/stores/rules-editor'
 import { saveConfig } from '@/lib/config-api'
 import { restartMihomo } from '@/lib/mihomo-api'
 import { RulesDiffPreview } from './RulesDiffPreview'
-import { NewBlockDialog } from './NewBlockDialog'
+import { AddRuleDialog } from './AddRuleDialog'
 
 interface RulesToolbarProps {
   searchQuery: string
   onSearchChange: (query: string) => void
-  onGroupingChange: () => void
 }
 
-export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: RulesToolbarProps) {
-  const grouping = useSettingsStore((s) => s.rulesGrouping)
-  const layout = useSettingsStore((s) => s.rulesLayout)
+export function RulesToolbar({ searchQuery, onSearchChange }: RulesToolbarProps) {
   const density = useSettingsStore((s) => s.rulesDensity)
-  const setGrouping = useSettingsStore((s) => s.setRulesGrouping)
-  const setLayout = useSettingsStore((s) => s.setRulesLayout)
   const setDensity = useSettingsStore((s) => s.setRulesDensity)
   const rulesShowDiffBeforeApply = useSettingsStore((s) => s.rulesShowDiffBeforeApply)
-  const rulesNewBlockMode = useSettingsStore((s) => s.rulesNewBlockMode)
 
   const dirty = useRulesEditorStore((s) => s.dirty)
-  const changeCount = useRulesEditorStore((s) => s.changeCount)
   const originalYaml = useRulesEditorStore((s) => s.originalYaml)
   const proxyGroups = useRulesEditorStore((s) => s.proxyGroups)
+  const blocks = useRulesEditorStore((s) => s.blocks)
 
   const [diffOpen, setDiffOpen] = useState(false)
-  const [newBlockOpen, setNewBlockOpen] = useState(false)
+  const [addRuleOpen, setAddRuleOpen] = useState(false)
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [applying, setApplying] = useState(false)
 
-  const handleGroupingChange = (value: string) => {
-    if (!value) return
-    setGrouping(value as 'proxy-group' | 'sections' | 'two-level')
-    onGroupingChange()
-  }
-
   const handleUndo = () => {
     useRulesEditorStore.temporal.getState().undo()
+    useRulesEditorStore.getState().syncAfterUndoRedo()
   }
   const handleRedo = () => {
     useRulesEditorStore.temporal.getState().redo()
+    useRulesEditorStore.getState().syncAfterUndoRedo()
   }
 
   const handleReset = () => setResetConfirmOpen(true)
@@ -115,7 +103,7 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
     <>
       <div className="flex flex-wrap items-center gap-2">
         {/* Search */}
-        <div className="relative flex-1 min-w-[150px]">
+        <div className="relative flex-1 min-w-[120px]">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             placeholder="Поиск правил..."
@@ -125,20 +113,6 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
           />
         </div>
 
-        {/* Grouping toggle */}
-        <ToggleGroup type="single" value={grouping} onValueChange={handleGroupingChange} variant="outline" size="sm">
-          <ToggleGroupItem value="proxy-group" title="По группам"><Layers className="size-4" /></ToggleGroupItem>
-          <ToggleGroupItem value="sections" title="По секциям"><BookOpen className="size-4" /></ToggleGroupItem>
-          <ToggleGroupItem value="two-level" title="Двухуровневая"><GitBranch className="size-4" /></ToggleGroupItem>
-        </ToggleGroup>
-
-        {/* Layout toggle */}
-        <ToggleGroup type="single" value={layout} onValueChange={(v) => v && setLayout(v as 'list' | 'grid' | 'proxies')} variant="outline" size="sm">
-          <ToggleGroupItem value="list" title="Список"><List className="size-4" /></ToggleGroupItem>
-          <ToggleGroupItem value="grid" title="Сетка"><LayoutGrid className="size-4" /></ToggleGroupItem>
-          <ToggleGroupItem value="proxies" title="Карточки"><CreditCard className="size-4" /></ToggleGroupItem>
-        </ToggleGroup>
-
         {/* Density toggle */}
         <ToggleGroup type="single" value={density} onValueChange={(v) => v && setDensity(v as 'min' | 'detailed')} variant="outline" size="sm">
           <ToggleGroupItem value="min" title="Мин"><AlignJustify className="size-4" /></ToggleGroupItem>
@@ -147,31 +121,25 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
 
         {/* Action buttons */}
         <div className="ml-auto flex items-center gap-1">
-          {rulesNewBlockMode === 'dialog' && (
-            <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => setNewBlockOpen(true)}>
-              <Plus className="size-4" />
-              Новый блок
-            </Button>
-          )}
+          <Button variant="ghost" size="icon" className="size-8" title="Сбросить изменения" disabled={!dirty} onClick={handleReset}>
+            <RotateCcw className="size-4" />
+          </Button>
           <Button variant="ghost" size="icon" className="size-8" title="Отменить (Ctrl+Z)" disabled={!dirty} onClick={handleUndo}>
             <Undo2 className="size-4" />
           </Button>
           <Button variant="ghost" size="icon" className="size-8" title="Повторить (Ctrl+Shift+Z)" onClick={handleRedo}>
             <Redo2 className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="size-8" title="Сбросить изменения" disabled={!dirty} onClick={handleReset}>
-            <RotateCcw className="size-4" />
+          <Button variant="ghost" size="icon" className="size-8" title="Добавить правило" onClick={() => setAddRuleOpen(true)} disabled={blocks.length === 0}>
+            <Plus className="size-4" />
           </Button>
           <Button variant="outline" size="sm" className="h-8 gap-1.5" title="Сохранить (Ctrl+S)" disabled={!dirty || saving} onClick={handleSave}>
             <Save className="size-4" />
             Сохранить
           </Button>
-          <Button variant="default" size="sm" className="h-8 gap-1.5 relative" title="Применить и перезапустить" disabled={!dirty || applying} onClick={handleApply}>
+          <Button variant="default" size="sm" className="h-8 gap-1.5" title="Применить и перезапустить" disabled={!dirty || applying} onClick={handleApply}>
             <Play className="size-4" />
             Применить
-            {changeCount > 0 && (
-              <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1 text-[10px]">{changeCount}</Badge>
-            )}
           </Button>
         </div>
       </div>
@@ -197,8 +165,10 @@ export function RulesToolbar({ searchQuery, onSearchChange, onGroupingChange }: 
         <RulesDiffPreview open={diffOpen} onOpenChange={setDiffOpen} original={originalYaml} modified={useRulesEditorStore.getState().getCurrentYaml()} onConfirmApply={executeApply} />
       )}
 
-      {/* New block dialog */}
-      <NewBlockDialog open={newBlockOpen} onOpenChange={setNewBlockOpen} proxyGroups={proxyGroups} />
+      {/* Add rule dialog */}
+      {blocks.length > 0 && (
+        <AddRuleDialog open={addRuleOpen} onOpenChange={setAddRuleOpen} blockId={blocks[0].id} proxyGroups={proxyGroups} defaultTarget={blocks[0].target} />
+      )}
     </>
   )
 }

@@ -5,6 +5,7 @@ import {
   applyDist as apiApplyDist,
   rollbackUpdate,
 } from '@/lib/update-api'
+import { checkXmeowUpdateFromGitHub } from '@/lib/releases-api'
 import type { ReleaseInfo } from '@/lib/update-api'
 
 interface UpdateState {
@@ -35,14 +36,35 @@ export const useUpdateStore = create<UpdateState>()((set) => ({
   checkForUpdate: async () => {
     set({ checking: true, error: null })
     try {
+      // Try Go backend first (full info including is_external_ui)
       const info = await checkUpdate()
       set({
         releaseInfo: info,
         hasUpdate: info.has_update,
         isExternalUI: info.is_external_ui,
       })
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : 'Update check failed' })
+    } catch {
+      // Fallback: check directly from GitHub API (no backend needed)
+      try {
+        const gh = await checkXmeowUpdateFromGitHub()
+        set({
+          hasUpdate: gh.hasUpdate,
+          releaseInfo: gh.hasUpdate ? {
+            current_version: __APP_VERSION__,
+            latest_version: gh.latestVersion,
+            has_update: gh.hasUpdate,
+            release_notes: gh.releaseNotes,
+            published_at: gh.publishedAt,
+            asset_name: '',
+            asset_size: 0,
+            dist_size: 0,
+            is_prerelease: false,
+            is_external_ui: false,
+          } : null,
+        })
+      } catch {
+        // Both failed — silently ignore (no network or GitHub rate limit)
+      }
     } finally {
       set({ checking: false })
     }

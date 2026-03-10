@@ -2,6 +2,8 @@ import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useConnectionsStore } from '@/stores/connections'
 import { formatBytes } from '@/lib/format'
+import { ProxyFlag } from '@/components/proxies/ProxyFlag'
+import { getDisplayName } from '@/lib/flags'
 import type { ConnectionWithSpeed } from '@/stores/connections'
 
 interface ConnectionDetailProps {
@@ -25,7 +27,18 @@ export function ConnectionDetail({ connection }: ConnectionDetailProps) {
     <div className="p-3 bg-muted/50 border-t text-xs">
       <div className="grid grid-cols-2 gap-x-6 gap-y-1">
         <DetailRow label="Процесс" value={metadata.processPath || 'Unknown'} />
-        <DetailRow label="Цепочка" value={connection.chains.join(' -> ')} />
+        <div className="flex gap-2">
+          <span className="text-muted-foreground shrink-0">Цепочка:</span>
+          <span className="flex items-center gap-1 font-mono truncate">
+            {connection.chains.map((node, i) => (
+              <span key={i} className="flex items-center gap-0.5 shrink-0">
+                {i > 0 && <span className="text-muted-foreground">-&gt;</span>}
+                <ProxyFlag name={node} className="h-3 w-auto" />
+                {getDisplayName(node)}
+              </span>
+            ))}
+          </span>
+        </div>
         <DetailRow label="sniffHost" value={metadata.sniffHost} />
         <DetailRow label="DNS Mode" value={metadata.dnsMode} />
         <DetailRow label="Remote Dest" value={metadata.remoteDestination} />

@@ -181,9 +181,9 @@ export function EditorToolbar({ onApplyConfirmed }: EditorToolbarProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between border-b px-2 h-10 shrink-0">
+      <div className="@container flex items-center px-2 h-10 shrink-0 border-b border-border/50">
         {/* Tabs */}
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-0.5 min-w-0 flex-1">
           {TAB_ORDER.map((tabId) => {
             const isActive = tabId === activeTab
             const isDirty = tabs[tabId].dirty
@@ -193,17 +193,17 @@ export function EditorToolbar({ onApplyConfirmed }: EditorToolbarProps) {
                 key={tabId}
                 onClick={() => switchToTab(tabId)}
                 className={`
-                  relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium
-                  rounded-t-md transition-colors
+                  relative flex items-center gap-1 px-2 @md:px-3 py-1.5 text-xs font-medium
+                  rounded-t-md transition-colors min-w-0
                   ${isActive
                     ? 'bg-muted text-foreground border-b-2 border-primary'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }
                 `}
               >
-                {TAB_LABELS[tabId]}
+                <span className="truncate">{TAB_LABELS[tabId]}</span>
                 {isDirty && (
-                  <span className="size-1.5 rounded-full bg-orange-400" />
+                  <span className="size-1.5 rounded-full bg-orange-400 shrink-0" />
                 )}
               </button>
             )
@@ -211,18 +211,18 @@ export function EditorToolbar({ onApplyConfirmed }: EditorToolbarProps) {
         </div>
 
         {/* Validation badge + Action buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 @md:gap-2 shrink-0">
           {/* Validation indicator (yaml only) */}
           {isYaml && (
             validation.valid ? (
-              <span className="flex items-center gap-1 text-xs text-green-500">
+              <span className="flex items-center gap-1 text-xs text-green-500" title="YAML OK">
                 <CheckCircle2 className="size-3.5" />
-                YAML OK
+                <span className="hidden @lg:inline">YAML OK</span>
               </span>
             ) : (
-              <span className="flex items-center gap-1 text-xs text-destructive">
+              <span className="flex items-center gap-1 text-xs text-destructive" title={`Ошибка: строка ${validation.error?.line ?? '?'}`}>
                 <AlertTriangle className="size-3.5" />
-                Ошибка: строка {validation.error?.line ?? '?'}
+                <span className="hidden @md:inline">Строка {validation.error?.line ?? '?'}</span>
               </span>
             )
           )}
@@ -231,47 +231,50 @@ export function EditorToolbar({ onApplyConfirmed }: EditorToolbarProps) {
           <Button
             variant="ghost"
             size="sm"
+            className="h-7 px-2 text-xs"
             disabled={!isYaml || formatLoading}
             onClick={handleFormat}
             title="Форматировать YAML"
           >
             {formatLoading ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="size-3.5 animate-spin" />
             ) : (
-              <Wand2 className="size-4" />
+              <Wand2 className="size-3.5" />
             )}
-            Format
           </Button>
 
           {/* Save */}
           <Button
             variant="outline"
             size="sm"
+            className="h-7 !px-2 @md:!px-3 gap-1.5 text-xs"
             disabled={saveLoading}
             onClick={handleSave}
             title="Сохранить на сервер (Ctrl+S)"
           >
             {saveLoading ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="size-3.5 animate-spin" />
             ) : (
-              <Save className="size-4" />
+              <Save className="size-3.5" />
             )}
-            Save
+            <span className="hidden @lg:inline leading-none">Сохранить</span>
           </Button>
 
           {/* Apply */}
           <Button
+            variant="outline"
             size="sm"
+            className="h-7 !px-2 @md:!px-3 gap-1.5 text-xs border-blue-500/40 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300"
             disabled={applyLoading}
             onClick={() => setApplyDialogOpen(true)}
             title="Сохранить и перезапустить mihomo"
           >
             {applyLoading ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="size-3.5 animate-spin" />
             ) : (
-              <Play className="size-4" />
+              <Play className="size-3.5" />
             )}
-            Apply
+            <span className="hidden @lg:inline leading-none">Применить</span>
           </Button>
         </div>
       </div>

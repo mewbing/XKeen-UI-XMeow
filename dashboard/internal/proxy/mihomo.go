@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/config"
 )
 
 // NewMihomoProxy creates a reverse proxy handler that forwards /api/mihomo/*

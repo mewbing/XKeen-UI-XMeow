@@ -1,41 +1,32 @@
 /**
- * Rules page -- full visual rules editor.
+ * Rules page -- visual rules editor with group cards.
  *
- * Loads config on mount, displays rules as sortable block cards,
- * supports expand/collapse, search filtering, and 3 view modes.
+ * Loads config on mount, displays rules as sortable cards
+ * grouped by consecutive target proxy-groups.
  */
 
-import { useState, useEffect, useMemo, useCallback, useDeferredValue, startTransition } from 'react'
+import { useState, useEffect, useMemo, useDeferredValue, useCallback } from 'react'
 import { Search, RefreshCw, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { useSettingsStore } from '@/stores/settings'
 import { useRulesEditorStore } from '@/stores/rules-editor'
 import { fetchConfig, saveConfig } from '@/lib/config-api'
 import { RulesToolbar } from '@/components/rules/RulesToolbar'
-import { RuleBlockList } from '@/components/rules/RuleBlockList'
+import { RulesList } from '@/components/rules/RuleBlockList'
 import { useHealthCheck, isHealthy } from '@/hooks/useHealthCheck'
 import { SetupGuide } from '@/components/shared/SetupGuide'
-
-/** Module-level constant — guaranteed stable reference, never breaks memo */
-const EMPTY_CHANGED_IDS = new Set<string>()
 
 export default function RulesPage() {
   const health = useHealthCheck({ requireConfigApi: true })
 
   const [searchQuery, setSearchQuery] = useState('')
   const deferredSearch = useDeferredValue(searchQuery)
-  const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set())
 
   const blocks = useRulesEditorStore((s) => s.blocks)
   const loading = useRulesEditorStore((s) => s.loading)
   const error = useRulesEditorStore((s) => s.error)
   const proxyGroups = useRulesEditorStore((s) => s.proxyGroups)
-
-  const layout = useSettingsStore((s) => s.rulesLayout)
-  const density = useSettingsStore((s) => s.rulesDensity)
-  const newBlockMode = useSettingsStore((s) => s.rulesNewBlockMode)
 
   // Load config on mount
   const loadRules = useCallback(async () => {
@@ -57,29 +48,6 @@ export default function RulesPage() {
     }
   }, [health.loading, health.configApiOk]) // eslint-disable-line
 
-  // Re-group when grouping mode changes
-  const handleGroupingChange = useCallback(() => {
-    const { originalYaml } = useRulesEditorStore.getState()
-    if (originalYaml) {
-      useRulesEditorStore.getState().loadRules(originalYaml)
-    }
-  }, [])
-
-  // Toggle expand/collapse — low-priority update via startTransition
-  const handleToggleExpand = useCallback((blockId: string) => {
-    startTransition(() => {
-      setExpandedBlocks((prev) => {
-        const next = new Set(prev)
-        if (next.has(blockId)) {
-          next.delete(blockId)
-        } else {
-          next.add(blockId)
-        }
-        return next
-      })
-    })
-  }, [])
-
   // Keyboard shortcuts: Ctrl+Z, Ctrl+Shift+Z, Ctrl+Y, Ctrl+S
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -88,9 +56,11 @@ export default function RulesPage() {
       if (e.key === 'z' && !e.shiftKey) {
         e.preventDefault()
         useRulesEditorStore.temporal.getState().undo()
+        useRulesEditorStore.getState().syncAfterUndoRedo()
       } else if ((e.key === 'z' && e.shiftKey) || e.key === 'y') {
         e.preventDefault()
         useRulesEditorStore.temporal.getState().redo()
+        useRulesEditorStore.getState().syncAfterUndoRedo()
       } else if (e.key === 's') {
         e.preventDefault()
         const state = useRulesEditorStore.getState()
@@ -98,9 +68,9 @@ export default function RulesPage() {
         const yaml = state.serialize()
         saveConfig(yaml).then(() => {
           useRulesEditorStore.getState().markSaved()
-          toast.success('\u041a\u043e\u043d\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u044f \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430')
+          toast.success('Конфигурация сохранена')
         }).catch((err) => {
-          toast.error('\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f: ' + (err instanceof Error ? err.message : String(err)))
+          toast.error('Ошибка сохранения: ' + (err instanceof Error ? err.message : String(err)))
         })
       }
     }
@@ -119,25 +89,24 @@ export default function RulesPage() {
     return () => window.removeEventListener('beforeunload', handler)
   }, [])
 
-  const changedBlockIds = EMPTY_CHANGED_IDS
-
-  // Filter blocks by search — uses deferred value to keep input responsive
+  // Filter blocks by search -- show only blocks containing matching rules,
+  // with only the matching rules inside them
   const filteredBlocks = useMemo(() => {
     if (!deferredSearch) return blocks
 
     const q = deferredSearch.toLowerCase()
-    return blocks.filter((block) => {
-      // Match block name
-      if (block.name.toLowerCase().includes(q)) return true
-      // Match target
-      if (block.target.toLowerCase().includes(q)) return true
-      // Match rule content
-      return block.rules.some((rule) =>
+    const result = []
+    for (const block of blocks) {
+      const matchingRules = block.rules.filter((rule) =>
         rule.type.toLowerCase().includes(q) ||
         rule.value.toLowerCase().includes(q) ||
         rule.target.toLowerCase().includes(q)
       )
-    })
+      if (matchingRules.length > 0) {
+        result.push({ ...block, rules: matchingRules })
+      }
+    }
+    return result
   }, [blocks, deferredSearch])
 
   if (!isHealthy(health)) {
@@ -162,9 +131,9 @@ export default function RulesPage() {
           <Skeleton className="h-9 w-[80px] shrink-0" />
         </div>
         <div className="flex flex-col gap-3">
-          <Skeleton className="h-[60px] rounded-xl" />
-          <Skeleton className="h-[60px] rounded-xl" />
-          <Skeleton className="h-[60px] rounded-xl" />
+          <Skeleton className="h-[120px] rounded-xl" />
+          <Skeleton className="h-[120px] rounded-xl" />
+          <Skeleton className="h-[80px] rounded-xl" />
         </div>
       </div>
     )
@@ -186,17 +155,16 @@ export default function RulesPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="flex flex-col flex-1 min-h-0 p-4 gap-4">
       <RulesToolbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onGroupingChange={handleGroupingChange}
       />
 
       {filteredBlocks.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
           <Search className="size-12 mb-4 opacity-50" />
-          <p className="text-lg font-medium">Блоки не найдены</p>
+          <p className="text-lg font-medium">Правила не найдены</p>
           {searchQuery && (
             <p className="text-sm mt-1">
               Попробуйте изменить поисковый запрос
@@ -204,15 +172,9 @@ export default function RulesPage() {
           )}
         </div>
       ) : (
-        <RuleBlockList
+        <RulesList
           blocks={filteredBlocks}
-          density={density}
-          layout={layout}
-          expandedBlocks={expandedBlocks}
-          onToggleExpand={handleToggleExpand}
-          newBlockMode={newBlockMode}
           proxyGroups={proxyGroups}
-          changedBlockIds={changedBlockIds}
         />
       )}
     </div>

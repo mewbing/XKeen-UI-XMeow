@@ -8,8 +8,8 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/logwatch"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/config"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/logwatch"
 )
 
 // upgrader allows all origins (CORS handled at middleware level).

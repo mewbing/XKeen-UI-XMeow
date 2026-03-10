@@ -9,6 +9,20 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// TerminalSession is the common interface for SSH and local PTY sessions.
+type TerminalSession interface {
+	Write(data []byte) (int, error)
+	Read(buf []byte) (int, error)
+	Resize(cols, rows int) error
+	Close()
+	Alive() bool
+	LastInput() time.Time
+	Done() <-chan struct{}
+}
+
+// Compile-time check: Session implements TerminalSession.
+var _ TerminalSession = (*Session)(nil)
+
 // Session represents an SSH client connection with PTY.
 // It manages the SSH client lifecycle, stdin/stdout pipes, and PTY resize.
 type Session struct {

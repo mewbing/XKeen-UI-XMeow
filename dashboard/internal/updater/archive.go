@@ -14,10 +14,10 @@ import (
 
 const maxExtractSize = 100 * 1024 * 1024 // 100 MB limit per file (decompression bomb protection)
 
-// extractBinaryFromTarGz extracts a single named binary from a tar.gz archive.
+// ExtractBinaryFromTarGz extracts a single named binary from a tar.gz archive.
 // The extracted file is written to a hidden temp file in destDir (same FS for atomic rename).
 // Returns the path to the extracted temp file.
-func extractBinaryFromTarGz(archivePath, targetName, destDir string) (string, error) {
+func ExtractBinaryFromTarGz(archivePath, targetName, destDir string) (string, error) {
 	f, err := os.Open(archivePath)
 	if err != nil {
 		return "", fmt.Errorf("open archive: %w", err)
@@ -71,9 +71,9 @@ func extractBinaryFromTarGz(archivePath, targetName, destDir string) (string, er
 	return "", fmt.Errorf("file %q not found in archive", targetName)
 }
 
-// verifyChecksum downloads checksums.txt and verifies the SHA256 hash of the archive.
-// checksumURL is the download URL for checksums.txt, archiveName is the expected filename entry.
-func verifyChecksum(archivePath, checksumPath, archiveName string) error {
+// VerifyChecksum verifies the SHA256 hash of a file against a checksums.txt file.
+// checksumPath is the local path to checksums.txt, archiveName is the expected filename entry.
+func VerifyChecksum(archivePath, checksumPath, archiveName string) error {
 	// Parse checksums.txt (format: "{hash}  {filename}" per line, sha256sum output)
 	data, err := os.ReadFile(checksumPath)
 	if err != nil {
@@ -112,10 +112,10 @@ func verifyChecksum(archivePath, checksumPath, archiveName string) error {
 	return nil
 }
 
-// extractDistTarGz extracts all files from a dist.tar.gz archive into destDir.
+// ExtractDistTarGz extracts all files from a dist.tar.gz archive into destDir.
 // Used for extracting SPA files in external-ui mode.
 // Includes zip-slip protection and per-file size limits.
-func extractDistTarGz(archivePath, destDir string) error {
+func ExtractDistTarGz(archivePath, destDir string) error {
 	f, err := os.Open(archivePath)
 	if err != nil {
 		return fmt.Errorf("open dist archive: %w", err)

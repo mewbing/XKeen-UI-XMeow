@@ -54,6 +54,7 @@ const TERMINAL_THEME = {
 
 export interface TerminalApi {
   connect: (host: string, port: number, user: string, pass: string) => void
+  exec: (command: string) => void
   disconnect: () => void
   clear: () => void
   searchNext: (q: string) => void
@@ -77,15 +78,16 @@ export function TerminalView({ onReady }: TerminalViewProps) {
   const initializedRef = useRef(false)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
 
-  // WS integration -- always enabled; SSH connects on user action
-  const { connect: wsConnect, sendInput, resize, disconnect: wsDisconnect } =
+  // WS integration -- always enabled; SSH/exec connects on user action
+  const { connect: wsConnect, exec: wsExec, sendInput, resize, disconnect: wsDisconnect } =
     useTerminalWs({
       enabled: true,
       onData: (data) => termRef.current?.write(data),
-      onConnected: (reused) => {
+      onConnected: (reused, sessionType) => {
         useTerminalStore.getState().setConnected(true)
         useTerminalStore.getState().setConnecting(false)
         useTerminalStore.getState().setSessionAlive(true)
+        if (sessionType) useTerminalStore.getState().setSessionType(sessionType as 'ssh' | 'exec')
         if (reused) toast.info('Восстановлено подключение к существующей сессии')
       },
       onDisconnected: (reason) => {
@@ -104,6 +106,8 @@ export function TerminalView({ onReady }: TerminalViewProps) {
   // Stable refs for the WS functions (avoid stale closures)
   const wsConnectRef = useRef(wsConnect)
   wsConnectRef.current = wsConnect
+  const wsExecRef = useRef(wsExec)
+  wsExecRef.current = wsExec
   const sendInputRef = useRef(sendInput)
   sendInputRef.current = sendInput
   const resizeRef = useRef(resize)
@@ -180,6 +184,10 @@ export function TerminalView({ onReady }: TerminalViewProps) {
         const { cols, rows } = term
         wsConnectRef.current(host, port, user, pass, cols, rows)
       },
+      exec: (command) => {
+        const { cols, rows } = term
+        wsExecRef.current(command, cols, rows)
+      },
       disconnect: () => wsDisconnectRef.current(),
       clear: () => term.clear(),
       searchNext: (q) => searchAddon.findNext(q),
@@ -196,6 +204,23 @@ export function TerminalView({ onReady }: TerminalViewProps) {
       initializedRef.current = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /* ---- Watch for pendingExec (triggered from XKeenTab) ---- */
+  useEffect(() => {
+    return useTerminalStore.subscribe((state, prev) => {
+      if (state.pendingExec && state.pendingExec !== prev.pendingExec) {
+        const cmd = state.pendingExec
+        useTerminalStore.getState().setPendingExec(null)
+        requestAnimationFrame(() => {
+          const term = termRef.current
+          if (term) {
+            const { cols, rows } = term
+            wsExecRef.current(cmd, cols, rows)
+          }
+        })
+      }
+    })
   }, [])
 
   /* ---- React to font size changes ---- */

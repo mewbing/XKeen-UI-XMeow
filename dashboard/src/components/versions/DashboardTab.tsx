@@ -1,12 +1,16 @@
-import { useCallback } from 'react'
-import { Download, RotateCcw, RefreshCw, Loader2, ArrowUpCircle, Calendar } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Download, RotateCcw, Monitor, ChevronDown, ChevronUp, ServerOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useUpdateStore } from '@/stores/update'
+import { useReleasesStore } from '@/stores/releases'
 import { useOverviewStore } from '@/stores/overview'
-import { toast } from 'sonner'
+import { useUpdateStore } from '@/stores/update'
+import { useBackendAvailable } from '@/hooks/useBackendAvailable'
+import { ReleasesList } from './ReleasesList'
+import { InstallProgress } from './InstallProgress'
+import { UpdateChangelog } from '@/components/update/UpdateChangelog'
 import { fmtVer } from './shared'
+import type { XmeowRelease } from '@/lib/releases-api'
 
 interface ConfirmAction {
   fn: () => void
@@ -24,162 +28,271 @@ interface DashboardTabProps {
 export function DashboardTab({ active, onClose, onConfirm, onOverlay }: DashboardTabProps) {
   const serverVersion = useOverviewStore((s) => s.serverVersion)
   const dashboardVersion = useOverviewStore((s) => s.dashboardVersion)
-  const hasUpdate = useUpdateStore((s) => s.hasUpdate)
   const isExternalUI = useUpdateStore((s) => s.isExternalUI)
-  const checking = useUpdateStore((s) => s.checking)
-  const applying = useUpdateStore((s) => s.applying)
-  const applyingDist = useUpdateStore((s) => s.applyingDist)
-  const releaseInfo = useUpdateStore((s) => s.releaseInfo)
+  const backendAvailable = useBackendAvailable()
 
-  const handleCheck = useCallback(() => {
-    useUpdateStore.getState().checkForUpdate()
-  }, [])
+  const xmeowReleases = useReleasesStore((s) => s.xmeowReleases) ?? []
+  const xmeowLoading = useReleasesStore((s) => s.xmeowLoading)
+  const xmeowInstalling = useReleasesStore((s) => s.xmeowInstalling)
+  const xmeowInstallingVersion = useReleasesStore((s) => s.xmeowInstallingVersion)
+  const xmeowInstallTarget = useReleasesStore((s) => s.xmeowInstallTarget)
+  const xmeowError = useReleasesStore((s) => s.xmeowError)
+  const xmeowInstallLog = useReleasesStore((s) => s.xmeowInstallLog) ?? []
+  const xmeowInstallDone = useReleasesStore((s) => s.xmeowInstallDone)
+  const xmeowDownloadProgress = useReleasesStore((s) => s.xmeowDownloadProgress)
+  const fetchXmeowReleases = useReleasesStore((s) => s.fetchXmeowReleases)
+  const installXmeowVersion = useReleasesStore((s) => s.installXmeowVersion)
+  const resetXmeowInstallState = useReleasesStore((s) => s.resetXmeowInstallState)
+  const clearErrors = useReleasesStore((s) => s.clearErrors)
+  const setVersions = useOverviewStore((s) => s.setVersions)
 
-  const handleServerUpdate = useCallback(() => {
-    const ver = fmtVer(releaseInfo?.latest_version || '')
+  const [showVersions, setShowVersions] = useState(false)
+  const [showInstallGuide, setShowInstallGuide] = useState(false)
+  const showProgress = xmeowInstalling || xmeowInstallLog.length > 0
+
+  useEffect(() => {
+    if (active && xmeowReleases.length === 0) {
+      fetchXmeowReleases()
+    }
+  }, [active, xmeowReleases.length, fetchXmeowReleases])
+
+  // After server install completes → open overlay for health-poll + restart
+  useEffect(() => {
+    if (xmeowInstallDone && xmeowInstallTarget === 'server') {
+      const ver = xmeowInstallingVersion
+      if (ver) {
+        const versionClean = ver.startsWith('v') ? ver.slice(1) : ver
+        setVersions({ server: versionClean, dashboard: versionClean })
+      }
+      resetXmeowInstallState()
+      clearErrors()
+      onClose()
+      onOverlay('server')
+    }
+  }, [xmeowInstallDone, xmeowInstallTarget, xmeowInstallingVersion, setVersions, resetXmeowInstallState, clearErrors, onClose, onOverlay])
+
+  // After dist install completes → reload page
+  useEffect(() => {
+    if (xmeowInstallDone && xmeowInstallTarget === 'dist') {
+      setTimeout(() => window.location.reload(), 2000)
+    }
+  }, [xmeowInstallDone, xmeowInstallTarget])
+
+  const handleInstallServer = useCallback((version: string) => {
     onConfirm({
-      fn: () => {
-        onClose()
-        onOverlay('server')
-      },
-      title: `Обновить сервер до ${ver}?`,
-      description: 'Сервер будет перезапущен.',
+      fn: () => installXmeowVersion(version, 'server'),
+      title: `Установить сервер ${version}?`,
+      description: 'Сервер будет перезапущен после установки.',
     })
-  }, [releaseInfo, onClose, onConfirm, onOverlay])
+  }, [onConfirm, installXmeowVersion])
 
-  const handleDistUpdate = useCallback(() => {
-    const ver = fmtVer(releaseInfo?.latest_version || '')
+  const handleInstallDist = useCallback((version: string) => {
     onConfirm({
-      fn: () => {
-        onClose()
-        onOverlay('dist')
-      },
-      title: `Обновить дашборд до ${ver}?`,
-      description: 'Файлы дашборда будут перезаписаны.',
+      fn: () => installXmeowVersion(version, 'dist'),
+      title: `Обновить дашборд до ${version}?`,
+      description: 'Файлы дашборда будут перезаписаны. Страница перезагрузится.',
     })
-  }, [releaseInfo, onClose, onConfirm, onOverlay])
+  }, [onConfirm, installXmeowVersion])
 
-  const handleRollback = useCallback(() => {
-    onConfirm({
-      fn: async () => {
-        try {
-          await useUpdateStore.getState().rollback()
-          toast.success('Откат выполнен. Сервер перезапускается...')
-          onClose()
-        } catch (err) {
-          toast.error(err instanceof Error ? err.message : 'Ошибка отката')
-        }
-      },
-      title: 'Откатить сервер к предыдущей версии?',
-      description: 'Будет восстановлена предыдущая версия из резервной копии (.bak).',
-    })
-  }, [onClose, onConfirm])
+  const handleCloseProgress = useCallback(() => {
+    resetXmeowInstallState()
+    clearErrors()
+  }, [resetXmeowInstallState, clearErrors])
+
+  const latestNewer = xmeowReleases.find((r) => r.is_newer)
+  const hasUpdate = !!latestNewer
+  const currentRelease = xmeowReleases.find((r) => r.is_current)
+  const latestWithDist = xmeowReleases.find((r) => r.dist_asset_name && r.is_newer)
+
+  // Changelog: newer version if available, otherwise current, fallback to first
+  const changelogRelease = latestNewer ?? currentRelease ?? xmeowReleases[0]
+
+  if (showProgress) {
+    return (
+      <InstallProgress
+        installing={xmeowInstalling}
+        installingVersion={xmeowInstallingVersion}
+        downloadProgress={xmeowDownloadProgress}
+        installLog={xmeowInstallLog}
+        installDone={xmeowInstallDone}
+        error={xmeowError}
+        onClose={handleCloseProgress}
+      />
+    )
+  }
 
   return (
-    <ScrollArea className="flex-1 min-h-0 -mx-6 px-6">
-      <div className="space-y-4 pb-2">
-        {/* Versions block */}
-        <div className="rounded-md border p-3 space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Dashboard</span>
+    <div className="flex flex-col gap-3 pb-1">
+      {/* Version header + action buttons */}
+      <div className="rounded-md border p-3 space-y-3">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Dashboard</span>
+          <div className="flex items-center gap-2">
             <span className="font-mono font-medium">{fmtVer(dashboardVersion)}</span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Server</span>
-            <span className="font-mono font-medium">{fmtVer(serverVersion)}</span>
-          </div>
-          {releaseInfo && hasUpdate && (
-            <div className="animate-in fade-in-0 duration-200 space-y-2">
-              <div className="border-t pt-2 flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Доступна версия</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-medium">{fmtVer(releaseInfo.latest_version)}</span>
-                  <Badge variant="secondary" className="text-[10px] px-1 py-0">
-                    <ArrowUpCircle className="h-2.5 w-2.5 mr-0.5" />
-                    обновление
-                  </Badge>
-                </div>
-              </div>
-              {releaseInfo.published_at && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Дата релиза</span>
-                  <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <Calendar className="h-3 w-3" />
-                    {new Date(releaseInfo.published_at).toLocaleDateString('ru-RU', {
-                      day: 'numeric', month: 'long', year: 'numeric',
-                    })}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-          {!hasUpdate && !checking && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Статус</span>
+            {hasUpdate && (
+              <Badge variant="secondary" className="text-[10px] px-1 py-0">обновление</Badge>
+            )}
+            {!hasUpdate && currentRelease && (
               <Badge variant="outline" className="text-[10px] px-1 py-0">актуально</Badge>
-            </div>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Server</span>
+          {backendAvailable ? (
+            <span className="font-mono font-medium">{fmtVer(serverVersion)}</span>
+          ) : (
+            <button
+              className="font-mono font-medium text-muted-foreground/60 hover:text-foreground transition-colors"
+              onClick={() => setShowInstallGuide(!showInstallGuide)}
+            >
+              --
+            </button>
           )}
         </div>
-
-        {/* Release notes */}
-        {releaseInfo?.release_notes && hasUpdate && (
-          <div className="space-y-1.5 animate-in fade-in-0 duration-200">
-            <p className="text-sm font-medium text-muted-foreground">
-              Изменения ({fmtVer(releaseInfo.latest_version)})
-            </p>
-            <pre className="bg-muted rounded-md p-3 text-sm font-mono leading-relaxed overflow-y-auto max-h-[40vh] whitespace-pre-wrap">
-              {releaseInfo.release_notes}
-            </pre>
+        {!backendAvailable && (
+          <div
+            className="grid transition-[grid-template-rows,opacity] duration-300 ease-out"
+            style={{
+              gridTemplateRows: showInstallGuide ? '1fr' : '0fr',
+              opacity: showInstallGuide ? 1 : 0,
+            }}
+          >
+            <div className="overflow-hidden">
+              <div className="rounded-md bg-muted/50 p-2.5 space-y-1.5 text-xs text-muted-foreground">
+                <p className="font-medium text-foreground/80">Установка XMeow Server:</p>
+                <code className="block bg-background/60 rounded px-2 py-1 text-[11px] font-mono select-all">
+                  curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh
+                </code>
+                <p>Скрипт установит серверную часть и настроит автозапуск.</p>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Actions */}
-        <div className="space-y-2">
-          {hasUpdate && (
-            <div className="flex gap-2 animate-in fade-in-0 duration-200">
-              <Button
-                className="flex-1"
-                disabled={applying || checking}
-                onClick={handleServerUpdate}
-              >
-                {applying ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : <Download className="h-4 w-4 mr-1.5" />}
-                Обновить сервер
-              </Button>
-              {isExternalUI && (
-                <Button
-                  variant="secondary"
-                  className="flex-1"
-                  disabled={applyingDist || checking}
-                  onClick={handleDistUpdate}
-                >
-                  {applyingDist ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : <Download className="h-4 w-4 mr-1.5" />}
-                  Обновить дашборд
-                </Button>
-              )}
-            </div>
-          )}
-          <div className="flex gap-2">
+        {latestNewer && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Доступна</span>
+            <span className="font-mono font-medium">{latestNewer.tag_name}</span>
+          </div>
+        )}
+
+        {/* No-backend notice */}
+        {!backendAvailable && latestNewer && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground rounded-md bg-muted/50 p-2">
+            <ServerOff className="h-3.5 w-3.5 shrink-0" />
+            <span>Для установки нужен XMeow Server</span>
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="flex gap-2 flex-wrap">
+          {backendAvailable && (
             <Button
               variant="outline"
-              className="flex-1"
-              disabled={applying}
-              onClick={handleRollback}
+              size="sm"
+              className="text-xs"
+              onClick={() => {
+                if (!showVersions && xmeowReleases.length === 0) fetchXmeowReleases()
+                setShowVersions(!showVersions)
+              }}
             >
-              <RotateCcw className="h-4 w-4 mr-1.5" />
+              {showVersions ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
               Откатить
             </Button>
+          )}
+          {hasUpdate && latestNewer ? (
             <Button
-              variant="ghost"
-              className="flex-1"
-              disabled={checking}
-              onClick={handleCheck}
+              size="sm"
+              className="text-xs"
+              disabled={!backendAvailable}
+              onClick={() => handleInstallServer(latestNewer.tag_name)}
             >
-              {checking ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : <RefreshCw className="h-4 w-4 mr-1.5" />}
-              Проверить
+              <Download className="h-3 w-3 mr-1.5" />
+              Обновить до {latestNewer.tag_name}
             </Button>
+          ) : currentRelease && backendAvailable ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="text-xs"
+              onClick={() => onConfirm({
+                fn: () => installXmeowVersion(currentRelease.tag_name, 'server'),
+                title: `Переустановить сервер ${currentRelease.tag_name}?`,
+                description: 'Сервер будет перезапущен после установки.',
+              })}
+            >
+              <RotateCcw className="h-3 w-3 mr-1.5" />
+              Переустановить
+            </Button>
+          ) : null}
+        </div>
+
+        {/* "Обновить UI" button for external-ui mode */}
+        {isExternalUI && latestWithDist && backendAvailable && (
+          <Button
+            variant="secondary"
+            size="sm"
+            className="w-full text-xs"
+            onClick={() => handleInstallDist(latestWithDist.tag_name)}
+          >
+            <Monitor className="h-3 w-3 mr-1.5" />
+            Обновить UI до {latestWithDist.tag_name}
+          </Button>
+        )}
+      </div>
+
+      {/* Changelog OR version list — mutually exclusive */}
+      {showVersions ? (
+        <ReleasesList<XmeowRelease>
+          releases={xmeowReleases}
+          loading={xmeowLoading}
+          error={xmeowError}
+          onRefresh={fetchXmeowReleases}
+          getSize={(rel) => rel.server_asset_size}
+          renderAction={(rel) => {
+            if (rel.is_current && backendAvailable) {
+              return (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs shrink-0"
+                  onClick={() => onConfirm({
+                    fn: () => installXmeowVersion(rel.tag_name, 'server'),
+                    title: `Переустановить сервер ${rel.tag_name}?`,
+                    description: 'Сервер будет перезапущен после установки.',
+                  })}
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Переустановить
+                </Button>
+              )
+            }
+            if (!rel.server_asset_name) return null
+            return (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs shrink-0"
+                disabled={!backendAvailable}
+                onClick={() => handleInstallServer(rel.tag_name)}
+              >
+                <Download className="h-3 w-3 mr-1" />
+                Установить
+              </Button>
+            )
+          }}
+        />
+      ) : changelogRelease?.body ? (
+        <div className="rounded-md border p-3 space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">
+            Changelog — {changelogRelease.tag_name}
+          </p>
+          <div className="overflow-y-auto max-h-[40vh]">
+            <UpdateChangelog releaseNotes={changelogRelease.body} />
           </div>
         </div>
-      </div>
-    </ScrollArea>
+      ) : null}
+    </div>
   )
 }

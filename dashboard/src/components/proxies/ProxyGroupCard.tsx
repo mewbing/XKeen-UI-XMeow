@@ -1,29 +1,52 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import {
   ChevronDown,
-  ChevronUp,
-  Zap,
   MousePointerClick,
   Timer,
   ShieldCheck,
   Scale,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getDisplayName } from '@/lib/flags'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { useProxiesStore } from '@/stores/proxies'
-import { ProxyLatencyBadge } from './ProxyLatencyBadge'
-import { ProxyNodeItem } from './ProxyNodeItem'
+import { ScrollText } from '@/components/ui/scroll-text'
+import { ProxyFlag } from './ProxyFlag'
 
 interface ProxyGroupCardProps {
   groupName: string
   density: 'min' | 'mid' | 'max'
-  typeStyle: 'badge' | 'border' | 'icon'
-  showAutoInfo: boolean
+  typeStyle: 'badge' | 'border' | 'icon' | 'none'
   sortBy: 'name' | 'delay' | 'default'
+}
+
+function getDelayColorClass(delay: number | undefined): string {
+  if (delay === undefined) return 'text-muted-foreground'
+  if (delay === 0) return 'text-destructive'
+  if (delay < 100) return 'text-green-500'
+  if (delay < 300) return 'text-yellow-500'
+  return 'text-red-500'
+}
+
+/** Resolve delay for a name that might be a group — follows now→now chain to leaf */
+function resolveDelay(
+  name: string,
+  proxyMap: Record<string, import('@/lib/mihomo-api').Proxy>,
+  delayCache: Record<string, { delay: number }>,
+): number | undefined {
+  let current = name
+  for (let i = 0; i < 10; i++) {
+    const cached = delayCache[current]?.delay
+    if (cached !== undefined) return cached
+    const p = proxyMap[current]
+    if (p?.all && p.now) {
+      current = p.now
+    } else {
+      break
+    }
+  }
+  return delayCache[current]?.delay
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -58,34 +81,24 @@ export function ProxyGroupCard({
   groupName,
   density,
   typeStyle,
-  showAutoInfo,
   sortBy,
 }: ProxyGroupCardProps) {
-  const group = useProxiesStore((s) => s.proxyMap[groupName])
+  const proxyMap = useProxiesStore((s) => s.proxyMap)
+  const group = proxyMap[groupName]
   const expandedGroups = useProxiesStore((s) => s.expandedGroups)
   const testingGroups = useProxiesStore((s) => s.testingGroups)
-  const testingProxies = useProxiesStore((s) => s.testingProxies)
   const delayCache = useProxiesStore((s) => s.delayCache)
   const toggleExpand = useProxiesStore((s) => s.toggleExpand)
   const selectProxyInGroup = useProxiesStore((s) => s.selectProxyInGroup)
-  const testProxyDelay = useProxiesStore((s) => s.testProxyDelay)
   const testGroupDelay = useProxiesStore((s) => s.testGroupDelay)
 
   const isExpanded = expandedGroups.has(groupName)
   const isTesting = testingGroups.has(groupName)
-  const isSelector = group?.type === 'Selector'
+  const isSelectable = group?.type === 'Selector' || group?.type === 'URLTest' || group?.type === 'Fallback'
   const allProxies = group?.all ?? []
   const nowProxy = group?.now
 
-  // Auto-test delays when expanded
-  useEffect(() => {
-    if (!isExpanded || allProxies.length === 0) return
-    for (const proxyName of allProxies) {
-      testProxyDelay(proxyName)
-    }
-  }, [isExpanded, allProxies, testProxyDelay])
-
-  // Sort proxies
+  // Sort proxies (normal order)
   const sortedProxies = useMemo(() => {
     if (sortBy === 'default') return allProxies
     const sorted = [...allProxies]
@@ -93,9 +106,8 @@ export function ProxyGroupCard({
       sorted.sort((a, b) => a.localeCompare(b))
     } else if (sortBy === 'delay') {
       sorted.sort((a, b) => {
-        const da = delayCache[a]?.delay
-        const db = delayCache[b]?.delay
-        // undefined and 0 (timeout) go to end
+        const da = resolveDelay(a, proxyMap, delayCache)
+        const db = resolveDelay(b, proxyMap, delayCache)
         if (da === undefined && db === undefined) return 0
         if (da === undefined) return 1
         if (db === undefined) return -1
@@ -108,158 +120,213 @@ export function ProxyGroupCard({
     return sorted
   }, [allProxies, sortBy, delayCache])
 
-  // Top 3 proxies by delay (for max density)
-  const top3 = useMemo(() => {
-    if (density !== 'max') return []
-    return [...allProxies]
-      .filter((n) => {
-        const d = delayCache[n]?.delay
-        return d !== undefined && d > 0
-      })
-      .sort((a, b) => (delayCache[a]!.delay) - (delayCache[b]!.delay))
-      .slice(0, 3)
-  }, [allProxies, delayCache, density])
+  // Collapsed order: active proxy first
+  const collapsedProxies = useMemo(() => {
+    if (!nowProxy) return sortedProxies
+    const rest = sortedProxies.filter((n) => n !== nowProxy)
+    return [nowProxy, ...rest]
+  }, [sortedProxies, nowProxy])
+
+  // Resolve group icon: config icon → favicon from testUrl → null
+  const groupIconSrc = useMemo(() => {
+    if (group?.icon) return group.icon
+    if (group?.testUrl) {
+      try {
+        const hostname = new URL(group.testUrl).hostname
+        return `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`
+      } catch { return null }
+    }
+    return null
+  }, [group?.icon, group?.testUrl])
 
   if (!group) return null
 
   const groupType = group.type
-  const TypeIcon = TYPE_ICONS[groupType]
+  const TypeIcon = TYPE_ICONS[groupType] ?? MousePointerClick
   const borderClass = typeStyle === 'border' ? TYPE_BORDER_COLORS[groupType] : ''
 
-  const nowDelay = nowProxy ? delayCache[nowProxy]?.delay : undefined
-  const nowTesting = nowProxy ? testingProxies.has(nowProxy) : false
+  const showCards = density === 'max' || isExpanded
 
   return (
     <Card
       className={cn(
-        'transition-all duration-200 overflow-hidden py-0',
-        isExpanded && 'col-span-full',
+        'transition-all duration-200 overflow-hidden py-0 gap-0',
         typeStyle === 'border' && `border-l-4 ${borderClass}`
       )}
     >
-      <Collapsible open={isExpanded}>
-        {/* Header - always visible */}
-        <CardHeader
-          className="cursor-pointer select-none px-4 py-3"
-          onClick={() => toggleExpand(groupName)}
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            {/* Type icon (if icon style) */}
-            {typeStyle === 'icon' && TypeIcon && (
-              <TypeIcon className="size-4 shrink-0 text-muted-foreground" />
+      {/* Header */}
+      <CardHeader
+        className={cn(
+          'select-none px-4 !gap-0 transition-[padding] duration-200',
+          showCards ? 'pt-3 pb-2' : 'py-3',
+          density !== 'max' && 'cursor-pointer'
+        )}
+        onClick={density !== 'max' ? () => toggleExpand(groupName) : undefined}
+      >
+        {/* Row 1: group name + controls */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+            <div className={cn(
+              'shrink-0 transition-all duration-200 overflow-hidden',
+              typeStyle === 'icon' ? 'max-w-4 opacity-100' : 'max-w-0 opacity-0'
+            )}>
+              <TypeIcon className="size-4 text-muted-foreground" />
+            </div>
+            {groupIconSrc && (
+              <img
+                src={groupIconSrc}
+                alt=""
+                className="size-5 shrink-0 rounded"
+                loading="lazy"
+                onError={(e) => { (e.target as HTMLElement).style.display = 'none' }}
+              />
             )}
-
-            {/* Group name */}
-            <span className="font-medium text-sm truncate">{groupName}</span>
-
-            {/* Type badge (if badge style) */}
-            {typeStyle === 'badge' && (
+            <ScrollText className="font-medium text-sm min-w-0">{groupName}</ScrollText>
+            <div className={cn(
+              'shrink-0 flex items-center transition-all duration-200 overflow-hidden',
+              typeStyle === 'badge' ? 'max-w-[100px] opacity-100' : 'max-w-0 opacity-0'
+            )}>
               <Badge
                 variant={TYPE_BADGE_VARIANTS[groupType] ?? 'secondary'}
-                className="text-[10px] px-1.5 py-0"
+                className="text-[10px] px-1.5 py-0 leading-none whitespace-nowrap"
               >
                 {TYPE_LABELS[groupType] ?? groupType}
               </Badge>
-            )}
-
-            {/* Current proxy (now) */}
-            {nowProxy && (
-              <span className="text-xs text-muted-foreground truncate">
-                {nowProxy}
-              </span>
-            )}
-
-            {/* Spacer */}
-            <div className="flex-1" />
-
-            {/* Mid density: latency badge + proxy count */}
-            {(density === 'mid' || density === 'max') && (
-              <>
-                <ProxyLatencyBadge delay={nowDelay} testing={nowTesting} />
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {allProxies.length} proxies
-                </span>
-              </>
-            )}
-
-            {/* Test group button */}
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              className="shrink-0"
+            </div>
+          </div>
+          {/* Min density: active proxy centered */}
+          {density === 'min' && !isExpanded && nowProxy && (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full min-w-0 max-w-[45%] bg-primary text-primary-foreground text-xs overflow-hidden">
+              <ProxyFlag name={nowProxy} className="h-2.5 w-auto shrink-0" />
+              <span className="truncate">{getDisplayName(nowProxy)}</span>
+              {(() => {
+                const d = resolveDelay(nowProxy, proxyMap, delayCache)
+                return d !== undefined && d > 0 ? (
+                  <span className={cn('font-mono tabular-nums font-bold shrink-0', getDelayColorClass(d))}>
+                    {d}
+                  </span>
+                ) : null
+              })()}
+            </span>
+          )}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              className={cn(
+                'size-6 rounded-full flex items-center justify-center text-[10px] font-medium transition-all active:scale-75',
+                isTesting
+                  ? 'bg-primary/20 text-primary animate-pulse'
+                  : 'bg-muted text-muted-foreground hover:bg-primary/20 hover:text-primary'
+              )}
               onClick={(e) => {
                 e.stopPropagation()
                 testGroupDelay(groupName)
               }}
               disabled={isTesting}
+              title="Тестировать группу"
             >
-              <Zap className="size-3" />
-            </Button>
-
-            {/* Expand chevron */}
-            {isExpanded ? (
-              <ChevronUp className="size-4 shrink-0 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+              {allProxies.length}
+            </button>
+            {density !== 'max' && (
+              <ChevronDown className={cn(
+                'size-4 text-muted-foreground transition-transform duration-200',
+                isExpanded && 'rotate-180'
+              )} />
             )}
           </div>
+        </div>
 
-          {/* Max density: icon + top 3 */}
-          {density === 'max' && !isExpanded && (
-            <div className="flex items-center gap-2 mt-1">
-              {group.icon && (
-                <img
-                  src={group.icon}
-                  alt=""
-                  className="size-4 rounded"
-                  loading="lazy"
-                />
-              )}
-              {top3.length > 0 && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  {top3.map((name) => (
-                    <span key={name} className="flex items-center gap-1">
-                      <span className="truncate max-w-[80px]">{name}</span>
-                      <ProxyLatencyBadge delay={delayCache[name]?.delay} />
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </CardHeader>
-
-        {/* Expanded content */}
-        <CollapsibleContent>
-          <CardContent className="px-4 pb-3 pt-0">
-            <ScrollArea className="max-h-[400px]">
-              <div className="flex flex-col">
-                {sortedProxies.map((proxyName) => (
-                  <ProxyNodeItem
-                    key={proxyName}
-                    name={proxyName}
-                    isActive={proxyName === nowProxy}
-                    canSelect={isSelector}
-                    delay={delayCache[proxyName]?.delay}
-                    testing={testingProxies.has(proxyName)}
-                    onSelect={() => selectProxyInGroup(groupName, proxyName)}
-                    onTest={() => testProxyDelay(proxyName)}
-                  />
-                ))}
-              </div>
-            </ScrollArea>
-
-            {/* Auto group info */}
-            {showAutoInfo && !isSelector && (group.type === 'URLTest' || group.type === 'Fallback') && (
-              <div className="mt-2 pt-2 border-t text-xs text-muted-foreground space-y-1">
-                {group.testUrl && (
-                  <div>Test URL: {group.testUrl}</div>
+        {/* Collapsed mid: proxy preview with active first + highlighted */}
+        <div className={cn(
+          'flex items-center gap-0.5 mt-1 text-xs text-muted-foreground overflow-hidden transition-all duration-200',
+          !showCards && density === 'mid'
+            ? 'opacity-100 max-h-10'
+            : 'opacity-0 max-h-0 mt-0'
+        )}>
+          {collapsedProxies.slice(0, 4).map((name) => {
+            const isActive = name === nowProxy
+            const delay = resolveDelay(name, proxyMap, delayCache)
+            return (
+              <span
+                key={name}
+                className={cn(
+                  'flex items-center gap-1 px-2 py-0.5 rounded-full shrink-0',
+                  isActive && 'bg-primary text-primary-foreground'
                 )}
-              </div>
-            )}
+              >
+                <ProxyFlag name={name} className="h-2.5 w-auto" />
+                <span className="truncate max-w-[80px]">{getDisplayName(name)}</span>
+                {delay !== undefined && delay > 0 && (
+                  <span className={cn(
+                    'font-mono tabular-nums font-bold',
+                    getDelayColorClass(delay)
+                  )}>
+                    {delay}
+                  </span>
+                )}
+              </span>
+            )
+          })}
+        </div>
+      </CardHeader>
+
+      {/* Proxy card grid — animated height via CSS grid */}
+      <div className={cn(
+        'grid transition-[grid-template-rows] duration-300 ease-out',
+        showCards ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+      )}>
+        <div className={cn(
+          'overflow-hidden transition-opacity duration-200',
+          showCards ? 'opacity-100 delay-100' : 'opacity-0'
+        )}>
+          <CardContent className="px-4 pb-3 pt-0">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-1.5">
+              {sortedProxies.map((proxyName) => {
+                const isActive = proxyName === nowProxy
+                const delay = resolveDelay(proxyName, proxyMap, delayCache)
+                const proxy = proxyMap[proxyName]
+                const proxyType = proxy?.type?.toLowerCase() ?? ''
+                const transport = proxy?.xudp ? 'xudp' : proxy?.udp ? 'udp' : ''
+                const proto = transport ? `${proxyType}/${transport}` : proxyType
+                return (
+                  <button
+                    key={proxyName}
+                    className={cn(
+                      'flex flex-col items-start px-2 py-1 rounded-md text-[13px] text-left transition-all border',
+                      isActive
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-muted/30 border-border/50 hover:bg-accent/50',
+                      isSelectable && 'cursor-pointer active:scale-95'
+                    )}
+                    onClick={isSelectable ? () => selectProxyInGroup(groupName, proxyName) : undefined}
+                  >
+                    <ScrollText className="font-medium w-full">
+                      <ProxyFlag name={proxyName} className="h-3 w-auto shrink-0" />
+                      {getDisplayName(proxyName)}
+                    </ScrollText>
+                    <div className="flex items-center justify-between w-full">
+                      <span className={cn(
+                        'text-xs leading-tight',
+                        isActive ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                      )}>
+                        {proto}
+                      </span>
+                      {delay !== undefined && delay > 0 && (
+                        <span className={cn(
+                          'text-[13px] leading-tight font-mono tabular-nums font-bold',
+                          isActive ? 'text-primary-foreground/70' : getDelayColorClass(delay)
+                        )}>
+                          {delay}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+
           </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
+        </div>
+      </div>
     </Card>
   )
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/logwatch"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/logwatch"
 )
 
 // GetLogFile returns raw log content for GET /api/logs/{name}.

@@ -35,7 +35,7 @@ export default function SetupWizard() {
     mihomoSecret: '',
   })
 
-  function handleSelectType(type: 'local' | 'cdn', routerIp?: string) {
+  function handleSelectType(type: 'local' | 'cdn', routerIp?: string, secret?: string) {
     const urls = getApiUrls(type, routerIp)
     setState((prev) => ({
       ...prev,
@@ -44,6 +44,7 @@ export default function SetupWizard() {
       routerIp: routerIp || '',
       mihomoUrl: urls.mihomoUrl,
       configUrl: urls.configUrl,
+      mihomoSecret: secret || '',
     }))
   }
 
@@ -125,6 +126,7 @@ export default function SetupWizard() {
             <StepSelectType
               initialType={state.installationType}
               initialRouterIp={state.routerIp}
+              initialSecret={state.mihomoSecret}
               onNext={handleSelectType}
             />
           )}
@@ -133,6 +135,7 @@ export default function SetupWizard() {
             <StepTestConnection
               mihomoUrl={state.mihomoUrl}
               configUrl={state.configUrl}
+              mihomoSecret={state.mihomoSecret}
               onSuccess={handleTestSuccess}
               onBack={handleBack}
             />

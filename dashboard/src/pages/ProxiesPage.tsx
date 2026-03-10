@@ -7,8 +7,12 @@ import { useSettingsStore } from '@/stores/settings'
 import { ProxiesToolbar } from '@/components/proxies/ProxiesToolbar'
 import { ProxyGroupCard } from '@/components/proxies/ProxyGroupCard'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useHealthCheck, isHealthy } from '@/hooks/useHealthCheck'
+import { SetupGuide } from '@/components/shared/SetupGuide'
 
 export default function ProxiesPage() {
+  const health = useHealthCheck({ requireMihomo: true })
+
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
 
@@ -72,16 +76,26 @@ export default function ProxiesPage() {
     return cols
   }, [filteredGroups, effectiveCols])
 
+  if (!isHealthy(health)) {
+    return (
+      <SetupGuide
+        mihomoOk={health.mihomoOk}
+        configApiOk={health.configApiOk}
+        loading={health.loading}
+        onRetry={health.retry}
+      />
+    )
+  }
+
   // Loading skeleton
   if (loading) {
     return (
-      <div className="flex flex-col gap-4 p-4">
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-9 w-64" />
-          <Skeleton className="h-9 w-[140px]" />
-          <div className="flex-1" />
-          <Skeleton className="h-8 w-36" />
-          <Skeleton className="h-9 w-9" />
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-9 flex-1 min-w-0" />
+          <Skeleton className="h-9 w-[100px] shrink-0" />
+          <Skeleton className="h-9 w-9 shrink-0" />
+          <Skeleton className="h-9 w-9 shrink-0" />
         </div>
         <div className="flex gap-4">
           {Array.from({ length: effectiveCols }).map((_, col) => (
@@ -97,7 +111,7 @@ export default function ProxiesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4">
       <ProxiesToolbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -116,7 +130,7 @@ export default function ProxiesPage() {
           )}
         </div>
       ) : (
-        <div key={effectiveCols} className="flex gap-4 animate-in fade-in-0 duration-200">
+        <div className="flex gap-4">
           {columns.map((col, colIdx) => (
             <div key={colIdx} className="flex-1 flex flex-col gap-4 min-w-0">
               {col.map((name) => (

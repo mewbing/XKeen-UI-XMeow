@@ -4,6 +4,7 @@ import { SidebarInset, SidebarProvider, useSidebar } from '@/components/ui/sideb
 import { cn } from '@/lib/utils'
 import { useSettingsStore } from '@/stores/settings'
 import { useTerminalStore } from '@/stores/terminal'
+import { useBackendAvailable } from '@/hooks/useBackendAvailable'
 import { AppSidebar } from './AppSidebar'
 import { Header } from './Header'
 import { TerminalModal } from '@/components/terminal/TerminalModal'
@@ -30,9 +31,11 @@ function SidebarAutoCollapse() {
 export function AppLayout() {
   const reduceMotion = useSettingsStore((s) => s.reduceMotion)
   const { pathname } = useLocation()
+  const backendAvailable = useBackendAvailable()
 
-  // Global Ctrl+` keyboard shortcut for terminal toggle
+  // Global Ctrl+` keyboard shortcut for terminal toggle (only when backend is available)
   useEffect(() => {
+    if (!backendAvailable) return
     const handler = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === '`') {
         e.preventDefault()
@@ -41,7 +44,7 @@ export function AppLayout() {
     }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
-  }, [])
+  }, [backendAvailable])
 
   return (
     <SidebarProvider className="!h-svh !max-h-svh overflow-hidden">
@@ -61,7 +64,7 @@ export function AppLayout() {
           </div>
         </div>
       </SidebarInset>
-      <TerminalModal />
+      {backendAvailable && <TerminalModal />}
     </SidebarProvider>
   )
 }

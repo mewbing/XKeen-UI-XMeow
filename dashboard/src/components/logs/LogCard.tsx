@@ -24,7 +24,7 @@ export const LogCard = React.memo(function LogCard({ entry }: { entry: LogEntry 
         {entry.fields.length > 0 && (
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
             {entry.fields.map((f, i) => (
-              <span key={i} className="text-muted-foreground font-mono">
+              <span key={i} className="inline-flex items-center gap-0.5 text-muted-foreground font-mono">
                 <span className="text-foreground/70">{f.key}</span>={f.value}
               </span>
             ))}

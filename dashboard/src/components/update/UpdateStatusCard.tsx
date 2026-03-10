@@ -1,11 +1,12 @@
-import { CheckCircle2, Download, RefreshCw, RotateCcw, Loader2, ArrowRight } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import type { LucideIcon } from 'lucide-react'
+import { CheckCircle2, Download, RefreshCw, RotateCcw, Loader2, ArrowRight, Calendar, HardDrive } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { formatBytes } from '@/lib/format'
 
 interface UpdateStatusCardProps {
   label: string
+  icon: LucideIcon
   currentVersion: string
   latestVersion: string
   hasUpdate: boolean
@@ -39,6 +40,7 @@ function formatDate(iso: string): string {
 
 export function UpdateStatusCard({
   label,
+  icon: Icon,
   currentVersion,
   latestVersion,
   hasUpdate,
@@ -52,23 +54,28 @@ export function UpdateStatusCard({
   showRollback = true,
 }: UpdateStatusCardProps) {
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm">{label}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {/* Version comparison */}
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-mono font-medium">{formatVersion(currentVersion)}</span>
-          {hasUpdate && (
-            <>
-              <ArrowRight className="size-3.5 text-muted-foreground" />
-              <span className="font-mono font-medium text-primary">{formatVersion(latestVersion)}</span>
-            </>
-          )}
+    <div className="rounded-xl border bg-card p-5">
+      {/* Header */}
+      <div className="flex items-center gap-2.5 mb-4">
+        <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10">
+          <Icon className="size-4 text-primary" />
         </div>
+        <span className="text-sm font-medium">{label}</span>
+      </div>
 
-        {/* Badge */}
+      {/* Version */}
+      <div className="flex items-center gap-3 mb-4">
+        <span className="text-2xl font-bold font-mono tabular-nums">{formatVersion(currentVersion)}</span>
+        {hasUpdate && (
+          <>
+            <ArrowRight className="size-4 text-muted-foreground" />
+            <span className="text-2xl font-bold font-mono tabular-nums text-primary">{formatVersion(latestVersion)}</span>
+          </>
+        )}
+      </div>
+
+      {/* Status badge */}
+      <div className="mb-4">
         {hasUpdate ? (
           <Badge variant="outline" className="border-amber-500/50 text-amber-500 bg-amber-500/10">
             Доступно обновление
@@ -79,58 +86,66 @@ export function UpdateStatusCard({
             Актуально
           </Badge>
         )}
+      </div>
 
-        {/* Update details */}
-        {hasUpdate && (
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{formatBytes(assetSize)}</span>
-            <span>{formatDate(publishedAt)}</span>
-          </div>
-        )}
-
-        {/* Buttons */}
-        <div className="flex gap-2">
-          {hasUpdate ? (
-            <Button
-              size="sm"
-              disabled={applying || checking}
-              onClick={onUpdate}
-            >
-              {applying ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <Download className="size-3.5" />
-              )}
-              Обновить
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={checking}
-              onClick={onCheck}
-            >
-              {checking ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <RefreshCw className="size-3.5" />
-              )}
-              Проверить обновления
-            </Button>
-          )}
-
-          {showRollback && !applying && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRollback}
-            >
-              <RotateCcw className="size-3.5" />
-              Откатить
-            </Button>
+      {/* Update metadata */}
+      {hasUpdate && assetSize > 0 && (
+        <div className="flex items-center gap-4 mb-4 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <HardDrive className="size-3" />
+            {formatBytes(assetSize)}
+          </span>
+          {publishedAt && (
+            <span className="flex items-center gap-1.5">
+              <Calendar className="size-3" />
+              {formatDate(publishedAt)}
+            </span>
           )}
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      {/* Buttons */}
+      <div className="flex gap-2">
+        {hasUpdate ? (
+          <Button
+            size="sm"
+            disabled={applying || checking}
+            onClick={onUpdate}
+          >
+            {applying ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Download className="size-3.5" />
+            )}
+            Обновить
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={checking}
+            onClick={onCheck}
+          >
+            {checking ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="size-3.5" />
+            )}
+            Проверить
+          </Button>
+        )}
+
+        {showRollback && !applying && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRollback}
+          >
+            <RotateCcw className="size-3.5" />
+            Откатить
+          </Button>
+        )}
+      </div>
+    </div>
   )
 }

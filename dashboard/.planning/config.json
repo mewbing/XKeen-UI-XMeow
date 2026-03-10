@@ -5,5 +5,15 @@
   "phases_dir": ".planning/phases",
   "skip_research": false,
   "auto_commit": true,
-  "model_profile": "quality"
+  "model_profile": "quality",
+  "model_overrides": {
+    "gsd-research-synthesizer": "opus",
+    "gsd-codebase-mapper": "opus",
+    "gsd-verifier": "opus",
+    "gsd-plan-checker": "opus",
+    "gsd-integration-checker": "opus"
+  },
+  "workflow": {
+    "research": true
+  }
 }

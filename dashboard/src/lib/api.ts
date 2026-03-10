@@ -6,6 +6,7 @@ export interface ConnectionResult {
   ok: boolean
   version?: string
   error?: string
+  status?: number
 }
 
 /**
@@ -72,6 +73,7 @@ export async function testMihomoConnection(
     if (!response.ok) {
       return {
         ok: false,
+        status: response.status,
         error: `Сервер ответил с ошибкой: ${response.status}`,
       }
     }
@@ -90,34 +92,34 @@ export async function testMihomoConnection(
 }
 
 /**
- * Test connection to Config API by calling GET /api/health.
- * Expects { status: "ok" } in response body.
+ * Test connection to Config API by calling GET /api/versions (auth-protected).
+ * This ensures both connectivity AND authorization are working.
  */
 export async function testConfigApiConnection(
-  url: string
+  url: string,
+  secret?: string
 ): Promise<ConnectionResult> {
   try {
-    const response = await fetch(`${url}/api/health`, {
+    const headers: Record<string, string> = {}
+    if (secret) {
+      headers['Authorization'] = `Bearer ${secret}`
+    }
+
+    const response = await fetch(`${url}/api/versions`, {
       method: 'GET',
+      headers,
       signal: AbortSignal.timeout(5000),
     })
 
     if (!response.ok) {
       return {
         ok: false,
+        status: response.status,
         error: `Сервер ответил с ошибкой: ${response.status}`,
       }
     }
 
-    const data = await response.json()
-    if (data.status === 'ok') {
-      return { ok: true }
-    }
-
-    return {
-      ok: false,
-      error: 'Неожиданный ответ от сервера',
-    }
+    return { ok: true }
   } catch (err) {
     return {
       ok: false,

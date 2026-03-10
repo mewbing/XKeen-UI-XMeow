@@ -7,7 +7,6 @@ export default function ProvidersPage() {
       title="Провайдеры"
       description="Мониторинг rule-providers и proxy-providers"
       icon={Database}
-      phase="8"
     />
   )
 }

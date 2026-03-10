@@ -33,7 +33,6 @@ const startPageOptions = [
   { value: '/groups', label: 'Группы' },
   { value: '/providers', label: 'Провайдеры' },
   { value: '/geodata', label: 'Геоданные' },
-  { value: '/updates', label: 'Обновления' },
 ] as const
 
 const installationTypeLabels: Record<string, string> = {
@@ -111,7 +110,6 @@ export function SettingsSheet({
     autoCheckUpdates,
     rulesConfirmDelete,
     rulesShowDiffBeforeApply,
-    rulesDensity,
     setStartPage,
     setTheme,
     setReduceMotion,
@@ -120,7 +118,6 @@ export function SettingsSheet({
     setAutoCheckUpdates,
     setRulesConfirmDelete,
     setRulesShowDiffBeforeApply,
-    setRulesDensity,
     setMihomoSecret,
     resetConfig,
   } = useSettingsStore()
@@ -139,7 +136,7 @@ export function SettingsSheet({
         </SheetHeader>
 
         <div className="flex flex-col gap-3 px-4 pb-4">
-          {/* Connection info */}
+          {/* ── Подключение ── */}
           <section className="rounded-lg border p-3 space-y-2">
             <h3 className="text-sm font-medium">Подключение</h3>
             <div className="space-y-1.5 text-xs">
@@ -185,28 +182,11 @@ export function SettingsSheet({
             </div>
           </section>
 
-          {/* Start page */}
-          <section className="rounded-lg border p-3 space-y-2">
-            <h3 className="text-sm font-medium">Стартовая страница</h3>
-            <Select value={startPage} onValueChange={setStartPage}>
-              <SelectTrigger className="w-full h-8 text-xs">
-                <SelectValue placeholder="Выберите страницу" />
-              </SelectTrigger>
-              <SelectContent>
-                {startPageOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </section>
-
-          {/* Appearance */}
+          {/* ── Интерфейс ── */}
           <section className="rounded-lg border p-3 space-y-3">
-            <h3 className="text-sm font-medium">Оформление</h3>
+            <h3 className="text-sm font-medium">Интерфейс</h3>
 
-            {/* Theme selector */}
+            {/* Theme */}
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Тема</Label>
               <div className="grid grid-cols-3 gap-1.5">
@@ -231,7 +211,24 @@ export function SettingsSheet({
               </div>
             </div>
 
-            {/* Animations toggle */}
+            {/* Start page */}
+            <div className="space-y-1.5 pt-1 border-t">
+              <Label className="text-xs text-muted-foreground">Стартовая страница</Label>
+              <Select value={startPage} onValueChange={setStartPage}>
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue placeholder="Выберите страницу" />
+                </SelectTrigger>
+                <SelectContent>
+                  {startPageOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Animations */}
             <div className="flex items-center justify-between pt-1 border-t">
               <div>
                 <Label htmlFor="reduce-motion" className="text-sm font-medium">Анимации</Label>
@@ -240,17 +237,19 @@ export function SettingsSheet({
               <Switch
                 id="reduce-motion"
                 checked={!reduceMotion}
-                onCheckedChange={(checked) => setReduceMotion(!checked)}
+                onCheckedChange={(checked: boolean) => setReduceMotion(!checked)}
               />
             </div>
           </section>
 
-          {/* Log buffer size */}
-          <section className="rounded-lg border p-3 space-y-2">
+          {/* ── Редактор ── */}
+          <section className="rounded-lg border p-3 space-y-3">
+            <h3 className="text-sm font-medium">Редактор</h3>
+
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="max-log-entries" className="text-sm font-medium">Буфер логов</Label>
-                <p className="text-[11px] text-muted-foreground">Макс. количество записей (100–10000)</p>
+                <p className="text-[11px] text-muted-foreground">Макс. записей в памяти (100–10 000)</p>
               </div>
               <Input
                 id="max-log-entries"
@@ -263,14 +262,11 @@ export function SettingsSheet({
                 className="w-24 h-8 text-xs text-right"
               />
             </div>
-          </section>
 
-          {/* Config editor */}
-          <section className="rounded-lg border p-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-1 border-t">
               <div>
-                <Label htmlFor="diff-before-apply" className="text-sm font-medium">Diff перед Apply</Label>
-                <p className="text-[11px] text-muted-foreground">Показывать изменения перед применением конфига</p>
+                <Label htmlFor="diff-before-apply" className="text-sm font-medium">Просмотр перед применением</Label>
+                <p className="text-[11px] text-muted-foreground">Показывать diff при сохранении конфига</p>
               </div>
               <Switch
                 id="diff-before-apply"
@@ -280,11 +276,10 @@ export function SettingsSheet({
             </div>
           </section>
 
-          {/* Rules editor */}
+          {/* ── Правила ── */}
           <section className="rounded-lg border p-3 space-y-3">
-            <h3 className="text-sm font-medium">Визуальный редактор правил</h3>
+            <h3 className="text-sm font-medium">Правила</h3>
 
-            {/* Confirm delete */}
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="rules-confirm-delete" className="text-sm font-medium">Подтверждать удаление</Label>
@@ -297,11 +292,10 @@ export function SettingsSheet({
               />
             </div>
 
-            {/* Show diff before apply */}
             <div className="flex items-center justify-between pt-1 border-t">
               <div>
-                <Label htmlFor="rules-diff-before-apply" className="text-sm font-medium">Diff перед Apply</Label>
-                <p className="text-[11px] text-muted-foreground">Показывать изменения перед применением правил</p>
+                <Label htmlFor="rules-diff-before-apply" className="text-sm font-medium">Просмотр перед применением</Label>
+                <p className="text-[11px] text-muted-foreground">Показывать diff при сохранении правил</p>
               </div>
               <Switch
                 id="rules-diff-before-apply"
@@ -309,25 +303,13 @@ export function SettingsSheet({
                 onCheckedChange={setRulesShowDiffBeforeApply}
               />
             </div>
-
-            {/* Density */}
-            <div className="space-y-1.5 pt-1 border-t">
-              <Label className="text-xs text-muted-foreground">Плотность</Label>
-              <Select value={rulesDensity} onValueChange={setRulesDensity}>
-                <SelectTrigger className="w-full h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="min">Компактная</SelectItem>
-                  <SelectItem value="detailed">Подробная</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
           </section>
 
-          {/* Updates */}
-          <section className="rounded-lg border p-3">
+          {/* ── Система ── */}
+          <section className="rounded-lg border p-3 space-y-3">
+            <h3 className="text-sm font-medium">Система</h3>
+
+            {/* Auto-check updates */}
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="auto-check-updates" className="text-sm font-medium">Автообновления</Label>
@@ -339,29 +321,28 @@ export function SettingsSheet({
                 onCheckedChange={setAutoCheckUpdates}
               />
             </div>
-          </section>
 
-          {/* Core management */}
-          <section className="rounded-lg border p-3 space-y-2">
-            <h3 className="text-sm font-medium">Управление ядром</h3>
-            <CoreManagementSection />
-          </section>
+            {/* Core management */}
+            <div className="pt-1 border-t space-y-2">
+              <span className="text-xs text-muted-foreground">Управление ядром</span>
+              <CoreManagementSection />
+            </div>
 
-          {/* Reset */}
-          <section className="rounded-lg border border-destructive/30 p-3 space-y-2">
-            <h3 className="text-sm font-medium">Сброс настроек</h3>
-            <Button
-              variant="destructive"
-              size="sm"
-              className="h-7 text-xs"
-              onClick={() => {
-                resetConfig()
-                window.location.href = '/'
-              }}
-            >
-              <RotateCcw className="size-3" />
-              Сбросить
-            </Button>
+            {/* Reset */}
+            <div className="flex justify-center pt-2 border-t">
+              <Button
+                variant="destructive"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => {
+                  resetConfig()
+                  window.location.href = '/'
+                }}
+              >
+                <RotateCcw className="size-3" />
+                Сбросить все настройки
+              </Button>
+            </div>
           </section>
         </div>
       </SheetContent>

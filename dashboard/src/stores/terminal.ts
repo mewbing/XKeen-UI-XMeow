@@ -19,7 +19,11 @@ interface TerminalState {
   isConnected: boolean
   isConnecting: boolean
   sessionAlive: boolean
+  sessionType: 'ssh' | 'exec' | null
   error: string | null
+
+  // Exec from UI (e.g. XKeenTab "Обновить в терминале")
+  pendingExec: string | null
 
   // Actions
   setOpen: (v: boolean) => void
@@ -31,6 +35,8 @@ interface TerminalState {
   setConnecting: (v: boolean) => void
   setSessionAlive: (v: boolean) => void
   setError: (v: string | null) => void
+  setSessionType: (v: 'ssh' | 'exec' | null) => void
+  setPendingExec: (v: string | null) => void
   reset: () => void
 }
 
@@ -42,7 +48,9 @@ const defaultState = {
   isConnected: false,
   isConnecting: false,
   sessionAlive: false,
+  sessionType: null as 'ssh' | 'exec' | null,
   error: null as string | null,
+  pendingExec: null as string | null,
 }
 
 export const useTerminalStore = create<TerminalState>()((set) => ({
@@ -57,6 +65,8 @@ export const useTerminalStore = create<TerminalState>()((set) => ({
   setConnecting: (v) => set({ isConnecting: v }),
   setSessionAlive: (v) => set({ sessionAlive: v }),
   setError: (v) => set({ error: v }),
+  setSessionType: (v) => set({ sessionType: v }),
+  setPendingExec: (v) => set({ pendingExec: v }),
 
   // Reset connection state but preserve UI preferences (fontSize, isFullscreen)
   reset: () =>
@@ -64,8 +74,10 @@ export const useTerminalStore = create<TerminalState>()((set) => ({
       isConnected: false,
       isConnecting: false,
       sessionAlive: false,
+      sessionType: null,
       error: null,
       isSearchOpen: false,
+      pendingExec: null,
       // Preserve:
       isOpen: state.isOpen,
       isFullscreen: state.isFullscreen,

@@ -1,5 +1,5 @@
 /**
- * WebSocket hook for terminal SSH bridge.
+ * WebSocket hook for terminal bridge (SSH + local exec).
  *
  * Connects to /ws/terminal on the Go backend.
  * Protocol: binary frames for terminal I/O, JSON text frames for control.
@@ -15,7 +15,7 @@ import { useSettingsStore } from '@/stores/settings'
 interface UseTerminalWsOptions {
   enabled: boolean
   onData: (data: Uint8Array) => void
-  onConnected: (reused?: boolean) => void
+  onConnected: (reused?: boolean, sessionType?: string) => void
   onDisconnected: (reason: string) => void
   onError: (message: string) => void
 }
@@ -23,6 +23,7 @@ interface UseTerminalWsOptions {
 export interface UseTerminalWsReturn {
   wsConnected: boolean
   connect: (host: string, port: number, user: string, password: string, cols: number, rows: number) => void
+  exec: (command: string, cols: number, rows: number) => void
   sendInput: (data: string | Uint8Array) => void
   resize: (cols: number, rows: number) => void
   disconnect: () => void
@@ -109,7 +110,7 @@ export function useTerminalWs({
             const msg = JSON.parse(event.data as string)
             switch (msg.type) {
               case 'connected':
-                onConnectedRef.current(msg.reused)
+                onConnectedRef.current(msg.reused, msg.session_type)
                 break
               case 'disconnected':
                 onDisconnectedRef.current(msg.reason || 'server')
@@ -186,6 +187,13 @@ export function useTerminalWs({
     [sendJson],
   )
 
+  const exec = useCallback(
+    (command: string, cols: number, rows: number) => {
+      sendJson({ type: 'exec', command, cols, rows })
+    },
+    [sendJson],
+  )
+
   const sendInput = useCallback((data: string | Uint8Array) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       if (typeof data === 'string') {
@@ -206,5 +214,5 @@ export function useTerminalWs({
     [sendJson],
   )
 
-  return { wsConnected, connect, sendInput, resize, disconnect }
+  return { wsConnected, connect, exec, sendInput, resize, disconnect }
 }

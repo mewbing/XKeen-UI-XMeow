@@ -19,6 +19,7 @@ import {
   type TabId,
 } from '@/stores/config-editor'
 import { fetchConfig, fetchXkeenFile } from '@/lib/config-api'
+import { useMonacoTheme, registerMonacoTheme } from '@/hooks/use-theme'
 
 interface ConfigEditorProps {
   onSave: () => void
@@ -29,6 +30,7 @@ export function ConfigEditor({ onSave }: ConfigEditorProps) {
   const monacoRef = useRef<Monaco | null>(null)
   const validationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onSaveRef = useRef(onSave)
+  const monacoTheme = useMonacoTheme()
 
   // Keep onSave ref current to avoid stale closure in Monaco command
   useEffect(() => {
@@ -212,17 +214,19 @@ export function ConfigEditor({ onSave }: ConfigEditorProps) {
   }
 
   return (
-    <div className="flex-1 min-h-0">
+    <div className="relative flex-1 min-h-0">
+      <div className="absolute inset-0">
       <Editor
         height="100%"
         language={tabState.language}
         path={`file:///${activeTab}`}
         value={tabState.current}
         onChange={handleChange}
+        beforeMount={registerMonacoTheme}
         onMount={handleEditorMount}
-        theme="vs-dark"
+        theme={monacoTheme}
         options={{
-          minimap: { enabled: false },
+          minimap: { enabled: true },
           fontSize: 13,
           lineNumbers: 'on',
           wordWrap: 'on',
@@ -232,6 +236,7 @@ export function ConfigEditor({ onSave }: ConfigEditorProps) {
         }}
         loading={<Skeleton className="h-full w-full" />}
       />
+      </div>
     </div>
   )
 }

@@ -3,16 +3,15 @@ package server
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/logwatch"
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/spa"
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/terminal"
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/updater"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/config"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/logwatch"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/releases"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/terminal"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/updater"
 )
 
 // Server wraps the HTTP server with config, router, LogHub, and terminal Hub.
@@ -23,13 +22,16 @@ type Server struct {
 	termHub    *terminal.Hub
 }
 
-// New creates a new Server with chi router, SPA handler, LogHub, Updater, and all middleware wired.
-func New(cfg *config.AppConfig, distFS fs.FS) *Server {
-	spaHandler := spa.NewSPAHandler(distFS)
+// New creates a new Server with chi router, LogHub, Updater, and all middleware wired.
+// The SPA is served by mihomo via external-ui; this server is API-only.
+func New(cfg *config.AppConfig) *Server {
 	logHub := logwatch.NewLogHub(cfg)
 	upd := updater.NewUpdater(cfg)
 	termHub := terminal.NewHub(30 * time.Minute)
-	router := NewRouter(cfg, spaHandler, logHub, upd, termHub)
+	relCache := releases.NewCache(15 * time.Minute)
+	mihomoInst := releases.NewMihomoInstaller(cfg)
+	xmeowInst := releases.NewXmeowInstaller(cfg)
+	router := NewRouter(cfg, logHub, upd, termHub, relCache, mihomoInst, xmeowInst)
 
 	return &Server{
 		httpServer: &http.Server{

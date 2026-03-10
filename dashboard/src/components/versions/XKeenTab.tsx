@@ -1,11 +1,13 @@
-import { useEffect } from 'react'
-import { Loader2, Terminal, ArrowUpCircle, Calendar } from 'lucide-react'
+import { useEffect, useCallback } from 'react'
+import { Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { useReleasesStore } from '@/stores/releases'
+import { useOverviewStore } from '@/stores/overview'
 import { useTerminalStore } from '@/stores/terminal'
-import { CopyBtn, CmdLine } from './shared'
+import { useBackendAvailable } from '@/hooks/useBackendAvailable'
+import { UpdateChangelog } from '@/components/update/UpdateChangelog'
+import { CmdLine, fmtVer } from './shared'
 
 interface XKeenTabProps {
   active: boolean
@@ -13,119 +15,89 @@ interface XKeenTabProps {
 }
 
 export function XKeenTab({ active, onClose }: XKeenTabProps) {
-  const xkeenRelease = useReleasesStore((s) => s.xkeenRelease)
-  const xkeenLoading = useReleasesStore((s) => s.xkeenLoading)
-  const xkeenError = useReleasesStore((s) => s.xkeenError)
-  const fetchXkeenRelease = useReleasesStore((s) => s.fetchXkeenRelease)
-  const toggleTerminal = useTerminalStore((s) => s.toggleOpen)
+  const xkeenReleases = useReleasesStore((s) => s.xkeenReleases) ?? []
+  const xkeenCurrentVersion = useReleasesStore((s) => s.xkeenCurrentVersion) ?? ''
+  const xkeenVersion = useOverviewStore((s) => s.xkeenVersion)
+  const fetchXkeenReleases = useReleasesStore((s) => s.fetchXkeenReleases)
+  const backendAvailable = useBackendAvailable()
+
+  // Use overview store version as fallback
+  const displayVersion = xkeenCurrentVersion || xkeenVersion
 
   useEffect(() => {
-    if (active && !xkeenRelease) {
-      fetchXkeenRelease()
+    if (active && xkeenReleases.length === 0) {
+      fetchXkeenReleases()
     }
-  }, [active, xkeenRelease, fetchXkeenRelease])
+  }, [active, xkeenReleases.length, fetchXkeenReleases])
 
-  const current = xkeenRelease?.current_version || 'unknown'
-  const latest = xkeenRelease?.latest
-  const hasUpdate = latest?.has_update ?? false
-
-  // GitHub tag may be shorter than full version (e.g. "1.1.3" vs "1.1.3.9").
-  // Show current version if it starts with the tag (same release, just with build number).
-  const latestDisplay = latest && !hasUpdate && current !== 'unknown'
-    && current.startsWith(latest.tag_name.replace(/^v/, ''))
-    ? current
-    : latest?.tag_name
-
-  const handleOpenTerminal = () => {
+  const handleOpenTerminal = useCallback(() => {
     onClose()
-    toggleTerminal()
-  }
+    useTerminalStore.getState().toggleOpen()
+  }, [onClose])
 
-  if (xkeenLoading && !xkeenRelease) {
-    return (
-      <div className="flex items-center justify-center py-8 animate-in fade-in-0 duration-200">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
+  const latestNewer = xkeenReleases.find((r) => r.is_newer)
+  const hasUpdate = !!latestNewer
+  const currentRelease = xkeenReleases.find((r) => r.is_current)
 
-  if (xkeenError) {
-    return (
-      <p className="text-sm text-red-500 animate-in fade-in-0 duration-200">{xkeenError}</p>
-    )
-  }
+  // Changelog: newer version if available, otherwise current, fallback to first
+  const changelogRelease = latestNewer ?? currentRelease ?? xkeenReleases[0]
 
   return (
-    <ScrollArea className="flex-1 min-h-0 -mx-6 px-6">
-      <div className="space-y-4 pb-2 animate-in fade-in-0 duration-200">
-        {/* Version comparison */}
-        <div className="rounded-md border p-3 space-y-2">
+    <div className="flex flex-col gap-3">
+      {/* Version header */}
+      <div className="rounded-md border p-3 space-y-3">
+        {displayVersion && (
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Текущая версия</span>
-            <span className="font-mono font-medium">{current}</span>
-          </div>
-          {latest && (
-            <>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Последняя версия</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-medium">{latestDisplay}</span>
-                  {hasUpdate ? (
-                    <Badge variant="secondary" className="text-[10px] px-1 py-0">
-                      <ArrowUpCircle className="h-2.5 w-2.5 mr-0.5" />
-                      доступно
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-[10px] px-1 py-0">
-                      актуально
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              {latest.published_at && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Дата релиза</span>
-                  <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <Calendar className="h-3 w-3" />
-                    {new Date(latest.published_at).toLocaleDateString('ru-RU', {
-                      day: 'numeric', month: 'long', year: 'numeric',
-                    })}
-                  </span>
-                </div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono font-medium">{fmtVer(displayVersion)}</span>
+              {hasUpdate && (
+                <Badge variant="secondary" className="text-[10px] px-1 py-0">обновление</Badge>
               )}
-            </>
-          )}
-        </div>
-
-        {/* Release notes */}
-        {latest?.body && (
-          <div className="space-y-1.5">
-            <p className="text-sm font-medium text-muted-foreground">Изменения ({latestDisplay})</p>
-            <pre className="bg-muted rounded-md p-3 text-sm font-mono leading-relaxed overflow-y-auto max-h-[50vh] whitespace-pre-wrap break-all">
-              {latest.body}
-            </pre>
+              {!hasUpdate && currentRelease && (
+                <Badge variant="outline" className="text-[10px] px-1 py-0">актуально</Badge>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Commands */}
+        {latestNewer && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Доступна</span>
+            <span className="font-mono font-medium">{latestNewer.tag_name}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Changelog */}
+      {changelogRelease?.body ? (
         <div className="rounded-md border p-3 space-y-2">
-          <p className="text-sm font-medium">Команды терминала</p>
-          {hasUpdate ? (
-            <CmdLine cmd="xkeen -uk" label="-- обновить XKeen" />
-          ) : (
-            <CmdLine cmd="xkeen -i" label="-- установить XKeen" />
-          )}
+          <p className="text-xs font-medium text-muted-foreground">
+            Changelog — {changelogRelease.tag_name}
+          </p>
+          <div className="overflow-y-auto max-h-[40vh]">
+            <UpdateChangelog releaseNotes={changelogRelease.body} />
+          </div>
+        </div>
+      ) : null}
+
+      {/* Commands section — requires backend for terminal */}
+      {backendAvailable && (
+        <div className="rounded-md border p-3 space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Команды</p>
+          <CmdLine cmd="xkeen -uk" label="— обновить XKeen" />
+          <CmdLine cmd="xkeen -i" label="— установить XKeen" />
           <Button
             variant="outline"
             size="sm"
-            className="w-full text-xs"
+            className="w-full text-xs mt-1"
             onClick={handleOpenTerminal}
           >
             <Terminal className="h-3 w-3 mr-1.5" />
             Открыть терминал
           </Button>
         </div>
-      </div>
-    </ScrollArea>
+      )}
+    </div>
   )
 }

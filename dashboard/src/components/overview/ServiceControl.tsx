@@ -49,9 +49,12 @@ const confirmConfig: Record<
 }
 
 export function ServiceControl() {
-  const { running, loading, refresh } = useServiceStatus()
+  const { running, loading, refresh, error } = useServiceStatus()
   const [actionLoading, setActionLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmAction | null>(null)
+
+  // Hide entirely if Config API backend is unreachable
+  if (!loading && error) return null
 
   async function handleAction(action: ServiceAction) {
     setActionLoading(true)
@@ -93,26 +96,20 @@ export function ServiceControl() {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            size="sm"
-            className="gap-2"
+            size="icon"
+            className="h-8 w-8"
             disabled={isProcessing}
+            title={isProcessing ? 'Обработка...' : running ? 'Запущен' : 'Остановлен'}
           >
             {isProcessing ? (
               <Loader2 className="h-3 w-3 animate-spin" />
             ) : (
               <span
-                className={`h-2 w-2 rounded-full ${
+                className={`h-2.5 w-2.5 rounded-full ${
                   running ? 'bg-green-500' : 'bg-red-500'
                 }`}
               />
             )}
-            <span className="text-xs">
-              {isProcessing
-                ? 'Обработка...'
-                : running
-                  ? 'Запущен'
-                  : 'Остановлен'}
-            </span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -125,20 +122,14 @@ export function ServiceControl() {
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!running || isProcessing}
-            onSelect={(e) => {
-              e.preventDefault()
-              handleMenuSelect('stop')
-            }}
+            onSelect={() => handleMenuSelect('stop')}
           >
             <Square className="h-4 w-4" />
             <span>Остановить</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!running || isProcessing}
-            onSelect={(e) => {
-              e.preventDefault()
-              handleMenuSelect('restart')
-            }}
+            onSelect={() => handleMenuSelect('restart')}
           >
             <RotateCcw className="h-4 w-4" />
             <span>Перезапустить</span>

@@ -2,6 +2,8 @@ import { Badge } from '@/components/ui/badge'
 import { useConnectionsStore } from '@/stores/connections'
 import { formatBytes, formatSpeed } from '@/lib/format'
 import { ConnectionDetail } from './ConnectionDetail'
+import { ProxyFlag } from '@/components/proxies/ProxyFlag'
+import { getDisplayName } from '@/lib/flags'
 import type { ConnectionWithSpeed } from '@/stores/connections'
 
 interface ConnectionRowProps {
@@ -41,7 +43,17 @@ function CellContent({ column, connection }: { column: string; connection: Conne
     case 'rule':
       return <span className="truncate" title={connection.rule}>{connection.rule}</span>
     case 'chains':
-      return <span className="truncate" title={connection.chains.join(' > ')}>{connection.chains.join(' > ')}</span>
+      return (
+        <span className="flex items-center gap-0.5 truncate" title={connection.chains.join(' > ')}>
+          {connection.chains.map((node, i) => (
+            <span key={i} className="flex items-center gap-0.5 shrink-0">
+              {i > 0 && <span className="text-muted-foreground mx-0.5">&gt;</span>}
+              <ProxyFlag name={node} className="h-2.5 w-auto" />
+              <span className="truncate">{getDisplayName(node)}</span>
+            </span>
+          ))}
+        </span>
+      )
     case 'dlSpeed':
       return <span className="tabular-nums">{formatSpeed(connection.dlSpeed)}</span>
     case 'ulSpeed':

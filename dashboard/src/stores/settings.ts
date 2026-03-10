@@ -109,7 +109,7 @@ const initialState = {
   splitMode: 'none' as const,
   syncScroll: false,
   maxLogEntries: 1000,
-  rulesDensity: 'min' as const,
+  rulesDensity: 'detailed' as const,
   rulesConfirmDelete: true,
   rulesShowDiffBeforeApply: true,
   autoCheckUpdates: true,

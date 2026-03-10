@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/backup"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/backup"
 )
 
 // GetXkeenFile returns the content of an xkeen list file.

@@ -2,6 +2,24 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Components } from 'react-markdown'
 
+/** Pre-process GitHub markdown: admonitions, badge images, cleanup */
+function preprocessMarkdown(md: string): string {
+  // Remove shield badge images (download counters, etc.)
+  md = md.replace(/!\[.*?\]\(https:\/\/img\.shields\.io\/[^)]*\)/g, '')
+
+  // Convert GitHub admonitions to bold title inside blockquote
+  md = md.replace(/^(>\s*)\[!CAUTION\]\s*$/gm, '$1**Внимание**')
+  md = md.replace(/^(>\s*)\[!WARNING\]\s*$/gm, '$1**Предупреждение**')
+  md = md.replace(/^(>\s*)\[!NOTE\]\s*$/gm, '$1**Примечание**')
+  md = md.replace(/^(>\s*)\[!TIP\]\s*$/gm, '$1**Совет**')
+  md = md.replace(/^(>\s*)\[!IMPORTANT\]\s*$/gm, '$1**Важно**')
+
+  // Clean up excessive blank lines
+  md = md.replace(/\n{3,}/g, '\n\n')
+
+  return md.trim()
+}
+
 const markdownComponents: Components = {
   h1: ({ children, ...props }) => (
     <h1 className="text-xl font-bold mb-3 mt-4 text-foreground" {...props}>{children}</h1>
@@ -33,6 +51,11 @@ const markdownComponents: Components = {
   a: ({ children, ...props }) => (
     <a className="text-primary underline underline-offset-2" target="_blank" rel="noopener noreferrer" {...props}>{children}</a>
   ),
+  img: ({ src, alt, ...props }) => {
+    // Filter out shield badge images
+    if (src?.includes('img.shields.io')) return null
+    return <img src={src} alt={alt} className="max-w-full rounded" {...props} />
+  },
   table: ({ children, ...props }) => (
     <div className="overflow-x-auto mb-2">
       <table className="w-full text-sm border-collapse" {...props}>{children}</table>
@@ -51,7 +74,7 @@ const markdownComponents: Components = {
     <hr className="my-3 border-border" {...props} />
   ),
   blockquote: ({ children, ...props }) => (
-    <blockquote className="border-l-2 border-primary/30 pl-3 my-2 text-sm text-muted-foreground italic" {...props}>{children}</blockquote>
+    <blockquote className="border-l-2 border-yellow-500/40 bg-yellow-500/5 rounded-r-md pl-3 pr-2 py-2 my-2 text-sm text-muted-foreground" {...props}>{children}</blockquote>
   ),
 }
 
@@ -59,7 +82,7 @@ export function UpdateChangelog({ releaseNotes }: { releaseNotes: string }) {
   return (
     <div className="space-y-1">
       <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-        {releaseNotes}
+        {preprocessMarkdown(releaseNotes)}
       </Markdown>
     </div>
   )

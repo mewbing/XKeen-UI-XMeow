@@ -81,7 +81,6 @@ export function RulesDiffPreview({
           <div className="flex items-center gap-2 self-center">
             <Switch
               id="rules-dont-show-diff"
-              size="sm"
               onCheckedChange={handleDontShowAgain}
             />
             <Label

@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Monitor, Cloud } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
 interface StepSelectTypeProps {
   initialType?: 'local' | 'cdn' | null
   initialRouterIp?: string
-  onNext: (type: 'local' | 'cdn', routerIp?: string) => void
+  initialSecret?: string
+  onNext: (type: 'local' | 'cdn', routerIp?: string, secret?: string) => void
 }
 
 const installOptions = [
@@ -28,16 +30,18 @@ const installOptions = [
 export default function StepSelectType({
   initialType,
   initialRouterIp = '',
+  initialSecret = '',
   onNext,
 }: StepSelectTypeProps) {
   const [selected, setSelected] = useState<'local' | 'cdn' | null>(initialType ?? null)
   const [routerIp, setRouterIp] = useState(initialRouterIp)
+  const [secret, setSecret] = useState(initialSecret)
 
   const canProceed = selected === 'local' || (selected === 'cdn' && routerIp.trim().length > 0)
 
   function handleNext() {
     if (!canProceed || !selected) return
-    onNext(selected, selected === 'cdn' ? routerIp.trim() : undefined)
+    onNext(selected, selected === 'cdn' ? routerIp.trim() : undefined, secret.trim() || undefined)
   }
 
   return (
@@ -95,9 +99,9 @@ export default function StepSelectType({
       {/* CDN Router IP input */}
       {selected === 'cdn' && (
         <div className="w-full space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-          <label htmlFor="router-ip" className="text-sm font-medium">
+          <Label htmlFor="router-ip" className="text-sm font-medium">
             IP-адрес роутера
-          </label>
+          </Label>
           <Input
             id="router-ip"
             type="text"
@@ -108,6 +112,28 @@ export default function StepSelectType({
               if (e.key === 'Enter' && canProceed) handleNext()
             }}
           />
+        </div>
+      )}
+
+      {/* Mihomo secret */}
+      {selected && (
+        <div className="w-full space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+          <Label htmlFor="mihomo-secret" className="text-sm font-medium">
+            Secret mihomo
+          </Label>
+          <Input
+            id="mihomo-secret"
+            type="password"
+            placeholder="Оставьте пустым, если не задан"
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && canProceed) handleNext()
+            }}
+          />
+          <p className="text-xs text-muted-foreground">
+            Поле <code className="bg-muted px-1 py-0.5 rounded">secret</code> из config.yaml mihomo
+          </p>
         </div>
       )}
 

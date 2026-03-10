@@ -7,7 +7,7 @@
  * Provides: parsing, grouping (3 modes), serialization, and utilities.
  */
 
-import { parseDocument, YAMLSeq, Scalar, isScalar, type Document } from 'yaml'
+import { parseDocument, type Document } from 'yaml'
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -20,6 +20,7 @@ export interface ParsedRule {
   noResolve: boolean       // has ",no-resolve" suffix
   commentBefore?: string   // comment lines above this rule (from YAML node)
   commentInline?: string   // inline comment after rule (from YAML node)
+  spaceBefore?: boolean    // blank line before this rule (from YAML node)
 }
 
 export interface RuleBlock {
@@ -79,182 +80,140 @@ export function parseRuleString(raw: string): {
 // ── Config Parsing ─────────────────────────────────────────────────
 
 /**
+ * Parse the `rules:` section directly from the YAML text.
+ *
+ * eemeli/yaml misassigns standalone comments between list items —
+ * it puts them as `.comment` on the PRECEDING item instead of
+ * `.commentBefore` on the FOLLOWING item. This causes standalone
+ * comments to become inline when re-serialized.
+ *
+ * This function parses comments line-by-line from the original text,
+ * giving us correct comment ownership.
+ */
+function parseRulesFromText(yaml: string): ParsedRule[] {
+  const { start, end } = findRulesBoundaries(yaml)
+  if (start === -1) return []
+
+  const section = yaml.slice(start, end)
+  const lines = section.split('\n')
+
+  const rules: ParsedRule[] = []
+  let pendingComments: string[] = []
+  let pendingSpace = false
+
+  for (let i = 1; i < lines.length; i++) { // skip "rules:" line
+    const line = lines[i]
+    const trimmed = line.trim()
+
+    if (trimmed === '') {
+      pendingSpace = true
+      continue
+    }
+
+    // Standalone comment line (not a rule)
+    if (trimmed.startsWith('#')) {
+      pendingComments.push(trimmed.slice(1)) // text after '#', preserves leading space
+      continue
+    }
+
+    // Rule line: "  - RULE_STRING" or "  - RULE_STRING # comment"
+    if (trimmed.startsWith('- ')) {
+      const afterDash = trimmed.slice(2) // after "- "
+
+      // Split rule value from inline comment.
+      // Mihomo rule values are comma-separated with no spaces,
+      // so " #" always marks a comment, never part of the value.
+      let raw: string
+      let inlineComment: string | undefined
+
+      const commentIdx = afterDash.indexOf(' #')
+      if (commentIdx > 0) {
+        raw = afterDash.slice(0, commentIdx)
+        inlineComment = afterDash.slice(commentIdx + 2) // text after "#"
+      } else {
+        raw = afterDash
+      }
+
+      const parsed = parseRuleString(raw)
+
+      rules.push({
+        id: `rule-${rules.length}`,
+        raw,
+        ...parsed,
+        commentBefore: pendingComments.length > 0 ? pendingComments.join('\n') : undefined,
+        commentInline: inlineComment,
+        spaceBefore: pendingSpace,
+      })
+
+      pendingComments = []
+      pendingSpace = false
+    }
+  }
+
+  return rules
+}
+
+/**
  * Parse rules from a full config.yaml string.
  *
- * Returns the parsed Document (for later serialization) and
- * the structured rules array with comments preserved.
+ * Returns the parsed Document (kept for backward compat) and
+ * the structured rules array with comments correctly assigned.
  */
 export function parseRulesFromConfig(configYaml: string): {
   doc: Document
   rules: ParsedRule[]
 } {
   const doc = parseDocument(configYaml)
-  const rulesNode = doc.get('rules', true) as YAMLSeq | undefined
 
-  if (!rulesNode) {
-    return { doc, rules: [] }
-  }
-
-  const rules: ParsedRule[] = []
-
-  for (let i = 0; i < rulesNode.items.length; i++) {
-    const item = rulesNode.items[i]
-    if (!isScalar(item)) continue
-
-    const raw = String((item as Scalar).value)
-    const parsed = parseRuleString(raw)
-
-    rules.push({
-      id: `rule-${i}`,
-      raw,
-      ...parsed,
-      commentBefore: (item as Scalar).commentBefore ?? undefined,
-      commentInline: (item as Scalar).comment ?? undefined,
-    })
-  }
+  // Parse rules from text directly — correct comment assignment
+  const rules = parseRulesFromText(configYaml)
 
   return { doc, rules }
 }
 
-// ── Grouping: By Proxy Group ───────────────────────────────────────
+// ── Grouping ──────────────────────────────────────────────────────
 
 /**
- * Group rules by their target proxy-group.
- * Each unique target becomes a block. Order preserved per-group.
- */
-export function groupByProxyGroup(rules: ParsedRule[]): RuleBlock[] {
-  const groups = new Map<string, ParsedRule[]>()
-
-  for (const rule of rules) {
-    const existing = groups.get(rule.target) ?? []
-    existing.push(rule)
-    groups.set(rule.target, existing)
-  }
-
-  return Array.from(groups.entries()).map(([target, groupRules], i) => ({
-    id: `block-pg-${i}`,
-    name: target,
-    target,
-    rules: groupRules,
-    startIndex: groupRules[0] ? parseInt(groupRules[0].id.split('-')[1]) : 0,
-  }))
-}
-
-// ── Grouping: By Sections ──────────────────────────────────────────
-
-// Section comment patterns found in actual config
-const SECTION_OPEN = /^#\s*>>>\s*(.+)/m
-const SECTION_MARKER = /^#\s*---\s*(.+?)\s*---/m
-const SECTION_EMOJI = /^#\s*[^\w\s#]+\s+(.+)/m
-
-/**
- * Detect section name from a comment string.
- * Returns null if no section marker found.
- */
-function detectSection(comment: string | undefined): string | null {
-  if (!comment) return null
-
-  // Check each line of the comment for section patterns
-  const lines = comment.split('\n')
-  for (const line of lines) {
-    const trimmed = line.trim()
-
-    // # >>> SECTION_NAME
-    const openMatch = trimmed.match(SECTION_OPEN)
-    if (openMatch) return openMatch[1].trim()
-
-    // # --- Section Name ---
-    const markerMatch = trimmed.match(SECTION_MARKER)
-    if (markerMatch) return markerMatch[1].trim()
-
-    // # emoji Section Name (e.g. # ⚪🔵🔴 RU sites)
-    const emojiMatch = trimmed.match(SECTION_EMOJI)
-    if (emojiMatch) return emojiMatch[1].trim()
-  }
-
-  return null
-}
-
-/**
- * Group rules by comment section markers.
- * Rules before any section marker go into "Без секции" block.
+ * Group rules into consecutive runs by target proxy-group.
+ *
+ * Same target can appear multiple times if rules are scattered
+ * across the config — each consecutive run becomes a separate block.
  */
 export function groupBySections(rules: ParsedRule[]): RuleBlock[] {
+  if (rules.length === 0) return []
+
   const blocks: RuleBlock[] = []
-  let currentSection = 'Без секции'
+  let currentTarget = ''
   let currentRules: ParsedRule[] = []
-  let currentSectionComment: string | undefined = undefined
+  let startIdx = 0
 
-  for (const rule of rules) {
-    const sectionName = detectSection(rule.commentBefore)
-
-    if (sectionName) {
-      // Flush current block
+  for (let i = 0; i < rules.length; i++) {
+    if (rules[i].target !== currentTarget) {
       if (currentRules.length > 0) {
         blocks.push({
-          id: `block-sec-${blocks.length}`,
-          name: currentSection,
-          target: currentRules[0].target,
+          id: `block-${blocks.length}`,
+          name: currentTarget,
+          target: currentTarget,
           rules: currentRules,
-          sectionComment: currentSectionComment,
-          startIndex: parseInt(currentRules[0].id.split('-')[1]),
+          startIndex: startIdx,
         })
       }
-      currentSection = sectionName
-      currentSectionComment = rule.commentBefore
-      currentRules = [rule]
+      currentTarget = rules[i].target
+      currentRules = [rules[i]]
+      startIdx = i
     } else {
-      currentRules.push(rule)
+      currentRules.push(rules[i])
     }
   }
 
-  // Flush last block
   if (currentRules.length > 0) {
     blocks.push({
-      id: `block-sec-${blocks.length}`,
-      name: currentSection,
-      target: currentRules[0]?.target ?? 'DIRECT',
+      id: `block-${blocks.length}`,
+      name: currentTarget,
+      target: currentTarget,
       rules: currentRules,
-      sectionComment: currentSectionComment,
-      startIndex: parseInt(currentRules[0].id.split('-')[1]),
+      startIndex: startIdx,
     })
-  }
-
-  return blocks
-}
-
-// ── Grouping: Two-Level ────────────────────────────────────────────
-
-/**
- * Two-level grouping: sections as top-level, then proxy-group within each section.
- * Block name = "Section / ProxyGroup".
- */
-export function groupTwoLevel(rules: ParsedRule[]): RuleBlock[] {
-  // First group by sections
-  const sections = groupBySections(rules)
-
-  const blocks: RuleBlock[] = []
-
-  for (const section of sections) {
-    // Sub-group each section's rules by proxy-group
-    const subGroups = new Map<string, ParsedRule[]>()
-
-    for (const rule of section.rules) {
-      const existing = subGroups.get(rule.target) ?? []
-      existing.push(rule)
-      subGroups.set(rule.target, existing)
-    }
-
-    for (const [target, groupRules] of subGroups.entries()) {
-      blocks.push({
-        id: `block-2l-${blocks.length}`,
-        name: `${section.name} / ${target}`,
-        target,
-        rules: groupRules,
-        sectionComment: section.sectionComment,
-        startIndex: groupRules[0] ? parseInt(groupRules[0].id.split('-')[1]) : 0,
-      })
-    }
   }
 
   return blocks
@@ -263,31 +222,79 @@ export function groupTwoLevel(rules: ParsedRule[]): RuleBlock[] {
 // ── Serialization ──────────────────────────────────────────────────
 
 /**
- * Serialize modified blocks back into the YAML config document.
+ * Find the byte boundaries of the `rules:` section in the YAML string.
  *
- * Rebuilds the rules: sequence preserving comments on each node.
- * Returns the full config as a string.
+ * The section starts at `rules:` (column 0) and ends at the next
+ * top-level key or end-of-file. This includes all indented lines,
+ * comments, and blank lines within the section.
+ */
+function findRulesBoundaries(yaml: string): { start: number; end: number } {
+  const lines = yaml.split('\n')
+  let startLine = -1
+
+  for (let i = 0; i < lines.length; i++) {
+    if (/^rules\s*:/.test(lines[i])) {
+      startLine = i
+      break
+    }
+  }
+
+  if (startLine === -1) return { start: -1, end: -1 }
+
+  // Find end: first non-empty, non-indented line after rules:
+  let endLine = lines.length
+  for (let i = startLine + 1; i < lines.length; i++) {
+    const line = lines[i]
+    if (line.length > 0 && !line.startsWith(' ') && !line.startsWith('\t')) {
+      endLine = i
+      break
+    }
+  }
+
+  // Convert line numbers to character positions
+  let start = 0
+  for (let i = 0; i < startLine; i++) start += lines[i].length + 1
+  let end = 0
+  for (let i = 0; i < endLine; i++) end += lines[i].length + 1
+
+  return { start, end }
+}
+
+/**
+ * Serialize modified blocks back into the YAML config string.
+ *
+ * Uses string splicing — only the `rules:` section is rebuilt,
+ * everything else in the config stays byte-for-byte identical.
+ * This prevents eemeli/yaml's doc.toString() from reformatting
+ * unrelated sections (proxy-groups, dns, sniff, etc.).
  */
 export function serializeRulesToConfig(
-  doc: Document,
-  blocks: RuleBlock[]
+  _doc: Document,
+  blocks: RuleBlock[],
+  originalYaml?: string,
 ): string {
-  const rulesNode = doc.get('rules', true) as YAMLSeq | undefined
+  if (!originalYaml) return _doc.toString() // fallback
 
-  if (!rulesNode) return doc.toString()
+  const { start, end } = findRulesBoundaries(originalYaml)
+  if (start === -1) return originalYaml
 
-  // Flatten blocks back to ordered rules
   const flatRules = flattenBlocksToRules(blocks)
 
-  // Rebuild sequence items preserving comments
-  rulesNode.items = flatRules.map(rule => {
-    const scalar = doc.createNode(rule.raw) as Scalar
-    if (rule.commentBefore) scalar.commentBefore = rule.commentBefore
-    if (rule.commentInline) scalar.comment = rule.commentInline
-    return scalar
-  })
+  // Build new rules section
+  const lines: string[] = ['rules:']
+  for (const rule of flatRules) {
+    if (rule.spaceBefore) lines.push('')
+    if (rule.commentBefore) {
+      for (const cLine of rule.commentBefore.split('\n')) {
+        lines.push(`  #${cLine}`)
+      }
+    }
+    const inline = rule.commentInline ? ` #${rule.commentInline}` : ''
+    lines.push(`  - ${rule.raw}${inline}`)
+  }
 
-  return doc.toString()
+  // Splice: keep everything before rules: and after rules section unchanged
+  return originalYaml.slice(0, start) + lines.join('\n') + '\n' + originalYaml.slice(end)
 }
 
 // ── Utilities ──────────────────────────────────────────────────────

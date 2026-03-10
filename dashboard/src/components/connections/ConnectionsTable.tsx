@@ -1,5 +1,6 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useState, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { ArrowDown } from 'lucide-react'
 import { ConnectionRow } from './ConnectionRow'
 import { ALL_COLUMNS } from './ColumnSelector'
 import type { ConnectionWithSpeed } from '@/stores/connections'
@@ -36,8 +37,16 @@ function getColumnLabel(id: string): string {
 
 export function ConnectionsTable({ connections, visibleColumns, expandedId }: ConnectionsTableProps) {
   const parentRef = useRef<HTMLDivElement>(null)
+  const [isAtBottom, setIsAtBottom] = useState(true)
 
   const gridTemplate = useMemo(() => getGridTemplate(visibleColumns), [visibleColumns])
+
+  const handleScroll = useCallback(() => {
+    const el = parentRef.current
+    if (!el) return
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50
+    setIsAtBottom(atBottom)
+  }, [])
 
   const virtualizer = useVirtualizer({
     count: connections.length,
@@ -49,7 +58,7 @@ export function ConnectionsTable({ connections, visibleColumns, expandedId }: Co
   })
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="relative flex flex-col h-full">
       {/* Header */}
       <div
         className="grid items-center h-8 px-2 border-b bg-muted/50 text-xs font-medium text-muted-foreground sticky top-0 z-[5]"
@@ -63,7 +72,7 @@ export function ConnectionsTable({ connections, visibleColumns, expandedId }: Co
       </div>
 
       {/* Virtualized body */}
-      <div ref={parentRef} className="flex-1 overflow-auto min-h-0">
+      <div ref={parentRef} className="flex-1 overflow-auto min-h-0" data-scroll-container onScroll={handleScroll}>
         <div
           style={{
             height: `${virtualizer.getTotalSize()}px`,
@@ -104,6 +113,19 @@ export function ConnectionsTable({ connections, visibleColumns, expandedId }: Co
         <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
           Нет активных подключений
         </div>
+      )}
+
+      {/* Scroll to bottom */}
+      {!isAtBottom && connections.length > 0 && (
+        <button
+          onClick={() => {
+            virtualizer.scrollToIndex(connections.length - 1, { align: 'end', behavior: 'smooth' })
+          }}
+          className="absolute bottom-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs shadow-lg hover:bg-primary/90 transition-colors"
+        >
+          <ArrowDown className="h-3 w-3" />
+          Вниз
+        </button>
       )}
     </div>
   )

@@ -28,9 +28,9 @@ export function ProxiesToolbar({
   const testingGroups = useProxiesStore((s) => s.testingGroups)
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="@container flex items-center gap-2">
       {/* Search */}
-      <div className="relative flex-1 max-w-sm">
+      <div className="relative flex-1 min-w-0 @md:max-w-sm">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
         <Input
           placeholder="Поиск группы или прокси..."
@@ -42,7 +42,7 @@ export function ProxiesToolbar({
 
       {/* Type filter */}
       <Select value={typeFilter} onValueChange={onTypeFilterChange}>
-        <SelectTrigger className="w-[140px]">
+        <SelectTrigger className="w-[100px] @md:w-[140px] shrink-0">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -54,14 +54,14 @@ export function ProxiesToolbar({
         </SelectContent>
       </Select>
 
-      {/* Spacer */}
-      <div className="flex-1" />
+      {/* Spacer — only visible on wider containers */}
+      <div className="hidden @lg:block flex-1" />
 
       {/* Test all button */}
       <Button
         variant="outline"
-        size="sm"
-        className="active:scale-95 transition-transform"
+        size="icon"
+        className="@md:!size-auto @md:!px-3 active:scale-95 transition-transform shrink-0"
         onClick={() => useProxiesStore.getState().testAllGroups()}
         disabled={testingGroups.size > 0}
       >
@@ -69,7 +69,9 @@ export function ProxiesToolbar({
           ? <Loader2 className="size-4 animate-spin" />
           : <Zap className="size-4" />
         }
-        {testingGroups.size > 0 ? 'Тестирование...' : 'Тестировать все'}
+        <span className="hidden @md:inline">
+          {testingGroups.size > 0 ? 'Тестирование...' : 'Тестировать все'}
+        </span>
       </Button>
 
       {/* Settings popover */}

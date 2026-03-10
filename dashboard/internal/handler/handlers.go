@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/config"
 )
 
 // Handlers holds shared dependencies for all API handlers.

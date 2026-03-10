@@ -7,8 +7,7 @@
  */
 
 import { create } from 'zustand'
-
-const MAX_LOG_ENTRIES = 1000
+import { useSettingsStore } from '@/stores/settings'
 
 export interface LogEntry {
   id: number
@@ -74,6 +73,8 @@ export const useLogsStore = create<LogsState>()((set, get) => ({
   // Actions
   addEntry: (raw) => {
     set((state) => {
+      if (state.paused) return state
+
       const entry: LogEntry = {
         id: state.nextId,
         time: raw.time,
@@ -84,10 +85,11 @@ export const useLogsStore = create<LogsState>()((set, get) => ({
 
       const newEntries = [...state.entries, entry]
 
-      // Ring buffer: keep only last MAX_LOG_ENTRIES
-      if (newEntries.length > MAX_LOG_ENTRIES) {
+      // Ring buffer: keep only last N entries (configurable)
+      const maxEntries = useSettingsStore.getState().maxLogEntries
+      if (newEntries.length > maxEntries) {
         return {
-          entries: newEntries.slice(-MAX_LOG_ENTRIES),
+          entries: newEntries.slice(-maxEntries),
           nextId: state.nextId + 1,
         }
       }

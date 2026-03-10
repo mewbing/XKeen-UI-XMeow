@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { useUpdateStore } from '@/stores/update'
 import { checkHealth } from '@/lib/update-api'
 
@@ -125,11 +126,15 @@ export function UpdateOverlay({ open, mode, onClose }: UpdateOverlayProps) {
     }
   }, [open])
 
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4 max-w-md w-full px-6">
+    <div className={cn(
+      "fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300",
+      open ? "opacity-100" : "opacity-0 pointer-events-none"
+    )}>
+      <div className={cn(
+        "flex flex-col items-center gap-4 max-w-md w-full px-6 transition-all duration-300",
+        open ? "scale-100 translate-y-0" : "scale-95 translate-y-2"
+      )}>
         {/* Icon */}
         {(phase === 'downloading' || phase === 'installing' || phase === 'restarting') && (
           <Loader2 className="size-12 text-primary animate-spin" />

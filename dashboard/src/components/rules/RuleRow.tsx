@@ -28,12 +28,12 @@ interface RuleRowProps {
   showTarget: boolean
   blockId: string
   proxyGroups: string[]
-  onChangeTarget: (ruleId: string, newTarget: string) => void
-  onRemove: (ruleId: string) => void
+  onChangeTarget: (blockId: string, ruleId: string, newTarget: string) => void
+  onRemove: (blockId: string, ruleId: string) => void
 }
 
 /** Map rule type to color category for the badge */
-function getTypeBadgeClass(type: string): string {
+export function getTypeBadgeClass(type: string): string {
   // DOMAIN-* family
   if (type.startsWith('DOMAIN')) return 'bg-blue-500/15 text-blue-400 border-blue-500/30'
   // Geo databases
@@ -50,7 +50,7 @@ function getTypeBadgeClass(type: string): string {
   return 'bg-muted text-muted-foreground border-border'
 }
 
-export const RuleRow = memo(function RuleRow({ rule, index, showTarget, blockId: _blockId, proxyGroups, onChangeTarget, onRemove }: RuleRowProps) {
+export const RuleRow = memo(function RuleRow({ rule, index: _index, showTarget, blockId, proxyGroups, onChangeTarget, onRemove }: RuleRowProps) {
   const {
     attributes,
     listeners,
@@ -58,7 +58,7 @@ export const RuleRow = memo(function RuleRow({ rule, index, showTarget, blockId:
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: rule.id })
+  } = useSortable({ id: rule.id, data: { type: 'rule' as const, blockId } })
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -85,11 +85,6 @@ export const RuleRow = memo(function RuleRow({ rule, index, showTarget, blockId:
       >
         <GripVertical className="size-3.5" />
       </button>
-
-      {/* Position number */}
-      <span className="text-[11px] tabular-nums text-muted-foreground w-7 text-right shrink-0 font-mono">
-        #{index + 1}
-      </span>
 
       {/* Type badge */}
       <Badge
@@ -118,7 +113,7 @@ export const RuleRow = memo(function RuleRow({ rule, index, showTarget, blockId:
       {showTarget && (
         <Select
           value={rule.target}
-          onValueChange={(v) => onChangeTarget(rule.id, v)}
+          onValueChange={(v) => onChangeTarget(blockId, rule.id, v)}
         >
           <SelectTrigger className="h-7 text-xs w-auto min-w-[80px] max-w-[140px] shrink-0">
             <SelectValue />
@@ -140,7 +135,7 @@ export const RuleRow = memo(function RuleRow({ rule, index, showTarget, blockId:
         className="size-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
         onClick={(e) => {
           e.stopPropagation()
-          onRemove(rule.id)
+          onRemove(blockId, rule.id)
         }}
       >
         <Trash2 className="size-3.5" />

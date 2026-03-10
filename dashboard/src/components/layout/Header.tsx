@@ -8,6 +8,7 @@ import { ServiceControl } from '@/components/overview/ServiceControl'
 import { SplitToggleButton } from '@/components/ui/split-toggle-button'
 import { SettingsSheet } from '@/pages/SettingsPage'
 import { useTerminalStore } from '@/stores/terminal'
+import { useBackendAvailable } from '@/hooks/useBackendAvailable'
 
 const pageTitles: Record<string, string> = {
   '/overview': 'Обзор',
@@ -19,13 +20,13 @@ const pageTitles: Record<string, string> = {
   '/groups': 'Группы',
   '/providers': 'Провайдеры',
   '/geodata': 'Геоданные',
-  '/updates': 'Обновления',
 }
 
 export function Header() {
   const location = useLocation()
   const title = pageTitles[location.pathname] ?? 'Mihomo Dashboard'
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const backendAvailable = useBackendAvailable()
 
   // Listen for 'open-settings' event from SetupGuide and other components
   useEffect(() => {
@@ -50,15 +51,17 @@ export function Header() {
 
       <ServiceControl />
 
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8"
-        onClick={() => useTerminalStore.getState().setOpen(true)}
-        title="Терминал (Ctrl+`)"
-      >
-        <SquareTerminal className="h-4 w-4" />
-      </Button>
+      {backendAvailable && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => useTerminalStore.getState().setOpen(true)}
+          title="Терминал (Ctrl+`)"
+        >
+          <SquareTerminal className="h-4 w-4" />
+        </Button>
+      )}
 
       <Button
         variant="ghost"

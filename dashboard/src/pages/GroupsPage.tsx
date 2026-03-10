@@ -5,9 +5,8 @@ export default function GroupsPage() {
   return (
     <PlaceholderPage
       title="Группы"
-      description="Управление proxy-groups с перетаскиванием"
+      description="Управление группами прокси"
       icon={Users}
-      phase="7"
     />
   )
 }

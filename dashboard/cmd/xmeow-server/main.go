@@ -10,9 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	xkeenui "github.com/mewbing/XKeen-UI-Xmeow"
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/config"
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/server"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/config"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/server"
 )
 
 // Version is set via ldflags at build time:
@@ -36,8 +35,8 @@ func main() {
 		log.Println("Running in development mode (CORS enabled)")
 	}
 
-	// Create HTTP server with embedded SPA
-	srv := server.New(cfg, xkeenui.DistFS)
+	// Create API server (SPA served by mihomo via external-ui)
+	srv := server.New(cfg)
 
 	// Graceful shutdown with signal.NotifyContext (SIGINT, SIGTERM)
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)

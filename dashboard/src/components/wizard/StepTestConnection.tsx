@@ -14,6 +14,7 @@ interface TestState {
 interface StepTestConnectionProps {
   mihomoUrl: string
   configUrl: string
+  mihomoSecret?: string
   onSuccess: (results: { mihomoVersion: string; mihomoSecret: string }) => void
   onBack: () => void
 }
@@ -47,6 +48,7 @@ function statusLabel(status: TestStatus): string {
 export default function StepTestConnection({
   mihomoUrl,
   configUrl,
+  mihomoSecret: providedSecret,
   onSuccess,
   onBack,
 }: StepTestConnectionProps) {
@@ -61,12 +63,27 @@ export default function StepTestConnection({
     setConfigApi({ status: 'idle', result: null })
     usedSecretRef.current = ''
 
-    // Test 1: Mihomo API -- try without secret first, then with 'admin'
-    let mihomoResult = await testMihomoConnection(mihomoUrl)
+    // Test 1: Mihomo API
+    // Priority: provided secret → no secret → default 'admin'
+    let mihomoResult: ConnectionResult
     let secret = ''
 
+    if (providedSecret) {
+      // User entered a secret on step 1 — try it first
+      mihomoResult = await testMihomoConnection(mihomoUrl, providedSecret)
+      if (mihomoResult.ok) {
+        secret = providedSecret
+      } else {
+        // Fallback: try without secret
+        mihomoResult = await testMihomoConnection(mihomoUrl)
+      }
+    } else {
+      // No secret provided — try without
+      mihomoResult = await testMihomoConnection(mihomoUrl)
+    }
+
     if (!mihomoResult.ok && mihomoResult.error?.includes('401')) {
-      // Retry with default secret
+      // Last resort: try default 'admin'
       secret = 'admin'
       mihomoResult = await testMihomoConnection(mihomoUrl, secret)
     }
@@ -80,13 +97,13 @@ export default function StepTestConnection({
 
     usedSecretRef.current = secret
 
-    // Test 2: Config API
+    // Test 2: Config API (send the same secret — backend uses mihomo secret for auth)
     setConfigApi({ status: 'testing', result: null })
-    const configResult = await testConfigApiConnection(configUrl)
+    const configResult = await testConfigApiConnection(configUrl, secret || undefined)
     setConfigApi({ status: configResult.ok ? 'success' : 'error', result: configResult })
 
-    // Both successful -- auto-advance after delay
-    if (mihomoResult.ok && configResult.ok) {
+    // Mihomo is required, Config API is optional -- auto-advance after delay
+    if (mihomoResult.ok) {
       setTimeout(() => {
         onSuccess({
           mihomoVersion: mihomoResult.version || 'unknown',
@@ -94,7 +111,7 @@ export default function StepTestConnection({
         })
       }, 1500)
     }
-  }, [mihomoUrl, configUrl, onSuccess])
+  }, [mihomoUrl, configUrl, providedSecret, onSuccess])
 
   useEffect(() => {
     if (!hasRun.current) {
@@ -103,7 +120,7 @@ export default function StepTestConnection({
     }
   }, [runTests])
 
-  const hasError = mihomo.status === 'error' || configApi.status === 'error'
+  const hasError = mihomo.status === 'error'
   const allDone = mihomo.status !== 'idle' && mihomo.status !== 'testing' &&
     configApi.status !== 'idle' && configApi.status !== 'testing'
 

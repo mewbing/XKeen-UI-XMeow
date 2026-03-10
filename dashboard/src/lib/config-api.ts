@@ -1,14 +1,20 @@
 /**
- * Config API client for service management.
+ * Config API client for XMeow backend (Go).
  *
- * Communicates with the Flask backend (server.py) for
- * xkeen service control and version reporting.
+ * All protected endpoints send Authorization: Bearer {secret}
+ * using the mihomo secret stored in settings.
  */
 
 import { useSettingsStore } from '@/stores/settings'
 
 function getBaseUrl(): string {
   return useSettingsStore.getState().configApiUrl
+}
+
+function authHeaders(): Record<string, string> {
+  const secret = useSettingsStore.getState().mihomoSecret
+  if (secret) return { Authorization: `Bearer ${secret}` }
+  return {}
 }
 
 export type ServiceAction = 'start' | 'stop' | 'restart'
@@ -20,7 +26,8 @@ export type ServiceAction = 'start' | 'stop' | 'restart'
 export async function serviceAction(action: ServiceAction): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/service/${action}`, {
     method: 'POST',
-    signal: AbortSignal.timeout(30000),
+    headers: authHeaders(),
+    signal: AbortSignal.timeout(65000),
   })
   if (!res.ok) {
     const data = await res.json()
@@ -36,6 +43,7 @@ export async function fetchServiceStatus(): Promise<{
   pid: number | null
 }> {
   const res = await fetch(`${getBaseUrl()}/api/service/status`, {
+    headers: authHeaders(),
     signal: AbortSignal.timeout(5000),
   })
   if (!res.ok) {
@@ -48,10 +56,13 @@ export async function fetchServiceStatus(): Promise<{
  * Fetch xkeen and dashboard versions.
  */
 export async function fetchVersions(): Promise<{
-  xkeen: string
+  server: string
   dashboard: string
+  xkeen: string
+  mihomo: string
 }> {
   const res = await fetch(`${getBaseUrl()}/api/versions`, {
+    headers: authHeaders(),
     signal: AbortSignal.timeout(5000),
   })
   if (!res.ok) {
@@ -76,6 +87,7 @@ export interface NetworkInfo {
 
 export async function fetchNetworkInfo(): Promise<NetworkInfo> {
   const res = await fetch(`${getBaseUrl()}/api/system/network`, {
+    headers: authHeaders(),
     signal: AbortSignal.timeout(10000),
   })
   if (!res.ok) {
@@ -89,6 +101,7 @@ export async function fetchNetworkInfo(): Promise<NetworkInfo> {
  */
 export async function fetchProxyServers(): Promise<Record<string, string>> {
   const res = await fetch(`${getBaseUrl()}/api/proxies/servers`, {
+    headers: authHeaders(),
     signal: AbortSignal.timeout(5000),
   })
   if (!res.ok) {
@@ -102,6 +115,7 @@ export async function fetchProxyServers(): Promise<Record<string, string>> {
  */
 export async function fetchCpuUsage(): Promise<{ cpu: number }> {
   const res = await fetch(`${getBaseUrl()}/api/system/cpu`, {
+    headers: authHeaders(),
     signal: AbortSignal.timeout(5000),
   })
   if (!res.ok) {
@@ -111,10 +125,25 @@ export async function fetchCpuUsage(): Promise<{ cpu: number }> {
 }
 
 /**
+ * Fetch system memory stats from /proc/meminfo via backend.
+ */
+export async function fetchSystemMemory(): Promise<{ total: number; available: number; used: number }> {
+  const res = await fetch(`${getBaseUrl()}/api/system/memory`, {
+    headers: authHeaders(),
+    signal: AbortSignal.timeout(5000),
+  })
+  if (!res.ok) {
+    throw new Error(`System memory request failed: ${res.status}`)
+  }
+  return res.json()
+}
+
+/**
  * Fetch mihomo config.yaml content from backend.
  */
 export async function fetchConfig(): Promise<{ content: string }> {
   const res = await fetch(`${getBaseUrl()}/api/config`, {
+    headers: authHeaders(),
     signal: AbortSignal.timeout(5000),
   })
   if (!res.ok) {
@@ -129,7 +158,7 @@ export async function fetchConfig(): Promise<{ content: string }> {
 export async function saveConfig(content: string): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/config`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ content }),
     signal: AbortSignal.timeout(10000),
   })
@@ -144,6 +173,7 @@ export async function saveConfig(content: string): Promise<void> {
  */
 export async function fetchXkeenFile(name: string): Promise<{ content: string }> {
   const res = await fetch(`${getBaseUrl()}/api/xkeen/${name}`, {
+    headers: authHeaders(),
     signal: AbortSignal.timeout(5000),
   })
   if (!res.ok) {
@@ -158,7 +188,7 @@ export async function fetchXkeenFile(name: string): Promise<{ content: string }>
 export async function saveXkeenFile(name: string, content: string): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/xkeen/${name}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ content }),
     signal: AbortSignal.timeout(10000),
   })
@@ -166,4 +196,35 @@ export async function saveXkeenFile(name: string, content: string): Promise<void
     const data = await res.json()
     throw new Error(data.error || `Failed to save xkeen file: ${name}`)
   }
+}
+
+/**
+ * Clear a log file via HTTP (fallback when WS is disconnected).
+ */
+export async function clearLogFile(name: string): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/api/logs/${name}/clear`, {
+    method: 'POST',
+    headers: authHeaders(),
+    signal: AbortSignal.timeout(5000),
+  })
+  if (!res.ok) {
+    throw new Error(`Failed to clear log: ${res.status}`)
+  }
+}
+
+/**
+ * Fetch parsed log lines via HTTP (same format as WS initial).
+ */
+export async function fetchParsedLog(name: string, lines = 500): Promise<{
+  lines: Array<{ time: string | null; level: string | null; msg: string }>
+  size: number
+}> {
+  const res = await fetch(`${getBaseUrl()}/api/logs/${name}/parsed?lines=${lines}`, {
+    headers: authHeaders(),
+    signal: AbortSignal.timeout(5000),
+  })
+  if (!res.ok) {
+    throw new Error(`Failed to fetch log: ${res.status}`)
+  }
+  return res.json()
 }

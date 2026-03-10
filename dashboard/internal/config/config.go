@@ -14,6 +14,7 @@ type AppConfig struct {
 	BackupDir        string
 	XkeenBin         string
 	XkeenLogDir      string
+	MihomoBin        string
 	Port             int
 	DevMode          bool
 	Version          string
@@ -34,6 +35,7 @@ func LoadConfig() *AppConfig {
 		BackupDir:        getEnv("BACKUP_DIR", "/opt/etc/mihomo/backups"),
 		XkeenBin:         getEnv("XKEEN_BIN", "/opt/sbin/xkeen"),
 		XkeenLogDir:      getEnv("XKEEN_LOG_DIR", "/opt/var/log/xray"),
+		MihomoBin:        getEnv("MIHOMO_BIN", "/opt/sbin/mihomo"),
 		Port:             getEnvInt("PORT", 5000),
 		DevMode:          getEnv("DEV_MODE", "") != "",
 		Version:          getEnv("VERSION", "0.1.0"),

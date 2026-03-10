@@ -50,33 +50,36 @@ export function TerminalToolbar({
 }: TerminalToolbarProps) {
   const isConnected = useTerminalStore((s) => s.isConnected)
   const isConnecting = useTerminalStore((s) => s.isConnecting)
+  const sessionType = useTerminalStore((s) => s.sessionType)
   const isSearchOpen = useTerminalStore((s) => s.isSearchOpen)
   const setSearchOpen = useTerminalStore((s) => s.setSearchOpen)
   const fontSize = useTerminalStore((s) => s.fontSize)
   const isFullscreen = useTerminalStore((s) => s.isFullscreen)
   const [searchQuery, setSearchQuery] = useState('')
 
+  const isExec = sessionType === 'exec'
+
   return (
     <div className="flex flex-col border-b bg-background/95">
       {/* Main toolbar row */}
       <div className="flex items-center gap-2 px-3 py-1.5">
-        {/* Left side: Connect/Disconnect + status */}
+        {/* Connect/Disconnect */}
         {isConnected ? (
           <Button
             variant="destructive"
             size="sm"
             onClick={onDisconnect}
-            className="h-7 text-xs"
+            className="h-7 text-xs shrink-0"
           >
             <Unplug className="mr-1.5 size-3.5" />
-            Отключить
+            {isExec ? 'Остановить' : 'Отключить'}
           </Button>
         ) : (
           <Button
             size="sm"
             onClick={onConnect}
             disabled={isConnecting}
-            className="h-7 text-xs"
+            className="h-7 text-xs shrink-0"
           >
             {isConnecting ? (
               <Loader2 className="mr-1.5 size-3.5 animate-spin" />
@@ -87,11 +90,11 @@ export function TerminalToolbar({
           </Button>
         )}
 
-        {/* Connection status dot */}
-        <div className="flex items-center gap-1.5">
+        {/* Connection status */}
+        <div className="flex items-center gap-1.5 min-w-0">
           <div
             className={cn(
-              'size-2 rounded-full',
+              'size-2 rounded-full shrink-0',
               isConnected
                 ? 'bg-green-500'
                 : isConnecting
@@ -99,76 +102,57 @@ export function TerminalToolbar({
                   : 'bg-muted-foreground/40',
             )}
           />
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground truncate">
             {isConnected
-              ? 'Подключено'
+              ? isExec
+                ? 'Выполняется команда'
+                : 'Подключено (SSH)'
               : isConnecting
                 ? 'Подключение...'
                 : 'Отключено'}
           </span>
         </div>
 
-        {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Right side: utility controls */}
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={onClear}
-          title="Очистить"
-        >
-          <Eraser className="size-3.5" />
-        </Button>
+        {/* Utility controls */}
+        <div className="flex items-center gap-0.5 shrink-0">
+          <Button variant="ghost" size="icon-sm" onClick={onClear} title="Очистить">
+            <Eraser className="size-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setSearchOpen(!isSearchOpen)}
+            title="Поиск (Ctrl+F)"
+            className={isSearchOpen ? 'bg-accent' : ''}
+          >
+            <Search className="size-3.5" />
+          </Button>
 
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => setSearchOpen(!isSearchOpen)}
-          title="Поиск (Ctrl+F)"
-          className={isSearchOpen ? 'bg-accent' : ''}
-        >
-          <Search className="size-3.5" />
-        </Button>
+          <Separator orientation="vertical" className="mx-0.5 h-4" />
 
-        <Separator orientation="vertical" className="mx-0.5 h-4" />
+          <Button variant="ghost" size="icon-sm" onClick={onFontDecrease} title="Уменьшить шрифт">
+            <Minus className="size-3.5" />
+          </Button>
+          <span className="text-xs tabular-nums text-muted-foreground min-w-[2ch] text-center">
+            {fontSize}
+          </span>
+          <Button variant="ghost" size="icon-sm" onClick={onFontIncrease} title="Увеличить шрифт">
+            <Plus className="size-3.5" />
+          </Button>
 
-        {/* Font size controls */}
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={onFontDecrease}
-          title="Уменьшить шрифт"
-        >
-          <Minus className="size-3.5" />
-        </Button>
-        <span className="text-xs tabular-nums text-muted-foreground min-w-[2ch] text-center">
-          {fontSize}
-        </span>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={onFontIncrease}
-          title="Увеличить шрифт"
-        >
-          <Plus className="size-3.5" />
-        </Button>
+          <Separator orientation="vertical" className="mx-0.5 h-4" />
 
-        <Separator orientation="vertical" className="mx-0.5 h-4" />
-
-        {/* Fullscreen toggle */}
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={onFullscreenToggle}
-          title={isFullscreen ? 'Выйти из полноэкранного' : 'Полноэкранный'}
-        >
-          {isFullscreen ? (
-            <Minimize2 className="size-3.5" />
-          ) : (
-            <Maximize2 className="size-3.5" />
-          )}
-        </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onFullscreenToggle}
+            title={isFullscreen ? 'Выйти из полноэкранного' : 'Полноэкранный'}
+          >
+            {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
+          </Button>
+        </div>
       </div>
 
       {/* Search bar (conditional) */}

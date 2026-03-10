@@ -8,7 +8,7 @@ import (
 
 	"github.com/goccy/go-yaml"
 
-	"github.com/mewbing/XKeen-UI-Xmeow/internal/backup"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/backup"
 )
 
 // GetConfig returns the mihomo config.yaml content as JSON.

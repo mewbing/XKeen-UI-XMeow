@@ -27,3 +27,35 @@ __pycache__
 *.njsproj
 *.sln
 *.sw?
+
+# Compiled Go binaries
+xmeow-server
+xmeow-server.exe
+
+# Test/debug data
+xkeen_rel.json
+
+# Windows artifacts
+nul
+
+# Claude Code
+.claude/
+
+# Project planning (internal)
+.planning/
+
+# Local config
+config/
+
+# Old Python backend
+backend/
+
+# Old deployed files
+old/
+
+# Release artifacts
+release/
+
+# Recovery scripts
+recover_*.mjs
+recover_*.py
