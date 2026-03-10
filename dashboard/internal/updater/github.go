@@ -80,7 +80,7 @@ func fetchLatestRelease(ctx context.Context, userAgent string) (*githubRelease, 
 // binaryAsset matches the current GOOS/GOARCH, checksumAsset is "checksums.txt",
 // distAsset is "dist.tar.gz" (for external-ui mode SPA update).
 func findAssets(assets []githubAsset) (binaryAsset, checksumAsset, distAsset *githubAsset) {
-	suffix := runtime.GOOS + "_" + runtime.GOARCH
+	suffix := runtime.GOOS + "-" + runtime.GOARCH
 	for i := range assets {
 		a := &assets[i]
 		switch {
