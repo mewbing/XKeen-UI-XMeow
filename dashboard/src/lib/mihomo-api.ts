@@ -114,7 +114,7 @@ export async function upgradeCore(
   })
   if (!res.ok) {
     const data = await res.json()
-    throw new Error(data.error || 'Upgrade failed')
+    throw new Error(data.message || data.error || 'Upgrade failed')
   }
   return res.json()
 }

@@ -32,14 +32,20 @@ func NewUpdateHandler(upd *updater.Updater, cfg *config.AppConfig) *UpdateHandle
 
 // CheckUpdate handles GET /api/update/check.
 // Returns version comparison and release metadata from GitHub API (cached for 1 hour).
+// On non-critical errors (rate limit, no asset, network), returns 200 with has_update=false
+// instead of 500, so the frontend console stays clean.
 func (u *UpdateHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
 	defer cancel()
 
 	info, err := u.updater.Check(ctx)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{
-			"error": err.Error(),
+		log.Printf("update check error (non-fatal): %v", err)
+		writeJSON(w, http.StatusOK, &updater.ReleaseInfo{
+			CurrentVersion: u.cfg.Version,
+			LatestVersion:  u.cfg.Version,
+			HasUpdate:      false,
+			IsExternalUI:   u.updater.IsExternalUI(),
 		})
 		return
 	}

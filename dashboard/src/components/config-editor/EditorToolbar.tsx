@@ -247,32 +247,32 @@ export function EditorToolbar({ onApplyConfirmed }: EditorToolbarProps) {
           <Button
             variant="outline"
             size="sm"
-            className="h-7 !px-2 @md:!px-3 gap-1.5 text-xs"
+            className="h-8 gap-1.5"
             disabled={saveLoading}
             onClick={handleSave}
             title="Сохранить на сервер (Ctrl+S)"
           >
             {saveLoading ? (
-              <Loader2 className="size-3.5 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <Save className="size-3.5" />
+              <Save className="size-4" />
             )}
             <span className="hidden @lg:inline leading-none">Сохранить</span>
           </Button>
 
           {/* Apply */}
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
-            className="h-7 !px-2 @md:!px-3 gap-1.5 text-xs border-blue-500/40 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300"
+            className="h-8 gap-1.5"
             disabled={applyLoading}
             onClick={() => setApplyDialogOpen(true)}
             title="Сохранить и перезапустить mihomo"
           >
             {applyLoading ? (
-              <Loader2 className="size-3.5 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <Play className="size-3.5" />
+              <Play className="size-4" />
             )}
             <span className="hidden @lg:inline leading-none">Применить</span>
           </Button>

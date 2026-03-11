@@ -46,6 +46,10 @@ interface ReleasesState {
   xkeenLoading: boolean
   xkeenError: string | null
 
+  // Update indicators (lightweight, set on startup)
+  mihomoHasUpdate: boolean
+  xkeenHasUpdate: boolean
+
   fetchMihomoReleases: () => Promise<void>
   installMihomoVersion: (version: string) => Promise<void>
   resetMihomoInstallState: () => void
@@ -55,6 +59,9 @@ interface ReleasesState {
   resetXmeowInstallState: () => void
 
   fetchXkeenReleases: () => Promise<void>
+
+  setMihomoHasUpdate: (v: boolean) => void
+  setXkeenHasUpdate: (v: boolean) => void
 
   clearErrors: () => void
 }
@@ -89,6 +96,10 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
   xkeenLoading: false,
   xkeenError: null,
 
+  // --- Update indicators ---
+  mihomoHasUpdate: false,
+  xkeenHasUpdate: false,
+
   // --- Mihomo actions ---
   fetchMihomoReleases: async () => {
     set({ mihomoLoading: true, mihomoError: null })
@@ -98,6 +109,7 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
       set({
         mihomoReleases: data.releases,
         mihomoCurrentVersion: data.current_version,
+        mihomoHasUpdate: data.releases.some((r) => r.is_newer),
       })
     } catch {
       // Fallback: fetch directly from GitHub API (no backend needed)
@@ -107,6 +119,7 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
         set({
           mihomoReleases: data.releases,
           mihomoCurrentVersion: data.current_version,
+          mihomoHasUpdate: data.releases.some((r) => r.is_newer),
         })
       } catch (err) {
         set({ mihomoError: err instanceof Error ? err.message : 'Failed to fetch releases' })
@@ -292,6 +305,7 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
       set({
         xkeenReleases: data.releases,
         xkeenCurrentVersion: data.current_version,
+        xkeenHasUpdate: data.releases.some((r) => r.is_newer),
       })
     } catch {
       // Fallback: fetch directly from GitHub API (no backend needed)
@@ -301,6 +315,7 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
         set({
           xkeenReleases: data.releases,
           xkeenCurrentVersion: data.current_version,
+          xkeenHasUpdate: data.releases.some((r) => r.is_newer),
         })
       } catch (err) {
         set({ xkeenError: err instanceof Error ? err.message : 'Failed to fetch xkeen releases' })
@@ -309,6 +324,9 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
       set({ xkeenLoading: false })
     }
   },
+
+  setMihomoHasUpdate: (v: boolean) => set({ mihomoHasUpdate: v }),
+  setXkeenHasUpdate: (v: boolean) => set({ xkeenHasUpdate: v }),
 
   clearErrors: () => set({ mihomoError: null, xmeowError: null, xkeenError: null }),
 }))

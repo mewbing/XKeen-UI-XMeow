@@ -17,6 +17,8 @@ import ProvidersPage from '@/pages/ProvidersPage'
 import GeodataPage from '@/pages/GeodataPage'
 import { fetchVersions } from '@/lib/config-api'
 import { fetchMihomoVersion } from '@/lib/mihomo-api'
+import { checkXkeenUpdateQuick } from '@/lib/releases-api'
+import { useReleasesStore } from '@/stores/releases'
 
 /** Resolves start page path from settings store value */
 function resolveStartPage(startPage: string, lastVisitedPage: string): string {
@@ -151,15 +153,22 @@ function App() {
     // Dashboard version known at build time — always available, even without backend
     setVersions({ dashboard: __APP_VERSION__ })
 
+    // Fetch mihomo version, then fetch releases (sets mihomoHasUpdate via same path as dialog)
     fetchMihomoVersion()
-      .then((data) => setVersions({ mihomo: data.version }))
+      .then((data) => {
+        setVersions({ mihomo: data.version })
+        useReleasesStore.getState().fetchMihomoReleases()
+      })
       .catch(() => {})
 
+    // Fetch Go backend versions (xkeen, server)
     fetchVersions()
-      .then((data) => setVersions({
-        server: data.server,
-        xkeen: data.xkeen,
-      }))
+      .then((data) => setVersions({ server: data.server, xkeen: data.xkeen }))
+      .catch(() => {})
+
+    // Check for xkeen updates (Go backend only)
+    checkXkeenUpdateQuick()
+      .then((has) => useReleasesStore.getState().setXkeenHasUpdate(has))
       .catch(() => {})
   }, [isConfigured])
 

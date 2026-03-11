@@ -39,7 +39,7 @@ export function MetricsCards({ backendAvailable }: MetricsCardsProps) {
   const uploadTotal = useOverviewStore((s) => s.uploadTotal)
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+    <div className={`grid gap-3 ${backendAvailable ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-2'}`}>
       {/* Card 1: CPU + RAM (only with backend) */}
       {backendAvailable && (
         <MetricPairCard

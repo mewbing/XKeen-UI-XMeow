@@ -107,7 +107,9 @@ export default function OverviewPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <SpeedChart />
         <MemoryChart />
-        <ConnectionsChart />
+        <div className={backendAvailable ? '' : 'lg:col-span-2'}>
+          <ConnectionsChart />
+        </div>
         {backendAvailable && <CpuChart />}
       </div>
 

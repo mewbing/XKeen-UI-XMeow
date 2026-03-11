@@ -20,17 +20,28 @@ interface SetupGuideProps {
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
 
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    })
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      // Fallback for HTTP (non-secure context)
+      const ta = document.createElement('textarea')
+      ta.value = text
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
   }, [text])
 
   return (
     <button
       onClick={handleCopy}
-      className="absolute top-2 right-2 p-1 rounded text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+      className="absolute top-1.5 right-1.5 p-1 rounded bg-background/80 backdrop-blur-sm text-muted-foreground/50 hover:text-muted-foreground transition-colors"
       title="Копировать"
     >
       {copied ? (
@@ -45,7 +56,7 @@ function CopyButton({ text }: { text: string }) {
 function CodeBlock({ children }: { children: string }) {
   return (
     <div className="relative group">
-      <pre className="bg-background/80 border rounded-lg px-3 py-2 text-xs font-mono overflow-x-auto">
+      <pre className="bg-background/80 border rounded-lg pl-3 pr-8 py-2 text-xs font-mono overflow-x-auto">
         {children}
       </pre>
       <CopyButton text={children} />
@@ -108,7 +119,7 @@ sh /tmp/xkeen.sh`}</CodeBlock>
   )
 }
 
-function ConfigApiGuide() {
+function ConfigApiGuide({ routerHost }: { routerHost: string }) {
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold flex items-center gap-2">
@@ -117,35 +128,14 @@ function ConfigApiGuide() {
       </h3>
 
       <div className="space-y-2 text-sm text-muted-foreground">
-        <p><span className="font-medium text-foreground">1.</span> Установите одной командой через SSH:</p>
+        <p><span className="font-medium text-foreground">1.</span> Подключитесь к роутеру по SSH:</p>
+        <p className="text-xs">Откройте терминал (PowerShell, Terminal, PuTTY) и выполните:</p>
+        <CodeBlock>{`ssh root@${routerHost}`}</CodeBlock>
+        <p className="text-xs">Логин: <code className="bg-muted px-1 py-0.5 rounded">root</code>, пароль по умолчанию: <code className="bg-muted px-1 py-0.5 rounded">keenetic</code> (или ваш, если меняли при установке Entware).</p>
+
+        <p><span className="font-medium text-foreground">2.</span> Выполните команду установки:</p>
         <CodeBlock>{`curl -sSL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh`}</CodeBlock>
-
         <p className="text-xs">Скрипт автоматически определит архитектуру, скачает бинарник и настроит автозапуск.</p>
-
-        <p><span className="font-medium text-foreground">2.</span> Или установите вручную:</p>
-        <CodeBlock>{`# Скачать бинарник (ARM64 для Keenetic)
-curl -L -o /opt/bin/xmeow-server \\
-  https://github.com/mewbing/XKeen-UI-XMeow/releases/latest/download/xmeow-server-linux-arm64
-chmod +x /opt/bin/xmeow-server
-
-# Создать init-скрипт для автозапуска
-cat > /opt/etc/init.d/S99xmeow-server << 'INITEOF'
-#!/bin/sh
-PIDFILE=/opt/var/run/xmeow-server.pid
-case "$1" in
-  start)
-    /opt/bin/xmeow-server >> /opt/var/log/xmeow-server.log 2>&1 &
-    echo $! > "$PIDFILE"
-    ;;
-  stop)
-    [ -f "$PIDFILE" ] && kill $(cat "$PIDFILE") && rm "$PIDFILE"
-    ;;
-esac
-INITEOF
-chmod +x /opt/etc/init.d/S99xmeow-server
-
-# Запустить
-/opt/etc/init.d/S99xmeow-server start`}</CodeBlock>
 
         <p><span className="font-medium text-foreground">3.</span> Проверьте доступность:</p>
         <CodeBlock>curl http://localhost:5000/api/health</CodeBlock>
@@ -158,6 +148,7 @@ chmod +x /opt/etc/init.d/S99xmeow-server
 export function SetupGuide({ mihomoOk, configApiOk, loading, onRetry }: SetupGuideProps) {
   const mihomoUrl = useSettingsStore((s) => s.mihomoApiUrl)
   const configUrl = useSettingsStore((s) => s.configApiUrl)
+  const routerHost = (() => { try { return new URL(mihomoUrl).hostname } catch { return '192.168.1.1' } })()
 
   if (loading) {
     return (
@@ -193,7 +184,7 @@ export function SetupGuide({ mihomoOk, configApiOk, loading, onRetry }: SetupGui
           {/* Guides for failed services */}
           <div className="space-y-6">
             {mihomoOk === false && <MihomoGuide />}
-            {configApiOk === false && <ConfigApiGuide />}
+            {configApiOk === false && <ConfigApiGuide routerHost={routerHost} />}
           </div>
 
           {/* Actions */}

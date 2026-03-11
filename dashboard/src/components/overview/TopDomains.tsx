@@ -62,14 +62,14 @@ export function TopDomainsCard() {
                   <span className="font-mono truncate max-w-[55%]">
                     {s.domain}
                   </span>
-                  <div className="flex items-center gap-2 shrink-0 tabular-nums">
-                    <span className="text-green-500">
+                  <div className="flex items-center shrink-0 tabular-nums text-right">
+                    <span className="text-green-500 w-[4.5rem] text-right">
                       {formatBytes(s.download)}
                     </span>
-                    <span className="text-blue-500">
+                    <span className="text-blue-500 w-[4.5rem] text-right">
                       {formatBytes(s.upload)}
                     </span>
-                    <span className="font-medium">
+                    <span className="font-medium w-[4.5rem] text-right">
                       {formatBytes(s.total)}
                     </span>
                   </div>

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { useOverviewStore } from '@/stores/overview'
 import { useSettingsStore } from '@/stores/settings'
+import { useBackendAvailable } from '@/hooks/useBackendAvailable'
 import { fetchNetworkInfo, fetchProxyServers, type NetworkInfo as NetworkInfoData } from '@/lib/config-api'
 import { fetchProxyDelay } from '@/lib/mihomo-api'
 import { formatBytes, formatDelay } from '@/lib/format'
@@ -163,6 +164,7 @@ function LatencyTargetsSettings() {
 }
 
 export function NetworkInfoCard() {
+  const backendAvailable = useBackendAvailable()
   const [netData, setNetData] = useState<NetworkInfoData | null>(null)
   const [proxyServers, setProxyServers] = useState<Record<string, string>>({})
   const startTime = useOverviewStore((s) => s.startTime)
@@ -175,19 +177,21 @@ export function NetworkInfoCard() {
   const [latencyResults, setLatencyResults] = useState<Map<string, number | null>>(new Map())
   const [testing, setTesting] = useState(false)
 
-  // Fetch network info
+  // Fetch network info (requires Go backend)
   useEffect(() => {
+    if (!backendAvailable) return
     fetchNetworkInfo().then(setNetData).catch(() => {})
     const interval = setInterval(() => {
       fetchNetworkInfo().then(setNetData).catch(() => {})
     }, 60000)
     return () => clearInterval(interval)
-  }, [])
+  }, [backendAvailable])
 
-  // Fetch proxy servers
+  // Fetch proxy servers (requires Go backend)
   useEffect(() => {
+    if (!backendAvailable) return
     fetchProxyServers().then(setProxyServers).catch(() => {})
-  }, [])
+  }, [backendAvailable])
 
   // Session timer
   useEffect(() => {
@@ -236,15 +240,17 @@ export function NetworkInfoCard() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Left column: IP, geo, system, proxy servers */}
         <div className="space-y-0.5">
-          <InfoRow
-            icon={Globe}
-            label="Внешний IP"
-            value={
-              netData?.ip && /^[\d.]+$|^[0-9a-fA-F:]+$/.test(netData.ip)
-                ? netData.ip
-                : 'Не определён'
-            }
-          />
+          {(backendAvailable || netData?.ip) && (
+            <InfoRow
+              icon={Globe}
+              label="Внешний IP"
+              value={
+                netData?.ip && /^[\d.]+$|^[0-9a-fA-F:]+$/.test(netData.ip)
+                  ? netData.ip
+                  : 'Не определён'
+              }
+            />
+          )}
           {netData?.info?.country && (
             <InfoRow
               icon={MapPin}

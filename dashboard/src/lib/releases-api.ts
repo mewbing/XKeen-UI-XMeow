@@ -284,6 +284,81 @@ export async function fetchXkeenReleasesFromGitHub(currentVersion: string): Prom
   return { current_version: currentVersion, releases }
 }
 
+// --- Quick update checks (lightweight, for startup indicators) ---
+// Try Go backend first (local network, 15-min cache — fast).
+// Fall back to direct GitHub if backend unavailable.
+
+/**
+ * Quick check: is there a newer Mihomo release?
+ * 1. Go backend (local, cached) → fast
+ * 2. Fallback: mihomo API for version + GitHub for latest release
+ */
+export async function checkMihomoUpdateQuick(currentVersion?: string): Promise<boolean> {
+  // 1. Try Go backend (local network, already knows current version, 15-min cache)
+  try {
+    const res = await fetch(`${getBaseUrl()}/api/releases/mihomo`, {
+      headers: authHeaders(),
+      signal: AbortSignal.timeout(5000),
+    })
+    if (res.ok) {
+      const data: MihomoReleasesResponse = await res.json()
+      return data.releases.some((r) => r.is_newer)
+    }
+  } catch {}
+
+  // 2. Fallback: check GitHub directly using known version or fetching from mihomo
+  try {
+    let version = currentVersion
+    if (!version) {
+      const { mihomoApiUrl, mihomoSecret } = useSettingsStore.getState()
+      const headers: Record<string, string> = mihomoSecret
+        ? { Authorization: `Bearer ${mihomoSecret}` }
+        : {}
+      const verRes = await fetch(`${mihomoApiUrl}/version`, {
+        headers,
+        signal: AbortSignal.timeout(3000),
+      })
+      if (!verRes.ok) return false
+      const data = await verRes.json()
+      version = data.version
+    }
+    if (!version) return false
+
+    const res = await fetch(
+      `https://api.github.com/repos/${MIHOMO_REPO}/releases?per_page=5`,
+      { signal: AbortSignal.timeout(10000) },
+    )
+    if (!res.ok) return false
+    const raw: GitHubRelease[] = await res.json()
+    const cleanCurrent = version.replace(/^v/, '')
+    const latest = raw.find((r) =>
+      r.assets.some((a) => a.name.includes('linux-arm64') && a.name.endsWith('.gz') && !a.name.includes('-go1')),
+    )
+    if (!latest) return false
+    return compareVersions(latest.tag_name.replace(/^v/, ''), cleanCurrent) > 0
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Quick check: is there a newer XKeen release?
+ * Go backend only — xkeen version not available without backend.
+ */
+export async function checkXkeenUpdateQuick(): Promise<boolean> {
+  try {
+    const res = await fetch(`${getBaseUrl()}/api/releases/xkeen`, {
+      headers: authHeaders(),
+      signal: AbortSignal.timeout(5000),
+    })
+    if (res.ok) {
+      const data: XkeenReleasesResponse = await res.json()
+      return data.releases.some((r) => r.is_newer)
+    }
+  } catch {}
+  return false
+}
+
 // --- Shared ---
 
 export interface InstallProgress {

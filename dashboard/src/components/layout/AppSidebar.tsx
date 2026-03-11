@@ -35,6 +35,7 @@ import {
 import { VersionsDialog } from '@/components/versions/VersionsDialog'
 import { useOverviewStore } from '@/stores/overview'
 import { useUpdateStore } from '@/stores/update'
+import { useReleasesStore } from '@/stores/releases'
 import { useBackendAvailable } from '@/hooks/useBackendAvailable'
 import type { LucideIcon } from 'lucide-react'
 
@@ -78,23 +79,25 @@ function VersionRow({
 }) {
   return (
     <button
-      className="flex items-center justify-between w-full py-0.5 rounded-sm hover:bg-accent/50 -mx-1 px-1 transition-colors"
+      className="flex items-center w-full py-0.5 rounded-sm hover:bg-accent/50 -mx-1 px-1 transition-colors"
       onClick={onClick}
     >
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <span>{label}</span>
         <span className="font-mono">{formatVersion(version)}</span>
+        {hasUpdate && (
+          <span className="size-1.5 rounded-full bg-amber-500 shrink-0" />
+        )}
       </div>
-      {hasUpdate && (
-        <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
-      )}
     </button>
   )
 }
 
 export function AppSidebar() {
   const location = useLocation()
-  const hasUpdate = useUpdateStore((s) => s.hasUpdate)
+  const dashboardHasUpdate = useUpdateStore((s) => s.hasUpdate)
+  const mihomoHasUpdate = useReleasesStore((s) => s.mihomoHasUpdate)
+  const xkeenHasUpdate = useReleasesStore((s) => s.xkeenHasUpdate)
 
   const mihomoVersion = useOverviewStore((s) => s.mihomoVersion)
   const xkeenVersion = useOverviewStore((s) => s.xkeenVersion)
@@ -148,18 +151,20 @@ export function AppSidebar() {
               <VersionRow
                 label="xkeen"
                 version={xkeenVersion}
+                hasUpdate={xkeenHasUpdate}
                 onClick={() => setVersionTab('xkeen')}
               />
             )}
             <VersionRow
               label="mihomo"
               version={mihomoVersion}
+              hasUpdate={mihomoHasUpdate}
               onClick={() => setVersionTab('mihomo')}
             />
             <VersionRow
               label="dashboard"
               version={dashboardVersion}
-              hasUpdate={hasUpdate}
+              hasUpdate={dashboardHasUpdate}
               onClick={() => setVersionTab('dashboard')}
             />
           </div>
@@ -185,7 +190,7 @@ export function AppSidebar() {
                 title="Версии и обновления"
               >
                 <ArrowUpCircle className="h-4 w-4" />
-                {hasUpdate && (
+                {(dashboardHasUpdate || mihomoHasUpdate || xkeenHasUpdate) && (
                   <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-amber-500" />
                 )}
               </Button>
@@ -198,7 +203,10 @@ export function AppSidebar() {
                     onClick={() => setVersionTab('xkeen')}
                   >
                     <span>xkeen</span>
-                    <span className="font-mono">{formatVersion(xkeenVersion)}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="font-mono">{formatVersion(xkeenVersion)}</span>
+                      {xkeenHasUpdate && <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />}
+                    </div>
                   </button>
                 )}
                 <button
@@ -206,17 +214,20 @@ export function AppSidebar() {
                   onClick={() => setVersionTab('mihomo')}
                 >
                   <span>mihomo</span>
-                  <span className="font-mono">{formatVersion(mihomoVersion)}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="font-mono">{formatVersion(mihomoVersion)}</span>
+                    {mihomoHasUpdate && <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />}
+                  </div>
                 </button>
                 <button
                   className="flex items-center justify-between w-full text-muted-foreground px-1 py-0.5 rounded hover:bg-accent/50"
                   onClick={() => setVersionTab('dashboard')}
                 >
                   <span>dashboard</span>
-                  <span className="font-mono">{formatVersion(dashboardVersion)}</span>
-                  {hasUpdate && (
-                    <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0 ml-1" />
-                  )}
+                  <div className="flex items-center gap-1">
+                    <span className="font-mono">{formatVersion(dashboardVersion)}</span>
+                    {dashboardHasUpdate && <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />}
+                  </div>
                 </button>
               </div>
             </PopoverContent>

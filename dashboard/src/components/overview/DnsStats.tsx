@@ -15,8 +15,10 @@ export function DnsStatsCard() {
         domainCounts.set(host, (domainCounts.get(host) ?? 0) + 1)
       }
 
-      const mode = conn.metadata.dnsMode || 'normal'
-      dnsModeCounts.set(mode, (dnsModeCounts.get(mode) ?? 0) + 1)
+      const mode = conn.metadata.dnsMode
+      if (mode && mode.toLowerCase() !== 'normal') {
+        dnsModeCounts.set(mode, (dnsModeCounts.get(mode) ?? 0) + 1)
+      }
     }
 
     const topDomains = Array.from(domainCounts.entries())
@@ -62,16 +64,14 @@ export function DnsStatsCard() {
           Нет DNS-данных
         </div>
       ) : (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {stats.topDomains.map(([domain, count]) => {
-            const pct =
-              stats.totalConnections > 0
-                ? (count / stats.totalConnections) * 100
-                : 0
+            const maxCount = stats.topDomains[0]?.[1] ?? 1
+            const pct = (count / maxCount) * 100
             return (
               <div key={domain}>
                 <div className="flex items-center justify-between text-xs mb-0.5">
-                  <span className="font-mono truncate max-w-[70%]">
+                  <span className="font-mono truncate max-w-[55%]">
                     {domain}
                   </span>
                   <span className="text-muted-foreground tabular-nums shrink-0">
@@ -80,8 +80,8 @@ export function DnsStatsCard() {
                 </div>
                 <div className="h-1 rounded-full bg-muted">
                   <div
-                    className="h-full rounded-full bg-primary/50 transition-all duration-300"
-                    style={{ width: `${Math.max(pct, 1)}%` }}
+                    className="h-full rounded-full bg-primary/40 transition-all duration-300"
+                    style={{ width: `${Math.max(pct, 2)}%` }}
                   />
                 </div>
               </div>
