@@ -84,10 +84,12 @@ function VersionRow({
     >
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <span>{label}</span>
-        <span className="font-mono">{formatVersion(version)}</span>
-        {hasUpdate && (
-          <span className="size-1.5 rounded-full bg-amber-500 shrink-0" />
-        )}
+        <span className="font-mono inline-flex items-center gap-1">
+          {formatVersion(version)}
+          {hasUpdate && (
+            <span className="size-1.5 rounded-full bg-amber-500 shrink-0" />
+          )}
+        </span>
       </div>
     </button>
   )

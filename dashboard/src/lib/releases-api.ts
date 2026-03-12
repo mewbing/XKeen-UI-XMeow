@@ -145,8 +145,9 @@ interface GitHubRelease {
 
 /** Compare two version strings (e.g. "0.2.0" vs "0.1.0"). Returns >0 if a > b. */
 function compareVersions(a: string, b: string): number {
-  const pa = a.split('.').map(Number)
-  const pb = b.split('.').map(Number)
+  // Strip pre-release suffixes: "1.19.21-alpha.1" → "1.19.21"
+  const pa = a.replace(/-.*$/, '').split('.').map(Number)
+  const pb = b.replace(/-.*$/, '').split('.').map(Number)
   const len = Math.max(pa.length, pb.length)
   for (let i = 0; i < len; i++) {
     const diff = (pa[i] || 0) - (pb[i] || 0)
