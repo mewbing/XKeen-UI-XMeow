@@ -382,4 +382,10 @@ func (h *ReleasesHandler) InstallXmeow(w http.ResponseWriter, r *http.Request) {
 
 	h.cache.Invalidate(releases.XmeowRepo())
 	writeProgress("done", "xmeow "+body.Target+" "+body.Version+" установлен", -1)
+
+	// After server binary replacement, schedule service restart
+	// (same pattern as ApplyUpdate — send response, then restart after 1s)
+	if body.Target == "server" {
+		time.AfterFunc(1*time.Second, restartService)
+	}
 }
