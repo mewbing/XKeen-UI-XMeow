@@ -8,7 +8,7 @@ progress:
   total_phases: 13
   completed_phases: 11
   total_plans: 37
-  completed_plans: 35
+  completed_plans: 36
 ---
 
 # Project State
@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 20 of 20 (Remote Management & Reverse SSH Tunnel)
-Plan: 2 of 5 in current phase (plan 02 complete)
-Status: Executing Phase 20 -- xmeow-agent binary and setup.sh --agent complete
-Last activity: 2026-03-17 -- Completed 20-02 Agent Binary & Installer
+Plan: 3 of 5 in current phase (plan 03 complete)
+Status: Executing Phase 20 -- HTTP API & server integration complete
+Last activity: 2026-03-17 -- Completed 20-03 HTTP API & Server Integration
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
 v2.0 progress: [████████████████] 100% (Phase 12-16 all complete)
@@ -76,6 +76,7 @@ v2.0 progress: [████████████████] 100% (Phase 12
 | 18 | 02 | 2min | 1 | 4 |
 | 20 | 01 | 5min | 2 | 4 |
 | 20 | 02 | 5min | 2 | 2 |
+| 20 | 03 | 6min | 2 | 6 |
 
 ## Accumulated Context
 
@@ -134,6 +135,10 @@ v2.0 progress: [████████████████] 100% (Phase 12
 - [Phase 20]: Agent config JSON format (not YAML) -- simpler stdlib parsing for 4 fields
 - [Phase 20]: Agent artifact naming: xmeow-agent-linux-{arch}.tar.gz
 - [Phase 20]: setup.sh --agent preserves existing agent.conf on reinstall
+- [Phase 20]: Remote handler at router top level for WS route outside /api auth group
+- [Phase 20]: WebSocket broadcast via sync.Mutex + slice (simple, sufficient for small client count)
+- [Phase 20]: SSH server shuts down first in graceful shutdown order
+- [Phase 20]: Remote routes inside /api/remote sub-router to avoid chi route conflict with /api/mihomo/*
 
 ### Roadmap Evolution
 
@@ -151,5 +156,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 20-02-PLAN.md (Agent Binary & Installer)
+Stopped at: Completed 20-03-PLAN.md (HTTP API & Server Integration)
 Resume file: None

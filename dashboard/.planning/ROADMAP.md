@@ -324,7 +324,7 @@ Plans:
   8. Поддержка прямого подключения (агент → мастер) и через VPS/relay
   9. xmeow-agent собирается для 3 архитектур (arm64, armv7, mipsle) в CI
   10. Страницу «Удалённые» можно скрыть в настройках
-**Plans:** 2/5 plans executed
+**Plans:** 3/5 plans executed
 
 Plans:
 - [ ] 20-01-PLAN.md -- SSH server core + token store (ed25519 host key, reverse tunnel, heartbeat, JSON persistence)
@@ -359,4 +359,4 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 16. Update Frontend | v2.0 | 2/2 | Complete | 2026-03-04 |
 | 17. Web Terminal | 2/3 | In Progress|  | - |
 | 18. Unified Version Dialog | v2.0 | 2/2 | Complete | 2026-03-05 |
-| 20. Remote Management | 2/5 | In Progress|  | - |
+| 20. Remote Management | 3/5 | In Progress|  | - |
