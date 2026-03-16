@@ -13,13 +13,15 @@ import (
 	"github.com/mewbing/XKeen-UI-XMeow/internal/logwatch"
 	"github.com/mewbing/XKeen-UI-XMeow/internal/proxy"
 	"github.com/mewbing/XKeen-UI-XMeow/internal/releases"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/remote"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/sshserver"
 	"github.com/mewbing/XKeen-UI-XMeow/internal/terminal"
 	"github.com/mewbing/XKeen-UI-XMeow/internal/updater"
 )
 
 // NewRouter creates a chi.Mux with all route registrations.
 // The SPA is served by mihomo via external-ui; this server is API-only.
-func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Updater, termHub *terminal.Hub, relCache *releases.Cache, mihomoInst *releases.MihomoInstaller, xmeowInst *releases.XmeowInstaller) *chi.Mux {
+func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Updater, termHub *terminal.Hub, relCache *releases.Cache, mihomoInst *releases.MihomoInstaller, xmeowInst *releases.XmeowInstaller, remoteStore *remote.Store, sshSrv *sshserver.Server) *chi.Mux {
 	r := chi.NewRouter()
 
 	// Global middleware
@@ -47,6 +49,12 @@ func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Upda
 	h := handler.NewHandlers(cfg)
 	uh := handler.NewUpdateHandler(upd, cfg)
 	rh := handler.NewReleasesHandler(relCache, mihomoInst, xmeowInst, cfg)
+
+	// Remote management handler (nil-safe — only created if store is available)
+	var rmt *handler.RemoteHandler
+	if remoteStore != nil {
+		rmt = handler.NewRemoteHandler(remoteStore, sshSrv, remote.NewProxy(sshSrv), cfg)
+	}
 
 	// API routes
 	r.Route("/api", func(r chi.Router) {
@@ -99,6 +107,21 @@ func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Upda
 			r.Get("/releases/xmeow", rh.XmeowReleases)
 			r.Post("/releases/mihomo/install", rh.InstallMihomo)
 			r.Post("/releases/xmeow/install", rh.InstallXmeow)
+
+			// Remote management endpoints
+			if rmt != nil {
+				r.Route("/remote", func(r chi.Router) {
+					r.Get("/agents", rmt.ListAgents)
+					r.Post("/tokens", rmt.CreateToken)
+					r.Get("/tokens", rmt.ListTokens)
+					r.Delete("/tokens/{id}", rmt.RevokeToken)
+					r.Delete("/agents/{id}", rmt.DeleteAgent)
+
+					// Proxy to remote agent services (wildcard routes)
+					r.HandleFunc("/{agentID}/proxy/*", rmt.ProxyToAgent)
+					r.HandleFunc("/{agentID}/mihomo/*", rmt.ProxyToAgentMihomo)
+				})
+			}
 		})
 	})
 
@@ -109,6 +132,11 @@ func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Upda
 	// Terminal WebSocket (has its own auth check in handler -- token as query param)
 	wsTermHandler := handler.NewWsTerminalHandler(termHub, cfg)
 	r.Get("/ws/terminal", wsTermHandler.ServeHTTP)
+
+	// Remote agent status WebSocket (has its own auth check in handler)
+	if rmt != nil {
+		r.Get("/ws/remote/status", rmt.WsRemoteStatus)
+	}
 
 	// Mihomo reverse proxy -- forwards /api/mihomo/* to mihomo external-controller
 	// with automatic Authorization header injection (reads from config.yaml)

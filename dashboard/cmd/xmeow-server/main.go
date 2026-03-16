@@ -34,6 +34,9 @@ func main() {
 	if cfg.DevMode {
 		log.Println("Running in development mode (CORS enabled)")
 	}
+	if cfg.RemoteEnabled {
+		log.Printf("Remote management enabled (SSH port: %d)", cfg.SSHPort)
+	}
 
 	// Create API server (SPA served by mihomo via external-ui)
 	srv := server.New(cfg)
