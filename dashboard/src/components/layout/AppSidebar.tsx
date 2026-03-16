@@ -10,6 +10,7 @@ import {
   Users,
   Database,
   Map,
+  Radio,
   ArrowUpCircle,
   MessageCircleWarning,
 } from 'lucide-react'
@@ -58,6 +59,7 @@ const mainMenuItems: MenuItem[] = [
   { title: 'Группы', icon: Users, path: '/groups' },
   { title: 'Провайдеры', icon: Database, path: '/providers' },
   { title: 'Геоданные', icon: Map, path: '/geodata' },
+  { title: 'Удалённые', icon: Radio, path: '/remote' },
 ]
 
 function formatVersion(v: string): string {

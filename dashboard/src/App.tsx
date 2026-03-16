@@ -15,6 +15,7 @@ import RulesPage from '@/pages/RulesPage'
 import GroupsPage from '@/pages/GroupsPage'
 import ProvidersPage from '@/pages/ProvidersPage'
 import GeodataPage from '@/pages/GeodataPage'
+import RemotePage from '@/pages/RemotePage'
 import { fetchVersions } from '@/lib/config-api'
 import { fetchMihomoVersion } from '@/lib/mihomo-api'
 import { checkXkeenUpdateQuick } from '@/lib/releases-api'
@@ -200,6 +201,7 @@ function App() {
           <Route path="groups" element={<GroupsPage />} />
           <Route path="providers" element={<ProvidersPage />} />
           <Route path="geodata" element={<GeodataPage />} />
+          <Route path="remote" element={<RemotePage />} />
           <Route path="*" element={<Navigate to="/overview" replace />} />
         </Route>
       </Routes>
