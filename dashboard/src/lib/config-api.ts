@@ -3,12 +3,16 @@
  *
  * All protected endpoints send Authorization: Bearer {secret}
  * using the mihomo secret stored in settings.
+ *
+ * Uses context-aware base URL: in remote mode, API calls are
+ * proxied through master backend's SSH tunnel.
  */
 
 import { useSettingsStore } from '@/stores/settings'
+import { getContextBaseUrl } from '@/hooks/useRemoteContext'
 
 function getBaseUrl(): string {
-  return useSettingsStore.getState().configApiUrl
+  return getContextBaseUrl().configApi
 }
 
 function authHeaders(): Record<string, string> {

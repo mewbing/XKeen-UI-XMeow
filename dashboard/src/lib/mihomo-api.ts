@@ -1,11 +1,13 @@
 /**
  * Mihomo REST API client.
  *
- * Uses useSettingsStore for URL and secret configuration.
+ * Uses context-aware base URL: in remote mode, API calls are
+ * proxied through master backend's SSH tunnel.
  * All functions use AbortSignal.timeout for request timeouts.
  */
 
 import { useSettingsStore } from '@/stores/settings'
+import { getContextBaseUrl } from '@/hooks/useRemoteContext'
 
 // --- Connection types ---
 
@@ -80,8 +82,10 @@ function getHeaders(): Record<string, string> {
 }
 
 function getBaseUrl(): string {
-  return useSettingsStore.getState().mihomoApiUrl
+  return getContextBaseUrl().mihomoApi
 }
+
+// TODO: Remote WS proxy support — WebSocket through HTTP proxy is a known open question
 
 /**
  * Fetch mihomo version info.
