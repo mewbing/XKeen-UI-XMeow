@@ -1,7 +1,8 @@
 #!/bin/sh
 # XMeow UI Setup — install, update, reinstall, uninstall
+# Agent:  curl -sSL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh -s -- --agent
 # Install: curl -sSL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh
-# Usage:   sh setup.sh [install|update|reinstall|uninstall]
+# Usage:   sh setup.sh [install|update|reinstall|uninstall|--agent]
 # Note:    If copied from Windows, fix line endings first: tr -d '\r' < setup.sh > setup_lf.sh && sh setup_lf.sh
 
 main() {
@@ -18,6 +19,12 @@ main() {
     MIHOMO_CONFIG="$MIHOMO_DIR/config.yaml"
     EXTUI_DIR="$MIHOMO_DIR/ui"
     TMP_DIR="/tmp/xmeow-install"
+
+    # --- Agent Constants ---
+    AGENT_BIN="xmeow-agent"
+    AGENT_CONF="$INSTALL_DIR/agent.conf"
+    AGENT_INITD="/opt/etc/init.d/S99xmeow-agent"
+    AGENT_PIDFILE="/opt/var/run/xmeow-agent.pid"
 
     # --- ANSI Colors ---
     RED='\033[0;31m'
@@ -513,6 +520,198 @@ INITD_EOF
         esac
     }
 
+    # =====================
+    #   MODE: AGENT INSTALL
+    # =====================
+    install_agent() {
+        msg "Установка XMeow Agent..." "Installing XMeow Agent..."
+        detect_arch
+
+        # Fetch latest release info
+        info "$(msg "Получение последней версии..." "Fetching latest version...")"
+        RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest") || \
+            die "$(msg "Не удалось получить информацию о релизе" "Failed to fetch release info")"
+
+        TAG=$(printf '%s' "$RELEASE_JSON" | grep '"tag_name"' | head -1 | sed 's/.*"tag_name" *: *"\([^"]*\)".*/\1/')
+        [ -z "$TAG" ] && die "$(msg "Не удалось определить версию" "Failed to determine version")"
+        VERSION=$(printf '%s' "$TAG" | sed 's/^v//')
+
+        AGENT_ARCHIVE="${AGENT_BIN}-linux-${ARCH}.tar.gz"
+        AGENT_URL="https://github.com/$REPO/releases/download/$TAG/$AGENT_ARCHIVE"
+        CHECKSUM_URL="https://github.com/$REPO/releases/download/$TAG/checksums.txt"
+
+        info "$(msg "Найдена версия: $VERSION ($TAG)" "Found version: $VERSION ($TAG)")"
+
+        # Download agent archive
+        mkdir -p "$TMP_DIR"
+        info "$(msg "Скачивание $AGENT_ARCHIVE..." "Downloading $AGENT_ARCHIVE...")"
+        curl --progress-bar --retry 3 -fSL -o "$TMP_DIR/$AGENT_ARCHIVE" "$AGENT_URL" || \
+            die "$(msg "Не удалось скачать агент" "Failed to download agent")"
+
+        # Download and verify checksum
+        info "$(msg "Скачивание контрольных сумм..." "Downloading checksums...")"
+        curl -fsSL -o "$TMP_DIR/checksums.txt" "$CHECKSUM_URL" || \
+            die "$(msg "Не удалось скачать контрольные суммы" "Failed to download checksums")"
+
+        EXPECTED=$(grep "$AGENT_ARCHIVE" "$TMP_DIR/checksums.txt" | awk '{print $1}')
+        if [ -n "$EXPECTED" ]; then
+            ACTUAL=$(sha256sum "$TMP_DIR/$AGENT_ARCHIVE" | awk '{print $1}')
+            if [ "$EXPECTED" != "$ACTUAL" ]; then
+                die "$(msg "Контрольная сумма не совпадает!" "Checksum mismatch!")"
+            fi
+            success "$(msg "Контрольная сумма OK" "Checksum OK")"
+        else
+            warn "$(msg "Контрольная сумма для агента не найдена -- пропускаем проверку" \
+                        "Agent checksum not found -- skipping verification")"
+        fi
+
+        # Extract and install binary
+        tar -xzf "$TMP_DIR/$AGENT_ARCHIVE" -C "$TMP_DIR" "$AGENT_BIN" || \
+            die "$(msg "Не удалось распаковать архив" "Failed to extract archive")"
+
+        mkdir -p "$INSTALL_DIR"
+        cp "$TMP_DIR/$AGENT_BIN" "$INSTALL_DIR/$AGENT_BIN"
+        chmod +x "$INSTALL_DIR/$AGENT_BIN"
+
+        INSTALLED_VER=$("$INSTALL_DIR/$AGENT_BIN" --version 2>/dev/null) || \
+            die "$(msg "Бинарник агента не запускается" "Agent binary failed to run")"
+        success "$(msg "Установлен $AGENT_BIN v$INSTALLED_VER" "Installed $AGENT_BIN v$INSTALLED_VER")"
+
+        # Create agent config (preserve existing)
+        if [ -f "$AGENT_CONF" ]; then
+            info "$(msg "Конфиг агента $AGENT_CONF уже существует -- пропускаем" \
+                        "Agent config $AGENT_CONF already exists -- skipping")"
+        else
+            # Try interactive prompts if running in a terminal
+            AGENT_SERVER_HOST=""
+            AGENT_SERVER_PORT="2222"
+            AGENT_TOKEN=""
+            AGENT_DEVICE_NAME=$(hostname 2>/dev/null || echo "")
+
+            if [ -t 0 ] 2>/dev/null; then
+                printf "\n${BOLD}$(msg "Настройка агента" "Agent configuration")${NC}\n\n"
+
+                printf "$(msg "Адрес мастер-сервера (IP или домен)" "Master server address (IP or domain)"): "
+                read -r AGENT_SERVER_HOST < /dev/tty 2>/dev/null || true
+
+                printf "$(msg "Порт SSH мастер-сервера" "Master SSH port") [2222]: "
+                read -r INPUT_PORT < /dev/tty 2>/dev/null || true
+                [ -n "$INPUT_PORT" ] && AGENT_SERVER_PORT="$INPUT_PORT"
+
+                printf "$(msg "Токен агента" "Agent token"): "
+                read -r AGENT_TOKEN < /dev/tty 2>/dev/null || true
+
+                printf "$(msg "Имя устройства" "Device name") [${AGENT_DEVICE_NAME:-unknown}]: "
+                read -r INPUT_NAME < /dev/tty 2>/dev/null || true
+                [ -n "$INPUT_NAME" ] && AGENT_DEVICE_NAME="$INPUT_NAME"
+            fi
+
+            # Write config
+            cat > "$AGENT_CONF" << AGENT_CONF_EOF
+{
+    "server_host": "${AGENT_SERVER_HOST}",
+    "server_port": ${AGENT_SERVER_PORT},
+    "token": "${AGENT_TOKEN}",
+    "device_name": "${AGENT_DEVICE_NAME:-unknown}"
+}
+AGENT_CONF_EOF
+            chmod 600 "$AGENT_CONF"
+            success "$(msg "Конфиг агента создан: $AGENT_CONF" "Agent config created: $AGENT_CONF")"
+
+            if [ -z "$AGENT_SERVER_HOST" ] || [ -z "$AGENT_TOKEN" ]; then
+                warn "$(msg "Заполните server_host и token в $AGENT_CONF перед запуском" \
+                            "Fill in server_host and token in $AGENT_CONF before starting")"
+            fi
+        fi
+
+        # Create init.d script for agent
+        cat > "$AGENT_INITD" << 'AGENT_INITD_EOF'
+#!/bin/sh
+CONF="/opt/etc/xmeow-ui/agent.conf"
+BIN="/opt/etc/xmeow-ui/xmeow-agent"
+PIDFILE="/opt/var/run/xmeow-agent.pid"
+
+case "$1" in
+    start)
+        if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+            echo "xmeow-agent already running (PID $(cat "$PIDFILE"))"
+        else
+            echo "Starting xmeow-agent..."
+            "$BIN" -config "$CONF" > /dev/null 2>&1 &
+            echo $! > "$PIDFILE"
+            echo "xmeow-agent started (PID $!)"
+        fi
+        ;;
+    stop)
+        if [ -f "$PIDFILE" ]; then
+            PID=$(cat "$PIDFILE")
+            if kill -0 "$PID" 2>/dev/null; then
+                echo "Stopping xmeow-agent (PID $PID)..."
+                kill "$PID"
+                rm -f "$PIDFILE"
+            else
+                echo "xmeow-agent not running (stale PID file)"
+                rm -f "$PIDFILE"
+            fi
+        else
+            echo "xmeow-agent not running"
+        fi
+        ;;
+    restart)
+        "$0" stop
+        sleep 1
+        "$0" start
+        ;;
+    status)
+        if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+            echo "xmeow-agent running (PID $(cat "$PIDFILE"))"
+        else
+            echo "xmeow-agent not running"
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+AGENT_INITD_EOF
+        chmod +x "$AGENT_INITD"
+        mkdir -p /opt/var/run
+        success "$(msg "Сервис агента создан: $AGENT_INITD" "Agent service created: $AGENT_INITD")"
+
+        # Start agent if config is filled
+        if [ -n "$AGENT_SERVER_HOST" ] && [ -n "$AGENT_TOKEN" ]; then
+            "$AGENT_INITD" stop 2>/dev/null || true
+            "$AGENT_INITD" start
+            sleep 1
+            if [ -f "$AGENT_PIDFILE" ] && kill -0 "$(cat "$AGENT_PIDFILE")" 2>/dev/null; then
+                success "$(msg "Агент запущен (PID $(cat "$AGENT_PIDFILE"))" \
+                              "Agent running (PID $(cat "$AGENT_PIDFILE"))")"
+            else
+                warn "$(msg "Агент не запустился -- проверьте конфиг и логи" \
+                            "Agent failed to start -- check config and logs")"
+            fi
+        else
+            info "$(msg "Агент не запущен -- заполните конфиг $AGENT_CONF и запустите:" \
+                        "Agent not started -- fill config $AGENT_CONF and run:")"
+            info "  $AGENT_INITD start"
+        fi
+
+        cleanup
+
+        # Print success
+        printf "\n${GREEN}${BOLD}"
+        printf "====================================\n"
+        printf " XMeow Agent v%s $(msg "установлен!" "installed!")\n" "$VERSION"
+        printf "====================================\n"
+        printf "${NC}${GREEN}"
+        printf " Service: %s {start|stop|restart|status}\n" "$AGENT_INITD"
+        printf " Config:  %s\n" "$AGENT_CONF"
+        printf " Binary:  %s/%s\n" "$INSTALL_DIR" "$AGENT_BIN"
+        printf "====================================\n"
+        printf "${NC}\n"
+    }
+
     # --- Main flow ---
     detect_lang
     print_logo
@@ -523,14 +722,15 @@ INITD_EOF
     ACTION="${1:-}"
 
     case "$ACTION" in
-        install)    do_install ;;
-        update)     do_update ;;
-        reinstall)  do_reinstall ;;
-        uninstall)  do_uninstall ;;
-        "")         show_menu ;;
+        install)        do_install ;;
+        update)         do_update ;;
+        reinstall)      do_reinstall ;;
+        uninstall)      do_uninstall ;;
+        --agent|-agent) install_agent ;;
+        "")             show_menu ;;
         *)
             error_msg "$(msg "Неизвестная команда: $ACTION" "Unknown command: $ACTION")"
-            printf "\n$(msg "Использование" "Usage"): setup.sh [install|update|reinstall|uninstall]\n"
+            printf "\n$(msg "Использование" "Usage"): setup.sh [install|update|reinstall|uninstall|--agent]\n"
             exit 1
             ;;
     esac
