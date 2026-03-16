@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Dashboard
 status: unknown
-last_updated: "2026-03-17T20:13:56Z"
+last_updated: "2026-03-16T20:38:33Z"
 progress:
   total_phases: 13
   completed_phases: 11
   total_plans: 37
-  completed_plans: 36
+  completed_plans: 37
 ---
 
 # Project State
@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 20 of 20 (Remote Management & Reverse SSH Tunnel)
-Plan: 3 of 5 in current phase (plan 03 complete)
-Status: Executing Phase 20 -- HTTP API & server integration complete
-Last activity: 2026-03-17 -- Completed 20-03 HTTP API & Server Integration
+Plan: 4 of 5 in current phase (plan 04 complete)
+Status: Executing Phase 20 -- Frontend Remote page complete
+Last activity: 2026-03-17 -- Completed 20-04 Frontend Remote Page
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
 v2.0 progress: [████████████████] 100% (Phase 12-16 all complete)
@@ -77,6 +77,7 @@ v2.0 progress: [████████████████] 100% (Phase 12
 | 20 | 01 | 5min | 2 | 4 |
 | 20 | 02 | 5min | 2 | 2 |
 | 20 | 03 | 6min | 2 | 6 |
+| 20 | 04 | 5min | 2 | 8 |
 
 ## Accumulated Context
 
@@ -139,6 +140,9 @@ v2.0 progress: [████████████████] 100% (Phase 12
 - [Phase 20]: WebSocket broadcast via sync.Mutex + slice (simple, sufficient for small client count)
 - [Phase 20]: SSH server shuts down first in graceful shutdown order
 - [Phase 20]: Remote routes inside /api/remote sub-router to avoid chi route conflict with /api/mihomo/*
+- [Phase 20]: WebSocket instance stored outside Zustand at module level for proper cleanup
+- [Phase 20]: Token one-time view with amber warning card and explicit dismiss button
+- [Phase 20]: Radio icon for Remote sidebar menu item (satellite/broadcast metaphor)
 
 ### Roadmap Evolution
 
@@ -156,5 +160,5 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 20-03-PLAN.md (HTTP API & Server Integration)
+Stopped at: Completed 20-04-PLAN.md (Frontend Remote Page)
 Resume file: None
