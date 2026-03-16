@@ -130,7 +130,7 @@ func ExtractDistTarGz(archivePath, destDir string) error {
 
 	tr := tar.NewReader(gz)
 	// Ensure destDir is clean for prefix checking (zip-slip protection)
-	cleanDest := filepath.Clean(destDir) + string(os.PathSeparator)
+	cleanDest := filepath.Clean(destDir)
 
 	for {
 		hdr, err := tr.Next()
@@ -142,8 +142,9 @@ func ExtractDistTarGz(archivePath, destDir string) error {
 		}
 
 		// Construct target path and validate against zip-slip
+		// Allow exact match (e.g., "./" resolves to destDir itself)
 		target := filepath.Clean(filepath.Join(destDir, hdr.Name))
-		if !strings.HasPrefix(target, cleanDest) {
+		if target != cleanDest && !strings.HasPrefix(target, cleanDest+string(os.PathSeparator)) {
 			return fmt.Errorf("zip slip detected: %s escapes %s", hdr.Name, destDir)
 		}
 
