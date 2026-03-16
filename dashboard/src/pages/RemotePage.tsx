@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { useRemoteStore } from '@/stores/remote'
 import { deleteAgent } from '@/lib/remote-api'
 import { AgentList } from '@/components/remote/AgentList'
@@ -23,6 +24,7 @@ export default function RemotePage() {
   const connectWs = useRemoteStore((s) => s.connectWs)
   const disconnectWs = useRemoteStore((s) => s.disconnectWs)
   const setActiveAgent = useRemoteStore((s) => s.setActiveAgent)
+  const navigate = useNavigate()
 
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
@@ -34,7 +36,7 @@ export default function RemotePage() {
 
   const handleConnect = (agentId: string) => {
     setActiveAgent(agentId)
-    // Navigation to overview with remote context will happen in Plan 05
+    navigate('/overview')
   }
 
   const handleDelete = async () => {

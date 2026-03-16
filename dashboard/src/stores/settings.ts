@@ -43,6 +43,9 @@ interface SettingsState {
   // Updates
   autoCheckUpdates: boolean
 
+  // Remote management
+  showRemotePage: boolean
+
   // SSH Terminal
   sshHost: string
   sshPort: number
@@ -76,6 +79,7 @@ interface SettingsState {
   setRulesShowDiffBeforeApply: (v: boolean) => void
   setAutoCheckUpdates: (v: boolean) => void
   setMihomoSecret: (s: string) => void
+  setShowRemotePage: (v: boolean) => void
   setSshHost: (v: string) => void
   setSshPort: (v: number) => void
   setSshUser: (v: string) => void
@@ -113,6 +117,7 @@ const initialState = {
   rulesConfirmDelete: true,
   rulesShowDiffBeforeApply: true,
   autoCheckUpdates: true,
+  showRemotePage: true,
   sshHost: 'localhost',
   sshPort: 22,
   sshUser: 'root',
@@ -170,6 +175,7 @@ export const useSettingsStore = create<SettingsState>()(
 
       setMihomoSecret: (s) => set({ mihomoSecret: s }),
 
+      setShowRemotePage: (v) => set({ showRemotePage: v }),
       setSshHost: (v) => set({ sshHost: v }),
       setSshPort: (v) => set({ sshPort: v }),
       setSshUser: (v) => set({ sshUser: v }),

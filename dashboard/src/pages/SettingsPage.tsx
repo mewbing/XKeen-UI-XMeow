@@ -108,6 +108,7 @@ export function SettingsSheet({
     maxLogEntries,
     showDiffBeforeApply,
     autoCheckUpdates,
+    showRemotePage,
     rulesConfirmDelete,
     rulesShowDiffBeforeApply,
     setStartPage,
@@ -116,6 +117,7 @@ export function SettingsSheet({
     setMaxLogEntries,
     setShowDiffBeforeApply,
     setAutoCheckUpdates,
+    setShowRemotePage,
     setRulesConfirmDelete,
     setRulesShowDiffBeforeApply,
     setMihomoSecret,
@@ -238,6 +240,19 @@ export function SettingsSheet({
                 id="reduce-motion"
                 checked={!reduceMotion}
                 onCheckedChange={(checked: boolean) => setReduceMotion(!checked)}
+              />
+            </div>
+
+            {/* Remote management */}
+            <div className="flex items-center justify-between pt-1 border-t">
+              <div>
+                <Label htmlFor="show-remote-page" className="text-sm font-medium">Удалённое управление</Label>
+                <p className="text-[11px] text-muted-foreground">Показывать страницу удалённого управления роутерами</p>
+              </div>
+              <Switch
+                id="show-remote-page"
+                checked={showRemotePage}
+                onCheckedChange={setShowRemotePage}
               />
             </div>
           </section>

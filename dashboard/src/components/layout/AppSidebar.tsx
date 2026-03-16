@@ -37,7 +37,10 @@ import { VersionsDialog } from '@/components/versions/VersionsDialog'
 import { useOverviewStore } from '@/stores/overview'
 import { useUpdateStore } from '@/stores/update'
 import { useReleasesStore } from '@/stores/releases'
+import { useSettingsStore } from '@/stores/settings'
+import { useRemoteStore } from '@/stores/remote'
 import { useBackendAvailable } from '@/hooks/useBackendAvailable'
+import { ContextSwitcher } from '@/components/remote/ContextSwitcher'
 import type { LucideIcon } from 'lucide-react'
 
 /** URL для кнопки "Сообщить о проблеме" */
@@ -109,11 +112,18 @@ export function AppSidebar() {
   const xkeenVersion = useOverviewStore((s) => s.xkeenVersion)
   const dashboardVersion = useOverviewStore((s) => s.dashboardVersion)
   const backendAvailable = useBackendAvailable()
+  const showRemotePage = useSettingsStore((s) => s.showRemotePage)
+  const activeAgentId = useRemoteStore((s) => s.activeAgentId)
+  const isRemote = activeAgentId !== null
 
   const [versionTab, setVersionTab] = useState<string | null>(null)
 
+  const filteredMenuItems = mainMenuItems.filter(
+    (item) => item.path !== '/remote' || showRemotePage
+  )
+
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className={isRemote ? 'border-t-2 border-t-blue-500/50' : ''}>
       <SidebarHeader className="h-14 items-center justify-center border-b">
         <div className="flex items-baseline gap-1.5 group-data-[collapsible=icon]:hidden">
           <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
@@ -128,7 +138,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainMenuItems.map((item) => (
+              {filteredMenuItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
                     asChild
@@ -149,6 +159,13 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarSeparator />
+
+        {/* Context switcher -- shown when remote page enabled */}
+        {showRemotePage && (
+          <div className="px-2 group-data-[collapsible=icon]:hidden">
+            <ContextSwitcher />
+          </div>
+        )}
 
         {/* Version info -- hidden when sidebar collapsed */}
         <div className="px-3 py-2 space-y-1 group-data-[collapsible=icon]:hidden">
