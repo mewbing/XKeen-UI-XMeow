@@ -49,6 +49,7 @@ interface ReleasesState {
   // Update indicators (lightweight, set on startup)
   mihomoHasUpdate: boolean
   xkeenHasUpdate: boolean
+  dashboardHasUpdate: boolean
 
   fetchMihomoReleases: () => Promise<void>
   installMihomoVersion: (version: string) => Promise<void>
@@ -99,6 +100,7 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
   // --- Update indicators ---
   mihomoHasUpdate: false,
   xkeenHasUpdate: false,
+  dashboardHasUpdate: false,
 
   // --- Mihomo actions ---
   fetchMihomoReleases: async () => {
@@ -208,6 +210,7 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
       set({
         xmeowReleases: data.releases,
         xmeowCurrentVersion: data.current_version,
+        dashboardHasUpdate: data.releases.some((r) => r.is_newer),
       })
     } catch {
       // Fallback: fetch directly from GitHub API (no backend needed)
@@ -216,6 +219,7 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
         set({
           xmeowReleases: data.releases,
           xmeowCurrentVersion: data.current_version,
+          dashboardHasUpdate: data.releases.some((r) => r.is_newer),
         })
       } catch (err) {
         set({ xmeowError: err instanceof Error ? err.message : 'Failed to fetch releases' })

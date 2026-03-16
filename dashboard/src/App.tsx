@@ -166,6 +166,9 @@ function App() {
       .then((data) => setVersions({ server: data.server, xkeen: data.xkeen }))
       .catch(() => {})
 
+    // Fetch xmeow releases for dashboard update indicator (same path as dialog)
+    useReleasesStore.getState().fetchXmeowReleases()
+
     // Check for xkeen updates (Go backend only)
     checkXkeenUpdateQuick()
       .then((has) => useReleasesStore.getState().setXkeenHasUpdate(has))

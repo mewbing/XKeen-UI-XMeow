@@ -97,7 +97,9 @@ function VersionRow({
 
 export function AppSidebar() {
   const location = useLocation()
-  const dashboardHasUpdate = useUpdateStore((s) => s.hasUpdate)
+  const dashboardHasUpdateFromBackend = useUpdateStore((s) => s.hasUpdate)
+  const dashboardHasUpdateFromReleases = useReleasesStore((s) => s.dashboardHasUpdate)
+  const dashboardHasUpdate = dashboardHasUpdateFromBackend || dashboardHasUpdateFromReleases
   const mihomoHasUpdate = useReleasesStore((s) => s.mihomoHasUpdate)
   const xkeenHasUpdate = useReleasesStore((s) => s.xkeenHasUpdate)
 
