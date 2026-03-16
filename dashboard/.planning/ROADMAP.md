@@ -309,6 +309,23 @@ Plans:
 - [ ] 18-01-PLAN.md -- Create unified VersionsDialog with 3 tab components and shared utilities
 - [ ] 18-02-PLAN.md -- Rewire AppSidebar integration + delete old dialog files + visual verification
 
+### Phase 20: Remote Management & Reverse SSH Tunnel
+**Goal**: Удалённое подключение и управление XMeow-панелями на роутерах за NAT. SSH-сервер на мастере для reverse tunnels, отдельный лёгкий бинарник xmeow-agent для клиентских роутеров, UI управления удалёнными устройствами с переключением контекста
+**Depends on**: Phase 17, Phase 18
+**Requirements**: RMT-01, RMT-02, RMT-03, RMT-04, RMT-05, RMT-06, RMT-07, RMT-08, RMT-09, RMT-10
+**Success Criteria** (what must be TRUE):
+  1. SSH-сервер встроен в xmeow-server, принимает reverse tunnel подключения от агентов с токен-авторизацией
+  2. xmeow-agent — отдельный бинарник, устанавливается через `setup.sh --agent`, поддерживает auto-reconnect и heartbeat
+  3. Heartbeat передаёт: версия mihomo, uptime, архитектура, имя устройства
+  4. Страница «Удалённые» показывает список агентов (online/offline) с empty state инструкцией
+  5. Переключатель контекста в sidebar позволяет переключить весь дашборд на удалённый роутер
+  6. При работе с удалённым роутером API-запросы проксируются через SSH-туннель (порты 5000, 9090, 22)
+  7. Генерация/отзыв токенов агентов из UI мастер-панели
+  8. Поддержка прямого подключения (агент → мастер) и через VPS/relay
+  9. xmeow-agent собирается для 3 архитектур (arm64, armv7, mipsle) в CI
+  10. Страницу «Удалённые» можно скрыть в настройках
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
@@ -334,3 +351,5 @@ v2.0: Phases 12 -> 13 -> 14 -> 15 -> 16 (linear chain)
 | 15. Self-Update Backend | v2.0 | 2/2 | Complete | 2026-03-03 |
 | 16. Update Frontend | v2.0 | 2/2 | Complete | 2026-03-04 |
 | 17. Web Terminal | 2/3 | In Progress|  | - |
+| 18. Unified Version Dialog | v2.0 | 2/2 | Complete | 2026-03-05 |
+| 20. Remote Management | v3.0 | 0/? | Not started | - |
