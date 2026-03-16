@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Dashboard
 status: unknown
-last_updated: "2026-03-05T12:27:33Z"
+last_updated: "2026-03-17T20:13:56Z"
 progress:
   total_phases: 13
   completed_phases: 11
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Users can visually edit mihomo configuration without manually editing YAML files
-**Current focus:** Phase 18 -- Unified Version Dialog
+**Current focus:** Phase 20 -- Remote Management & Reverse SSH Tunnel
 
 ## Current Position
 
-Phase: 18 of 18 (Unified Version Dialog)
-Plan: 2 of 2 in current phase (plan 02 complete -- pending visual verification)
-Status: Phase 18 complete -- unified VersionsDialog integrated into sidebar, pending human-verify checkpoint
-Last activity: 2026-03-05 -- Completed 18-02 Sidebar Integration
+Phase: 20 of 20 (Remote Management & Reverse SSH Tunnel)
+Plan: 2 of 5 in current phase (plan 02 complete)
+Status: Executing Phase 20 -- xmeow-agent binary and setup.sh --agent complete
+Last activity: 2026-03-17 -- Completed 20-02 Agent Binary & Installer
 
 v1.0 progress: Phases 1-6 complete, Phases 7-11 remain (will continue after v2.0)
 v2.0 progress: [████████████████] 100% (Phase 12-16 all complete)
@@ -74,6 +74,8 @@ v2.0 progress: [████████████████] 100% (Phase 12
 | 17 | 01 | 3min | 2 | 7 |
 | 18 | 01 | 3min | 2 | 5 |
 | 18 | 02 | 2min | 1 | 4 |
+| 20 | 01 | 5min | 2 | 4 |
+| 20 | 02 | 5min | 2 | 2 |
 
 ## Accumulated Context
 
@@ -121,6 +123,17 @@ v2.0 progress: [████████████████] 100% (Phase 12
 - [Phase 18]: Shared AlertDialog at dialog level instead of per-tab AlertDialogs
 - [Phase 18]: forceMount + data-[state=inactive]:hidden for tab state preservation
 - [Phase 18]: active prop lazy fetch guard to prevent simultaneous API calls on forceMount
+- [Phase 20]: Token format: 64 hex chars from crypto/rand (256-bit entropy)
+- [Phase 20]: Ed25519 host key via PKCS8+PEM, persisted to disk on first generation
+- [Phase 20]: Heartbeat via custom SSH global request "heartbeat" with JSON payload
+- [Phase 20]: Dynamic port allocation (127.0.0.1:0) for reverse tunnel forwarding
+- [Phase 20]: SSH PasswordCallback: token as password, username as device_name
+- [Phase 20]: Agent permissions via ssh.Permissions.Extensions["agent-id"]
+- [Phase 20]: onAgentChange callback for WebSocket UI notification integration
+- [Phase 20]: Agent is single-file Go binary with no internal/ imports for minimal binary size on MIPS routers
+- [Phase 20]: Agent config JSON format (not YAML) -- simpler stdlib parsing for 4 fields
+- [Phase 20]: Agent artifact naming: xmeow-agent-linux-{arch}.tar.gz
+- [Phase 20]: setup.sh --agent preserves existing agent.conf on reinstall
 
 ### Roadmap Evolution
 
@@ -137,6 +150,6 @@ None currently.
 
 ## Session Continuity
 
-Last session: 2026-03-05
-Stopped at: Completed 18-02-PLAN.md (Sidebar Integration) -- awaiting human-verify checkpoint
+Last session: 2026-03-17
+Stopped at: Completed 20-02-PLAN.md (Agent Binary & Installer)
 Resume file: None
