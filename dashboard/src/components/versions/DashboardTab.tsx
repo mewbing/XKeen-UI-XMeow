@@ -1,16 +1,46 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Download, RotateCcw, Monitor, ChevronDown, ChevronUp, ServerOff } from 'lucide-react'
+import { Download, RotateCcw, Monitor, ChevronDown, ChevronUp, Loader2, Copy, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useReleasesStore } from '@/stores/releases'
 import { useOverviewStore } from '@/stores/overview'
 import { useUpdateStore } from '@/stores/update'
 import { useBackendAvailable } from '@/hooks/useBackendAvailable'
+import { upgradeUI } from '@/lib/mihomo-api'
 import { ReleasesList } from './ReleasesList'
 import { InstallProgress } from './InstallProgress'
 import { UpdateChangelog } from '@/components/update/UpdateChangelog'
 import { fmtVer } from './shared'
 import type { XmeowRelease } from '@/lib/releases-api'
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      const ta = document.createElement('textarea')
+      ta.value = text
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }, [text])
+  return (
+    <button
+      onClick={handleCopy}
+      className="absolute top-1.5 right-1.5 p-1 rounded bg-background/80 backdrop-blur-sm text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+      title="Копировать"
+    >
+      {copied ? <CheckCircle2 className="size-3" /> : <Copy className="size-3" />}
+    </button>
+  )
+}
 
 interface ConfirmAction {
   fn: () => void
@@ -47,7 +77,8 @@ export function DashboardTab({ active, onClose, onConfirm, onOverlay }: Dashboar
   const setVersions = useOverviewStore((s) => s.setVersions)
 
   const [showVersions, setShowVersions] = useState(false)
-  const [showInstallGuide, setShowInstallGuide] = useState(false)
+  const [upgradeUILoading, setUpgradeUILoading] = useState(false)
+  const [upgradeUIError, setUpgradeUIError] = useState<string | null>(null)
   const showProgress = xmeowInstalling || xmeowInstallLog.length > 0
 
   useEffect(() => {
@@ -93,6 +124,24 @@ export function DashboardTab({ active, onClose, onConfirm, onOverlay }: Dashboar
       description: 'Файлы дашборда будут перезаписаны. Страница перезагрузится.',
     })
   }, [onConfirm, installXmeowVersion])
+
+  const handleUpgradeUI = useCallback(() => {
+    onConfirm({
+      fn: async () => {
+        setUpgradeUILoading(true)
+        setUpgradeUIError(null)
+        try {
+          await upgradeUI()
+          setTimeout(() => window.location.reload(), 1500)
+        } catch (err) {
+          setUpgradeUIError(err instanceof Error ? err.message : 'Ошибка обновления')
+          setUpgradeUILoading(false)
+        }
+      },
+      title: 'Обновить дашборд?',
+      description: 'Mihomo скачает UI из external-ui-url. Страница перезагрузится.',
+    })
+  }, [onConfirm])
 
   const handleCloseProgress = useCallback(() => {
     resetXmeowInstallState()
@@ -142,31 +191,19 @@ export function DashboardTab({ active, onClose, onConfirm, onOverlay }: Dashboar
           {backendAvailable ? (
             <span className="font-mono font-medium">{fmtVer(serverVersion)}</span>
           ) : (
-            <button
-              className="font-mono font-medium text-muted-foreground/60 hover:text-foreground transition-colors"
-              onClick={() => setShowInstallGuide(!showInstallGuide)}
-            >
-              --
-            </button>
+            <span className="font-mono font-medium text-muted-foreground/60">--</span>
           )}
         </div>
         {!backendAvailable && (
-          <div
-            className="grid transition-[grid-template-rows,opacity] duration-300 ease-out"
-            style={{
-              gridTemplateRows: showInstallGuide ? '1fr' : '0fr',
-              opacity: showInstallGuide ? 1 : 0,
-            }}
-          >
-            <div className="overflow-hidden">
-              <div className="rounded-md bg-muted/50 p-2.5 space-y-1.5 text-xs text-muted-foreground">
-                <p className="font-medium text-foreground/80">Установка XMeow Server:</p>
-                <code className="block bg-background/60 rounded px-2 py-1 text-[11px] font-mono select-all">
-                  curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh
-                </code>
-                <p>Скрипт установит серверную часть и настроит автозапуск.</p>
-              </div>
+          <div className="rounded-md bg-muted/50 p-2.5 space-y-1.5 text-xs text-muted-foreground">
+            <p className="font-medium text-foreground/80">Установка XMeow Server:</p>
+            <div className="relative">
+              <code className="block bg-background/60 rounded pl-2 pr-7 py-1 text-[11px] font-mono select-all overflow-x-auto">
+                curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh
+              </code>
+              <CopyButton text="curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh" />
             </div>
+            <p>Скрипт установит серверную часть и настроит автозапуск.</p>
           </div>
         )}
 
@@ -177,45 +214,46 @@ export function DashboardTab({ active, onClose, onConfirm, onOverlay }: Dashboar
           </div>
         )}
 
-        {/* No-backend notice */}
-        {!backendAvailable && latestNewer && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground rounded-md bg-muted/50 p-2">
-            <ServerOff className="h-3.5 w-3.5 shrink-0" />
-            <span>Для установки нужен XMeow Server</span>
+        {/* upgradeUI error */}
+        {upgradeUIError && (
+          <div className="text-xs text-destructive rounded-md bg-destructive/10 p-2">
+            {upgradeUIError}
           </div>
         )}
 
         {/* Action buttons */}
-        <div className="flex gap-2 flex-wrap">
-          {backendAvailable && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs"
-              onClick={() => {
-                if (!showVersions && xmeowReleases.length === 0) fetchXmeowReleases()
-                setShowVersions(!showVersions)
-              }}
-            >
-              {showVersions ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
-              Откатить
-            </Button>
-          )}
+        <div className="flex flex-col gap-2">
+          {/* Primary action */}
           {hasUpdate && latestNewer ? (
-            <Button
-              size="sm"
-              className="text-xs"
-              disabled={!backendAvailable}
-              onClick={() => handleInstallServer(latestNewer.tag_name)}
-            >
-              <Download className="h-3 w-3 mr-1.5" />
-              Обновить до {latestNewer.tag_name}
-            </Button>
+            backendAvailable ? (
+              <Button
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => handleInstallServer(latestNewer.tag_name)}
+              >
+                <Download className="h-3 w-3 mr-1.5" />
+                Обновить сервер до {latestNewer.tag_name}
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                className="w-full text-xs"
+                disabled={upgradeUILoading}
+                onClick={handleUpgradeUI}
+              >
+                {upgradeUILoading ? (
+                  <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                ) : (
+                  <Download className="h-3 w-3 mr-1.5" />
+                )}
+                Обновить дашборд
+              </Button>
+            )
           ) : currentRelease && backendAvailable ? (
             <Button
               size="sm"
               variant="secondary"
-              className="text-xs"
+              className="w-full text-xs"
               onClick={() => onConfirm({
                 fn: () => installXmeowVersion(currentRelease.tag_name, 'server'),
                 title: `Переустановить сервер ${currentRelease.tag_name}?`,
@@ -223,23 +261,39 @@ export function DashboardTab({ active, onClose, onConfirm, onOverlay }: Dashboar
               })}
             >
               <RotateCcw className="h-3 w-3 mr-1.5" />
-              Переустановить
+              Переустановить сервер
             </Button>
           ) : null}
-        </div>
 
-        {/* "Обновить UI" button for external-ui mode */}
-        {isExternalUI && latestWithDist && backendAvailable && (
-          <Button
-            variant="secondary"
-            size="sm"
-            className="w-full text-xs"
-            onClick={() => handleInstallDist(latestWithDist.tag_name)}
-          >
-            <Monitor className="h-3 w-3 mr-1.5" />
-            Обновить UI до {latestWithDist.tag_name}
-          </Button>
-        )}
+          {/* Secondary row */}
+          <div className="flex gap-2">
+            {isExternalUI && latestWithDist && backendAvailable && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs"
+                onClick={() => handleInstallDist(latestWithDist.tag_name)}
+              >
+                <Monitor className="h-3 w-3 mr-1.5" />
+                Обновить UI
+              </Button>
+            )}
+            {backendAvailable && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs"
+                onClick={() => {
+                  if (!showVersions && xmeowReleases.length === 0) fetchXmeowReleases()
+                  setShowVersions(!showVersions)
+                }}
+              >
+                {showVersions ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
+                Откатить
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Changelog OR version list — mutually exclusive */}

@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { useProxiesStore } from '@/stores/proxies'
 import { ScrollText } from '@/components/ui/scroll-text'
 import { ProxyFlag } from './ProxyFlag'
+import { FaviconImg } from './FaviconImg'
 
 interface ProxyGroupCardProps {
   groupName: string
@@ -127,18 +128,6 @@ export function ProxyGroupCard({
     return [nowProxy, ...rest]
   }, [sortedProxies, nowProxy])
 
-  // Resolve group icon: config icon → favicon from testUrl → null
-  const groupIconSrc = useMemo(() => {
-    if (group?.icon) return group.icon
-    if (group?.testUrl) {
-      try {
-        const hostname = new URL(group.testUrl).hostname
-        return `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`
-      } catch { return null }
-    }
-    return null
-  }, [group?.icon, group?.testUrl])
-
   if (!group) return null
 
   const groupType = group.type
@@ -172,15 +161,11 @@ export function ProxyGroupCard({
             )}>
               <TypeIcon className="size-4 text-muted-foreground" />
             </div>
-            {groupIconSrc && (
-              <img
-                src={groupIconSrc}
-                alt=""
-                className="size-5 shrink-0 rounded"
-                loading="lazy"
-                onError={(e) => { (e.target as HTMLElement).style.display = 'none' }}
-              />
-            )}
+            <FaviconImg
+              iconUrl={group.icon}
+              testUrl={group.testUrl}
+              name={groupName}
+            />
             <ScrollText className="font-medium text-sm min-w-0">{groupName}</ScrollText>
             <div className={cn(
               'shrink-0 flex items-center transition-all duration-200 overflow-hidden',

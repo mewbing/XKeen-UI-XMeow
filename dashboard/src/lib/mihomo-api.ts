@@ -120,6 +120,27 @@ export async function upgradeCore(
 }
 
 /**
+ * Upgrade external-ui via mihomo.
+ * Mihomo downloads UI from external-ui-url in config.yaml and extracts to external-ui dir.
+ */
+export async function upgradeUI(): Promise<void> {
+  const res = await fetch(`${getBaseUrl()}/upgrade/ui`, {
+    method: 'POST',
+    headers: getHeaders(),
+    signal: AbortSignal.timeout(60000),
+  })
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    let msg = 'Не удалось обновить UI'
+    try {
+      const data = JSON.parse(text)
+      msg = data.message || data.error || msg
+    } catch { /* ignore */ }
+    throw new Error(msg)
+  }
+}
+
+/**
  * Restart mihomo process.
  */
 export async function restartMihomo(): Promise<void> {

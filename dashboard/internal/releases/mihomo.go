@@ -82,16 +82,14 @@ func (m *MihomoInstaller) Install(ctx context.Context, version string, releases 
 	}
 
 	destDir := filepath.Dir(m.cfg.MihomoBin)
+	finalBinPath := m.cfg.MihomoBin
 
-	// Check disk space (3x asset size)
-	onProgress("check_disk", "Проверка свободного места...", -1)
-	if err := updater.CheckDiskSpace(destDir, asset.Size*3); err != nil {
-		return err
-	}
+	// Use /tmp for download & decompression (RAM — always has space)
+	tmpDir := "/tmp"
 
-	// Download .gz file
+	// Download .gz file to /tmp
 	onProgress("download", fmt.Sprintf("Скачивание %s (%s)...", asset.Name, formatSize(asset.Size)), 0)
-	tmpGzPath := filepath.Join(destDir, ".mihomo-update.gz")
+	tmpGzPath := filepath.Join(tmpDir, ".mihomo-update.gz")
 	if err := updater.DownloadFileWithProgress(ctx, asset.BrowserDownloadURL, tmpGzPath, asset.Size, func(pct int) {
 		onProgress("download", fmt.Sprintf("Скачивание: %d%%", pct), pct)
 	}); err != nil {
@@ -99,52 +97,89 @@ func (m *MihomoInstaller) Install(ctx context.Context, version string, releases 
 	}
 	defer os.Remove(tmpGzPath)
 
-	// Gunzip to temporary binary
+	// Gunzip to /tmp
 	onProgress("decompress", "Распаковка архива...", -1)
-	tmpBinPath := filepath.Join(destDir, ".mihomo-new")
+	tmpBinPath := filepath.Join(tmpDir, ".mihomo-new")
 	if err := gunzipToFile(tmpGzPath, tmpBinPath); err != nil {
 		return fmt.Errorf("gunzip %s: %w", asset.Name, err)
 	}
 	defer os.Remove(tmpBinPath)
 
-	// Remove downloaded .gz early
+	// Remove downloaded .gz early to free RAM
 	os.Remove(tmpGzPath)
 
-	// Stop mihomo via xkeen
+	// Check new binary size
+	binInfo, _ := os.Stat(tmpBinPath)
+	binSize := int64(0)
+	if binInfo != nil {
+		binSize = binInfo.Size()
+	}
+
+	// Stop mihomo BEFORE space check — we need to free the binary for replacement
 	onProgress("stop", "Остановка mihomo...", -1)
 	stopCtx, stopCancel := context.WithTimeout(ctx, 30*time.Second)
 	defer stopCancel()
 	if err := exec.CommandContext(stopCtx, m.cfg.XkeenBin, "-stop").Run(); err != nil {
-		// Try to continue anyway — mihomo might not be running
 		fmt.Fprintf(os.Stderr, "warning: xkeen -stop failed: %v\n", err)
 	}
 
-	// Backup current binary
-	onProgress("backup", "Резервное копирование текущей версии...", -1)
+	// Backup current binary (resolve symlinks from previous RAM installs)
 	bakPath := m.cfg.MihomoBin + ".bak"
-	os.Remove(bakPath)
-	if err := os.Rename(m.cfg.MihomoBin, bakPath); err != nil {
-		// Binary might not exist on fresh install
+	onProgress("backup", "Резервное копирование текущей версии...", -1)
+	os.Remove(bakPath) // remove previous backup
+
+	// If current binary is a symlink (from previous RAM install), remove it
+	// — there's nothing to back up since /tmp target is gone after reboot
+	if linkTarget, err := os.Readlink(m.cfg.MihomoBin); err == nil {
+		fmt.Fprintf(os.Stderr, "info: %s is a symlink to %s, removing\n", m.cfg.MihomoBin, linkTarget)
+		os.Remove(m.cfg.MihomoBin)
+	} else if err := os.Rename(m.cfg.MihomoBin, bakPath); err != nil {
 		if !os.IsNotExist(err) {
 			return fmt.Errorf("backup current mihomo: %w", err)
 		}
 	}
 
+	// Check disk space — first with backup kept
+	useRAM := false
+	if err := updater.CheckDiskSpace(destDir, binSize); err != nil {
+		// Not enough space even with backup — remove backup to free space
+		// (old binary ~35MB freed = enough room for the new one)
+		os.Remove(bakPath)
+		if err := updater.CheckDiskSpace(destDir, binSize); err != nil {
+			// Still not enough even without backup — RAM fallback
+			onProgress("info", "Недостаточно места на диске — установка в RAM (/tmp)", -1)
+			finalBinPath = filepath.Join(tmpDir, "mihomo")
+			useRAM = true
+		}
+	}
+
 	// Install new binary
 	onProgress("install", "Установка нового бинарника...", -1)
-	if err := os.Rename(tmpBinPath, m.cfg.MihomoBin); err != nil {
-		// Rollback
-		os.Rename(bakPath, m.cfg.MihomoBin)
+	if err := copyFile(tmpBinPath, finalBinPath); err != nil {
+		if !useRAM {
+			os.Rename(bakPath, m.cfg.MihomoBin)
+		}
 		return fmt.Errorf("install new mihomo: %w", err)
 	}
-	os.Chmod(m.cfg.MihomoBin, 0755)
+	os.Chmod(finalBinPath, 0755)
+	os.Remove(tmpBinPath)
+
+	// If installed to RAM, create symlink from original path
+	if useRAM && finalBinPath != m.cfg.MihomoBin {
+		os.Remove(m.cfg.MihomoBin) // remove old binary/symlink
+		os.Symlink(finalBinPath, m.cfg.MihomoBin)
+	}
 
 	// Start mihomo via xkeen
 	onProgress("start", "Запуск mihomo...", -1)
 	startCtx, startCancel := context.WithTimeout(ctx, 30*time.Second)
 	defer startCancel()
 	if err := exec.CommandContext(startCtx, m.cfg.XkeenBin, "-start").Run(); err != nil {
-		return fmt.Errorf("mihomo installed but failed to start: %w (backup at %s)", err, bakPath)
+		return fmt.Errorf("mihomo installed but failed to start: %w", err)
+	}
+
+	if useRAM {
+		onProgress("warning", "Mihomo установлен в RAM (/tmp). После перезагрузки роутера потребуется повторная установка.", -1)
 	}
 
 	return nil
@@ -174,6 +209,27 @@ func findMihomoAsset(assets []Asset) *Asset {
 		}
 	}
 	return nil
+}
+
+// copyFile copies src to dst, creating or truncating dst. Works across filesystems.
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	if err != nil {
+		return err
+	}
+
+	if _, err := io.Copy(out, in); err != nil {
+		out.Close()
+		os.Remove(dst)
+		return err
+	}
+	return out.Close()
 }
 
 // gunzipToFile decompresses a plain .gz file to a destination path.
