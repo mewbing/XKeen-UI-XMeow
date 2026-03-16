@@ -13,7 +13,7 @@ import (
 	"github.com/mewbing/XKeen-UI-XMeow/internal/updater"
 )
 
-const initdScript = "/opt/etc/init.d/S99xmeow-server"
+const initdScript = "/opt/etc/init.d/S99xmeow-ui"
 
 // UpdateHandler handles update-related HTTP endpoints.
 // Separated from Handlers because it depends on updater.Updater.
