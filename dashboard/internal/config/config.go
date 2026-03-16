@@ -24,6 +24,12 @@ type AppConfig struct {
 
 	// XkeenFiles maps route name to actual filename (identical to Flask).
 	XkeenFiles map[string]string
+
+	// Remote management (SSH server for agent tunnels)
+	SSHPort        int    // Default: 2222, env: SSH_PORT
+	SSHHostKeyPath string // Default: /opt/etc/xmeow-ui/ssh_host_ed25519_key, env: SSH_HOST_KEY
+	AgentsFilePath string // Default: /opt/etc/xmeow-ui/agents.json, env: AGENTS_FILE
+	RemoteEnabled  bool   // Default: true, env: REMOTE_ENABLED
 }
 
 // LoadConfig reads configuration from environment variables with defaults
@@ -48,6 +54,10 @@ func LoadConfig() *AppConfig {
 			"port_exclude":  "port_exclude.lst",
 			"port_proxying": "port_proxying.lst",
 		},
+		SSHPort:        getEnvInt("SSH_PORT", 2222),
+		SSHHostKeyPath: getEnv("SSH_HOST_KEY", "/opt/etc/xmeow-ui/ssh_host_ed25519_key"),
+		AgentsFilePath: getEnv("AGENTS_FILE", "/opt/etc/xmeow-ui/agents.json"),
+		RemoteEnabled:  getEnvBool("REMOTE_ENABLED", true),
 	}
 }
 
@@ -106,6 +116,22 @@ func ReadMihomoField(configPath, key string) string {
 func getEnv(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
+	}
+	return fallback
+}
+
+// getEnvBool returns the boolean value of an environment variable or fallback.
+// Recognizes "true", "1", "yes" as true; everything else (including empty) as false.
+func getEnvBool(key string, fallback bool) bool {
+	v := os.Getenv(key)
+	if v == "" {
+		return fallback
+	}
+	switch strings.ToLower(v) {
+	case "true", "1", "yes":
+		return true
+	case "false", "0", "no":
+		return false
 	}
 	return fallback
 }
