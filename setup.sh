@@ -676,7 +676,7 @@ XMEOW_EOF
             AGENT_TOKEN=""
             AGENT_DEVICE_NAME=$(hostname 2>/dev/null || echo "")
 
-            if [ -t 0 ] 2>/dev/null; then
+            if [ -e /dev/tty ]; then
                 printf "\n${BOLD}$(msg "Настройка агента" "Agent configuration")${NC}\n\n"
 
                 printf "$(msg "Адрес мастер-сервера (IP или домен)" "Master server address (IP or domain)"): "
