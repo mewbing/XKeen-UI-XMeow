@@ -707,8 +707,9 @@ XMEOW_EOF
                 [ -n "$INPUT_NAME" ] && AGENT_DEVICE_NAME="$INPUT_NAME"
             fi
 
-            # Write config
-            cat > "$AGENT_CONF" << AGENT_CONF_EOF
+            # Write config — filled or template with comments
+            if [ -n "$AGENT_SERVER_HOST" ] && [ -n "$AGENT_TOKEN" ]; then
+                cat > "$AGENT_CONF" << AGENT_CONF_EOF
 {
     "server_host": "${AGENT_SERVER_HOST}",
     "server_port": ${AGENT_SERVER_PORT},
@@ -716,10 +717,20 @@ XMEOW_EOF
     "device_name": "${AGENT_DEVICE_NAME:-unknown}"
 }
 AGENT_CONF_EOF
-            chmod 600 "$AGENT_CONF"
-            success "$(msg "Конфиг агента создан: $AGENT_CONF" "Agent config created: $AGENT_CONF")"
-
-            if [ -z "$AGENT_SERVER_HOST" ] || [ -z "$AGENT_TOKEN" ]; then
+                chmod 600 "$AGENT_CONF"
+                success "$(msg "Конфиг агента создан: $AGENT_CONF" "Agent config created: $AGENT_CONF")"
+            else
+                AGENT_DEVICE_NAME=${AGENT_DEVICE_NAME:-$(hostname 2>/dev/null || echo "my-router")}
+                cat > "$AGENT_CONF" << AGENT_TPL_EOF
+{
+    "server_host": "IP_АДРЕС_ОСНОВНОГО_РОУТЕРА",
+    "server_port": 2222,
+    "token": "ТОКЕН_ИЗ_ДАШБОРДА",
+    "device_name": "${AGENT_DEVICE_NAME}"
+}
+AGENT_TPL_EOF
+                chmod 600 "$AGENT_CONF"
+                success "$(msg "Шаблон конфига создан: $AGENT_CONF" "Config template created: $AGENT_CONF")"
                 warn "$(msg "Заполните server_host и token в $AGENT_CONF перед запуском" \
                             "Fill in server_host and token in $AGENT_CONF before starting")"
             fi
@@ -796,9 +807,10 @@ AGENT_INITD_EOF
                             "Agent failed to start -- check config and logs")"
             fi
         else
-            info "$(msg "Агент не запущен -- заполните конфиг $AGENT_CONF и запустите:" \
-                        "Agent not started -- fill config $AGENT_CONF and run:")"
-            info "  $AGENT_INITD start"
+            info "$(msg "Агент не запущен — заполните конфиг и запустите:" \
+                        "Agent not started — fill config and run:")"
+            info "  $(msg "1. Отредактируйте" "1. Edit") $AGENT_CONF"
+            info "  $(msg "2. Запустите:" "2. Run:") xmeow -starta"
         fi
 
         cleanup
