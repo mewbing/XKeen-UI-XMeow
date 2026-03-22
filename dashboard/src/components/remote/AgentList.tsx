@@ -11,9 +11,12 @@ function CopyButton({ text }: { text: string }) {
 
   const handleCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(text)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        throw new Error('no secure context')
+      }
     } catch {
-      // HTTP fallback: hidden textarea + execCommand
       const textarea = document.createElement('textarea')
       textarea.value = text
       textarea.style.position = 'fixed'
@@ -101,7 +104,7 @@ export function AgentList({ agents, onConnect, onDelete }: AgentListProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="flex flex-wrap gap-4">
       {agents.map((agent) => (
         <AgentCard
           key={agent.id}

@@ -20,6 +20,7 @@ import { fetchVersions } from '@/lib/config-api'
 import { fetchMihomoVersion } from '@/lib/mihomo-api'
 import { checkXkeenUpdateQuick } from '@/lib/releases-api'
 import { useReleasesStore } from '@/stores/releases'
+import { useRemoteStore } from '@/stores/remote'
 
 /** Resolves start page path from settings store value */
 function resolveStartPage(startPage: string, lastVisitedPage: string): string {
@@ -100,6 +101,7 @@ function App() {
   const isConfigured = useSettingsStore((s) => s.isConfigured)
   const reduceMotion = useSettingsStore((s) => s.reduceMotion)
   const autoCheckUpdates = useSettingsStore((s) => s.autoCheckUpdates)
+  const activeAgentId = useRemoteStore((s) => s.activeAgentId)
   const resolvedTheme = useResolvedTheme()
   const [hydrated, setHydrated] = useState(false)
 
@@ -145,7 +147,7 @@ function App() {
     return () => clearInterval(id)
   }, [isConfigured, autoCheckUpdates])
 
-  // Fetch component versions on startup
+  // Fetch component versions on startup and on context switch (local ↔ remote)
   useEffect(() => {
     if (!isConfigured) return
 
@@ -154,7 +156,7 @@ function App() {
     // Dashboard version known at build time — always available, even without backend
     setVersions({ dashboard: __APP_VERSION__ })
 
-    // Fetch mihomo version, then fetch releases (sets mihomoHasUpdate via same path as dialog)
+    // Fetch mihomo version (context-aware: local or remote mihomo via tunnel)
     fetchMihomoVersion()
       .then((data) => {
         setVersions({ mihomo: data.version })
@@ -162,19 +164,27 @@ function App() {
       })
       .catch(() => {})
 
-    // Fetch Go backend versions (xkeen, server)
+    // Fetch Go backend versions (xkeen, server) — context-aware, graceful fail without xmeow-server
     fetchVersions()
       .then((data) => setVersions({ server: data.server, xkeen: data.xkeen }))
-      .catch(() => {})
+      .catch(() => {
+        // In remote mode without xmeow-server, use agent heartbeat data as fallback
+        if (activeAgentId) {
+          const agent = useRemoteStore.getState().agents.find((a) => a.id === activeAgentId)
+          if (agent?.xkeen_ver) {
+            setVersions({ xkeen: agent.xkeen_ver })
+          }
+        }
+      })
 
     // Fetch xmeow releases for dashboard update indicator (same path as dialog)
     useReleasesStore.getState().fetchXmeowReleases()
 
-    // Check for xkeen updates (Go backend only)
+    // Check for xkeen updates (Go backend only — graceful fail without xmeow-server)
     checkXkeenUpdateQuick()
       .then((has) => useReleasesStore.getState().setXkeenHasUpdate(has))
       .catch(() => {})
-  }, [isConfigured])
+  }, [isConfigured, activeAgentId])
 
   // Show nothing while hydrating to prevent flash
   if (!hydrated) {

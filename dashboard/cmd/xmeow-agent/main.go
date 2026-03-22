@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -25,7 +26,7 @@ import (
 // Version is set via ldflags at build time:
 //
 //	go build -ldflags "-X main.Version=0.1.0" ./cmd/xmeow-agent/
-var Version = "0.1.0"
+var Version = "0.1.6"
 
 // Config represents the agent configuration loaded from agent.conf.
 type Config struct {
@@ -37,11 +38,14 @@ type Config struct {
 
 // HeartbeatData is the payload sent to the master every heartbeat interval.
 type HeartbeatData struct {
-	DeviceName string `json:"device_name"`
-	Arch       string `json:"arch"`
-	MihomoVer  string `json:"mihomo_ver"`
-	UptimeSec  int64  `json:"uptime_sec"`
-	IP         string `json:"ip"`
+	DeviceName   string `json:"device_name"`
+	Arch         string `json:"arch"`
+	MihomoVer    string `json:"mihomo_ver"`
+	XkeenVer     string `json:"xkeen_ver,omitempty"`
+	AgentVer     string `json:"agent_ver"`
+	UptimeSec    int64  `json:"uptime_sec"`
+	IP           string `json:"ip"`
+	MihomoSecret string `json:"mihomo_secret,omitempty"`
 }
 
 // forwardRequest is the SSH tcpip-forward request payload (RFC 4254).
@@ -269,11 +273,14 @@ func heartbeatLoop(conn ssh.Conn, sessionDone chan struct{}) {
 
 func sendHeartbeat(conn ssh.Conn) bool {
 	data := HeartbeatData{
-		DeviceName: cfg.DeviceName,
-		Arch:       runtime.GOARCH,
-		MihomoVer:  getMihomoVersion(),
-		UptimeSec:  int64(time.Since(startTime).Seconds()),
-		IP:         getOutboundIP(),
+		DeviceName:   cfg.DeviceName,
+		Arch:         runtime.GOARCH,
+		MihomoVer:    getMihomoVersion(),
+		XkeenVer:     getXkeenVersion(),
+		AgentVer:     Version,
+		UptimeSec:    getSystemUptime(),
+		IP:           getOutboundIP(),
+		MihomoSecret: getMihomoSecret(),
 	}
 
 	payload, err := json.Marshal(data)
@@ -305,6 +312,69 @@ func getMihomoVersion() string {
 		return "unknown"
 	}
 	return line
+}
+
+// getXkeenVersion returns the installed xkeen version string.
+// Returns empty string if xkeen is not installed.
+func getXkeenVersion() string {
+	out, err := exec.Command("xkeen", "-v").Output()
+	if err != nil {
+		return ""
+	}
+	line := strings.TrimSpace(strings.SplitN(string(out), "\n", 2)[0])
+	return line
+}
+
+// getSystemUptime reads /proc/uptime for the real system uptime.
+// Falls back to agent process uptime if /proc/uptime is unavailable.
+func getSystemUptime() int64 {
+	data, err := os.ReadFile("/proc/uptime")
+	if err == nil {
+		fields := strings.Fields(string(data))
+		if len(fields) > 0 {
+			if secs, err := strconv.ParseFloat(fields[0], 64); err == nil {
+				return int64(secs)
+			}
+		}
+	}
+	return int64(time.Since(startTime).Seconds())
+}
+
+// getMihomoSecret reads the mihomo secret from config.yaml.
+// Returns empty string if config not found or no secret configured.
+// Handles YAML values like: secret: 'value' # comment
+func getMihomoSecret() string {
+	data, err := os.ReadFile("/opt/etc/mihomo/config.yaml")
+	if err != nil {
+		return ""
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "secret:") {
+			val := strings.TrimSpace(strings.TrimPrefix(line, "secret:"))
+			if len(val) == 0 {
+				return ""
+			}
+			// Single-quoted YAML string: find closing quote
+			if val[0] == '\'' {
+				if end := strings.Index(val[1:], "'"); end >= 0 {
+					return val[1 : end+1]
+				}
+			}
+			// Double-quoted YAML string: find closing quote
+			if val[0] == '"' {
+				if end := strings.Index(val[1:], "\""); end >= 0 {
+					return val[1 : end+1]
+				}
+			}
+			// Unquoted: strip inline YAML comment
+			if idx := strings.Index(val, " #"); idx >= 0 {
+				val = val[:idx]
+			}
+			return strings.TrimSpace(val)
+		}
+	}
+	return ""
 }
 
 func getOutboundIP() string {

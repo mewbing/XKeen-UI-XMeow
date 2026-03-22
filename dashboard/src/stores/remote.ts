@@ -8,6 +8,7 @@
 
 import { create } from 'zustand'
 import { useSettingsStore } from '@/stores/settings'
+import { useOverviewStore } from '@/stores/overview'
 import {
   fetchAgents as apiFetchAgents,
   type AgentInfo,
@@ -54,6 +55,15 @@ export const useRemoteStore = create<RemoteState>()((set, get) => ({
     set({ loading: true, error: null })
     try {
       const agents = await apiFetchAgents()
+      const { activeAgentId } = get()
+      // Auto-reset to local if active agent went offline or disappeared
+      if (activeAgentId !== null) {
+        const active = agents.find((a) => a.id === activeAgentId)
+        if (!active || !active.online) {
+          set({ agents, loading: false, activeAgentId: null })
+          return
+        }
+      }
       set({ agents, loading: false })
     } catch (err) {
       set({
@@ -64,7 +74,19 @@ export const useRemoteStore = create<RemoteState>()((set, get) => ({
   },
 
   setActiveAgent: (id: string | null) => {
+    if (id !== null) {
+      const agent = get().agents.find((a) => a.id === id)
+      if (!agent || !agent.online) return
+    }
+    const prev = get().activeAgentId
+    if (prev === id) return // no change
+
     set({ activeAgentId: id })
+
+    // Reset volatile stores to avoid stale data from previous context
+    useOverviewStore.getState().resetVolatile()
+    // Invalidate health check cache so new context gets fresh checks
+    try { sessionStorage.removeItem('health-check-cache') } catch { /* ignore */ }
   },
 
   connectWs: () => {
@@ -97,6 +119,15 @@ export const useRemoteStore = create<RemoteState>()((set, get) => ({
     ws.onmessage = (event) => {
       try {
         const agents = JSON.parse(event.data) as AgentInfo[]
+        const { activeAgentId } = get()
+        // Auto-reset to local if active agent went offline
+        if (activeAgentId !== null) {
+          const active = agents.find((a) => a.id === activeAgentId)
+          if (!active || !active.online) {
+            set({ agents, activeAgentId: null })
+            return
+          }
+        }
         set({ agents })
       } catch {
         // Ignore malformed messages

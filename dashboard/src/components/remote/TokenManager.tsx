@@ -33,7 +33,11 @@ function TokenCopyButton({ text }: { text: string }) {
 
   const handleCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(text)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        throw new Error('no secure context')
+      }
     } catch {
       const textarea = document.createElement('textarea')
       textarea.value = text

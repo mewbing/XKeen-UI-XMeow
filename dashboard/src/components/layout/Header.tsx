@@ -9,6 +9,7 @@ import { SplitToggleButton } from '@/components/ui/split-toggle-button'
 import { SettingsSheet } from '@/pages/SettingsPage'
 import { useTerminalStore } from '@/stores/terminal'
 import { useBackendAvailable } from '@/hooks/useBackendAvailable'
+import { useRemoteStore } from '@/stores/remote'
 
 const pageTitles: Record<string, string> = {
   '/overview': 'Обзор',
@@ -27,6 +28,8 @@ export function Header() {
   const title = pageTitles[location.pathname] ?? 'Mihomo Dashboard'
   const [settingsOpen, setSettingsOpen] = useState(false)
   const backendAvailable = useBackendAvailable()
+  const activeAgentId = useRemoteStore((s) => s.activeAgentId)
+  const terminalAvailable = backendAvailable || activeAgentId !== null
 
   // Listen for 'open-settings' event from SetupGuide and other components
   useEffect(() => {
@@ -49,9 +52,9 @@ export function Header() {
       {/* Split toggle — only on connections/logs pages */}
       {isConnectionsOrLogs && <SplitToggleButton />}
 
-      <ServiceControl />
+      {backendAvailable && <ServiceControl />}
 
-      {backendAvailable && (
+      {terminalAvailable && (
         <Button
           variant="ghost"
           size="icon"

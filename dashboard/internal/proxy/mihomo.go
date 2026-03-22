@@ -22,7 +22,6 @@ import (
 // responds with 503 Service Unavailable.
 func NewMihomoProxy(cfg *config.AppConfig) http.Handler {
 	address := config.GetMihomoExternalController(cfg.MihomoConfigPath)
-	secret := config.GetMihomoSecret(cfg.MihomoConfigPath)
 
 	if address == "" {
 		log.Printf("Mihomo reverse proxy disabled: external-controller not configured")
@@ -57,7 +56,9 @@ func NewMihomoProxy(cfg *config.AppConfig) http.Handler {
 			if pr.Out.URL.Path == "" {
 				pr.Out.URL.Path = "/"
 			}
-			// Inject Authorization header with mihomo secret
+			// Read secret dynamically on each request — config.yaml may change
+			// at runtime or may not have been available at server startup.
+			secret := config.GetMihomoSecret(cfg.MihomoConfigPath)
 			if secret != "" {
 				pr.Out.Header.Set("Authorization", "Bearer "+secret)
 			}

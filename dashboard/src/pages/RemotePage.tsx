@@ -4,6 +4,7 @@ import { useRemoteStore } from '@/stores/remote'
 import { deleteAgent } from '@/lib/remote-api'
 import { AgentList } from '@/components/remote/AgentList'
 import { TokenManager } from '@/components/remote/TokenManager'
+import { AddDirectDialog } from '@/components/remote/AddDirectDialog'
 import { Loader2 } from 'lucide-react'
 import {
   AlertDialog,
@@ -21,18 +22,15 @@ export default function RemotePage() {
   const loading = useRemoteStore((s) => s.loading)
   const error = useRemoteStore((s) => s.error)
   const fetchAgents = useRemoteStore((s) => s.fetchAgents)
-  const connectWs = useRemoteStore((s) => s.connectWs)
-  const disconnectWs = useRemoteStore((s) => s.disconnectWs)
   const setActiveAgent = useRemoteStore((s) => s.setActiveAgent)
   const navigate = useNavigate()
 
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
+  // Refresh agents on mount (WS lifecycle managed by AppSidebar)
   useEffect(() => {
     fetchAgents()
-    connectWs()
-    return () => disconnectWs()
-  }, [fetchAgents, connectWs, disconnectWs])
+  }, [fetchAgents])
 
   const handleConnect = (agentId: string) => {
     setActiveAgent(agentId)
@@ -55,8 +53,11 @@ export default function RemotePage() {
     <div className="flex flex-col flex-1 p-6 gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold tracking-tight">Удалённые</h1>
-        <TokenManager />
+        <h1 className="text-xl font-semibold tracking-tight">Удалённое управление</h1>
+        <div className="flex items-center gap-2">
+          <AddDirectDialog onAdded={fetchAgents} />
+          <TokenManager />
+        </div>
       </div>
 
       {/* Error state */}
@@ -85,7 +86,7 @@ export default function RemotePage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Удалить агент?</AlertDialogTitle>
             <AlertDialogDescription>
-              Агент будет отключён и удалён из списка. Для повторного подключения потребуется новый токен.
+              Агент будет отключён и удалён из списка.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

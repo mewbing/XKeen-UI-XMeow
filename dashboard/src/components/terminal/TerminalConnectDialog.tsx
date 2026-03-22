@@ -4,6 +4,9 @@
  * Host/Port/User are prefilled from settings store and updated on change.
  * Password is NEVER saved -- always starts empty.
  *
+ * In remote mode (activeAgentId set), host/port are hidden since the
+ * server resolves SSH target from the agent (tunnel port 22 or direct host:22).
+ *
  * Uses shadcn Dialog (Radix) since this is a transient form dialog,
  * NOT the persistent terminal modal.
  */
@@ -20,7 +23,10 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { MonitorSmartphone } from 'lucide-react'
 import { useSettingsStore } from '@/stores/settings'
+import { useRemoteStore } from '@/stores/remote'
 
 interface TerminalConnectDialogProps {
   open: boolean
@@ -40,6 +46,11 @@ export function TerminalConnectDialog({
   const setSshPort = useSettingsStore((s) => s.setSshPort)
   const setSshUser = useSettingsStore((s) => s.setSshUser)
 
+  const activeAgentId = useRemoteStore((s) => s.activeAgentId)
+  const agents = useRemoteStore((s) => s.agents)
+  const activeAgent = activeAgentId ? agents.find((a) => a.id === activeAgentId) : null
+  const isRemote = !!activeAgentId
+
   const [password, setPassword] = useState('')
 
   // Reset password every time dialog opens
@@ -49,9 +60,14 @@ export function TerminalConnectDialog({
 
   const handleSubmit = useCallback(() => {
     if (!password) return
-    onConnect(sshHost, sshPort, sshUser, password)
+    if (isRemote) {
+      // In remote mode, host/port are resolved by the server
+      onConnect('', 0, sshUser, password)
+    } else {
+      onConnect(sshHost, sshPort, sshUser, password)
+    }
     onOpenChange(false)
-  }, [sshHost, sshPort, sshUser, password, onConnect, onOpenChange])
+  }, [sshHost, sshPort, sshUser, password, isRemote, onConnect, onOpenChange])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -59,7 +75,9 @@ export function TerminalConnectDialog({
         <DialogHeader>
           <DialogTitle>SSH-подключение</DialogTitle>
           <DialogDescription>
-            Введите данные для подключения к роутеру
+            {isRemote
+              ? 'Подключение к удалённому роутеру через туннель'
+              : 'Введите данные для подключения к роутеру'}
           </DialogDescription>
         </DialogHeader>
 
@@ -70,33 +88,46 @@ export function TerminalConnectDialog({
           }}
           className="space-y-4"
         >
-          {/* Host + Port row */}
-          <div className="grid grid-cols-[1fr_100px] gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="ssh-host" className="text-xs">
-                Хост
-              </Label>
-              <Input
-                id="ssh-host"
-                value={sshHost}
-                onChange={(e) => setSshHost(e.target.value)}
-                placeholder="localhost"
-                className="h-8 text-sm"
-              />
+          {/* Remote agent badge */}
+          {isRemote && activeAgent && (
+            <div className="flex items-center gap-2 rounded-md border bg-muted/50 px-3 py-2">
+              <MonitorSmartphone className="size-4 text-muted-foreground" />
+              <span className="text-sm">{activeAgent.name || activeAgent.id}</span>
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 ml-auto">
+                {activeAgent.type === 'direct' ? 'Прямое' : 'Реверс'}
+              </Badge>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ssh-port" className="text-xs">
-                Порт
-              </Label>
-              <Input
-                id="ssh-port"
-                type="number"
-                value={sshPort}
-                onChange={(e) => setSshPort(Number(e.target.value) || 22)}
-                className="h-8 text-sm"
-              />
+          )}
+
+          {/* Host + Port row -- hidden in remote mode */}
+          {!isRemote && (
+            <div className="grid grid-cols-[1fr_100px] gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="ssh-host" className="text-xs">
+                  Хост
+                </Label>
+                <Input
+                  id="ssh-host"
+                  value={sshHost}
+                  onChange={(e) => setSshHost(e.target.value)}
+                  placeholder="localhost"
+                  className="h-8 text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ssh-port" className="text-xs">
+                  Порт
+                </Label>
+                <Input
+                  id="ssh-port"
+                  type="number"
+                  value={sshPort}
+                  onChange={(e) => setSshPort(Number(e.target.value) || 22)}
+                  className="h-8 text-sm"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* User */}
           <div className="space-y-1.5">

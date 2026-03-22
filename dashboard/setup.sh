@@ -18,6 +18,8 @@ main() {
     MIHOMO_DIR="/opt/etc/mihomo"
     MIHOMO_CONFIG="$MIHOMO_DIR/config.yaml"
     EXTUI_DIR="$MIHOMO_DIR/ui"
+    EXTUI_BACKUP="$INSTALL_DIR/.extui-backup"
+    XMEOW_EXTUI_URL="https://github.com/$REPO/releases/latest/download/dist.tar.gz"
     TMP_DIR="/tmp/xmeow-install"
 
     # --- Agent Constants ---
@@ -25,6 +27,7 @@ main() {
     AGENT_CONF="$INSTALL_DIR/agent.conf"
     AGENT_INITD="/opt/etc/init.d/S99xmeow-agent"
     AGENT_PIDFILE="/opt/var/run/xmeow-agent.pid"
+    XMEOW_CMD="/opt/sbin/xmeow"
 
     # --- ANSI Colors ---
     RED='\033[0;31m'
@@ -188,17 +191,31 @@ main() {
 
         # Update mihomo config.yaml for external-ui
         if [ -f "$MIHOMO_CONFIG" ]; then
+            # Backup original external-ui settings (only on first install)
+            if [ ! -f "$EXTUI_BACKUP" ]; then
+                ORIG_EXTUI=$(grep "^external-ui:" "$MIHOMO_CONFIG" 2>/dev/null || true)
+                ORIG_EXTUI_URL=$(grep "^external-ui-url:" "$MIHOMO_CONFIG" 2>/dev/null || true)
+                printf "%s\n%s\n" "$ORIG_EXTUI" "$ORIG_EXTUI_URL" > "$EXTUI_BACKUP"
+                info "$(msg "Оригинальные настройки external-ui сохранены" \
+                           "Original external-ui settings saved")"
+            fi
+
+            # Set external-ui: ui
             if grep -q "^external-ui:" "$MIHOMO_CONFIG"; then
                 sed -i "s|^external-ui:.*|external-ui: ui|" "$MIHOMO_CONFIG"
             else
                 printf "\nexternal-ui: ui\n" >> "$MIHOMO_CONFIG"
             fi
 
-            # Warn about external-ui-url overwriting local files
+            # Set external-ui-url to XMeow dashboard (for auto-update on mihomo restart)
             if grep -q "^external-ui-url:" "$MIHOMO_CONFIG"; then
-                warn "$(msg "external-ui-url задан в config.yaml -- mihomo будет перезаписывать UI при рестарте. Рекомендуется закомментировать эту строку." \
-                         "external-ui-url is set in config.yaml -- mihomo will overwrite UI files on restart. Consider commenting it out.")"
+                sed -i "s|^external-ui-url:.*|external-ui-url: '$XMEOW_EXTUI_URL'|" "$MIHOMO_CONFIG"
+            else
+                printf "external-ui-url: '%s'\n" "$XMEOW_EXTUI_URL" >> "$MIHOMO_CONFIG"
             fi
+
+            success "$(msg "external-ui-url обновлен на XMeow Dashboard" \
+                          "external-ui-url updated to XMeow Dashboard")"
         else
             warn "$(msg "Файл $MIHOMO_CONFIG не найден -- external-ui не настроен" \
                        "$MIHOMO_CONFIG not found -- external-ui not configured")"
@@ -286,6 +303,44 @@ INITD_EOF
         success "$(msg "Сервис создан: $INITD_SCRIPT" "Service created: $INITD_SCRIPT")"
     }
 
+    # --- Create xmeow command ---
+    create_xmeow_cmd() {
+        cat > "$XMEOW_CMD" << 'XMEOW_EOF'
+#!/bin/sh
+# XMeow command utility
+# Server: xmeow -start | -stop | -restart | -status
+# Agent:  xmeow -starta | -stopa | -restarta | -statusa
+SERVER="/opt/etc/init.d/S99xmeow-ui"
+AGENT="/opt/etc/init.d/S99xmeow-agent"
+
+case "$1" in
+    -start)     [ -x "$SERVER" ] && "$SERVER" start   || echo "xmeow-server not installed" ;;
+    -stop)      [ -x "$SERVER" ] && "$SERVER" stop    || echo "xmeow-server not installed" ;;
+    -restart)   [ -x "$SERVER" ] && "$SERVER" restart || echo "xmeow-server not installed" ;;
+    -status)    [ -x "$SERVER" ] && "$SERVER" status  || echo "xmeow-server not installed" ;;
+    -starta)    [ -x "$AGENT" ]  && "$AGENT" start    || echo "xmeow-agent not installed" ;;
+    -stopa)     [ -x "$AGENT" ]  && "$AGENT" stop     || echo "xmeow-agent not installed" ;;
+    -restarta)  [ -x "$AGENT" ]  && "$AGENT" restart  || echo "xmeow-agent not installed" ;;
+    -statusa)   [ -x "$AGENT" ]  && "$AGENT" status   || echo "xmeow-agent not installed" ;;
+    *)
+        echo "XMeow UI command utility"
+        echo ""
+        if [ -x "$SERVER" ]; then
+            echo "Server:  xmeow -start | -stop | -restart | -status"
+        fi
+        if [ -x "$AGENT" ]; then
+            echo "Agent:   xmeow -starta | -stopa | -restarta | -statusa"
+        fi
+        if [ ! -x "$SERVER" ] && [ ! -x "$AGENT" ]; then
+            echo "Nothing installed. Run setup.sh first."
+        fi
+        ;;
+esac
+XMEOW_EOF
+        chmod +x "$XMEOW_CMD"
+        success "$(msg "Команда xmeow создана: $XMEOW_CMD" "Command xmeow created: $XMEOW_CMD")"
+    }
+
     # --- Start and verify ---
     start_and_verify() {
         "$INITD_SCRIPT" stop 2>/dev/null || true
@@ -371,6 +426,7 @@ INITD_EOF
         install_extui
         create_config
         create_initd
+        create_xmeow_cmd
         start_and_verify
         cleanup
         print_success
@@ -402,6 +458,7 @@ INITD_EOF
         install_binary
         install_extui
         create_initd
+        create_xmeow_cmd
         start_and_verify
         cleanup
 
@@ -454,14 +511,45 @@ INITD_EOF
             success "$(msg "Сервис удален" "Service removed")"
         fi
 
-        # Remove UI files
+        # Remove UI files and restore original external-ui settings
         if [ -d "$EXTUI_DIR" ]; then
             rm -rf "$EXTUI_DIR"
             success "$(msg "UI удален" "UI removed")"
         fi
 
+        # Restore original external-ui / external-ui-url in mihomo config
+        if [ -f "$EXTUI_BACKUP" ] && [ -f "$MIHOMO_CONFIG" ]; then
+            ORIG_EXTUI=$(sed -n '1p' "$EXTUI_BACKUP")
+            ORIG_EXTUI_URL=$(sed -n '2p' "$EXTUI_BACKUP")
+
+            if [ -n "$ORIG_EXTUI" ]; then
+                sed -i "s|^external-ui:.*|$ORIG_EXTUI|" "$MIHOMO_CONFIG"
+            else
+                sed -i "/^external-ui: ui$/d" "$MIHOMO_CONFIG"
+            fi
+
+            if [ -n "$ORIG_EXTUI_URL" ]; then
+                sed -i "s|^external-ui-url:.*|$ORIG_EXTUI_URL|" "$MIHOMO_CONFIG"
+            else
+                sed -i "/^external-ui-url:.*XKeen-UI-XMeow/d" "$MIHOMO_CONFIG"
+            fi
+
+            rm -f "$EXTUI_BACKUP"
+            success "$(msg "Настройки external-ui восстановлены" \
+                          "External-UI settings restored")"
+        fi
+
         # Remove PID file
         rm -f "$PIDFILE"
+
+        # Remove xmeow command (only if agent is also not installed)
+        if [ -f "$XMEOW_CMD" ] && [ ! -x "$AGENT_INITD" ]; then
+            rm -f "$XMEOW_CMD"
+            success "$(msg "Команда xmeow удалена" "Command xmeow removed")"
+        elif [ -f "$XMEOW_CMD" ]; then
+            info "$(msg "Команда xmeow сохранена (агент ещё установлен)" \
+                        "Command xmeow kept (agent still installed)")"
+        fi
 
         # Ask about config
         if [ -f "$CONF_FILE" ]; then
@@ -678,6 +766,9 @@ AGENT_INITD_EOF
         chmod +x "$AGENT_INITD"
         mkdir -p /opt/var/run
         success "$(msg "Сервис агента создан: $AGENT_INITD" "Agent service created: $AGENT_INITD")"
+
+        # Create xmeow command
+        create_xmeow_cmd
 
         # Start agent if config is filled
         if [ -n "$AGENT_SERVER_HOST" ] && [ -n "$AGENT_TOKEN" ]; then

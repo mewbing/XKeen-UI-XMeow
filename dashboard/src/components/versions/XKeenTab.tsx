@@ -6,6 +6,7 @@ import { useReleasesStore } from '@/stores/releases'
 import { useOverviewStore } from '@/stores/overview'
 import { useTerminalStore } from '@/stores/terminal'
 import { useBackendAvailable } from '@/hooks/useBackendAvailable'
+import { useRemoteStore } from '@/stores/remote'
 import { UpdateChangelog } from '@/components/update/UpdateChangelog'
 import { CmdLine, fmtVer } from './shared'
 
@@ -20,6 +21,8 @@ export function XKeenTab({ active, onClose }: XKeenTabProps) {
   const xkeenVersion = useOverviewStore((s) => s.xkeenVersion)
   const fetchXkeenReleases = useReleasesStore((s) => s.fetchXkeenReleases)
   const backendAvailable = useBackendAvailable()
+  const isRemote = !!useRemoteStore((s) => s.activeAgentId)
+  const showCommands = backendAvailable || isRemote
 
   // Use overview store version as fallback
   const displayVersion = xkeenCurrentVersion || xkeenVersion
@@ -81,8 +84,8 @@ export function XKeenTab({ active, onClose }: XKeenTabProps) {
         </div>
       ) : null}
 
-      {/* Commands section — requires backend for terminal */}
-      {backendAvailable && (
+      {/* Commands section — available with backend or in remote mode (SSH terminal) */}
+      {showCommands && (
         <div className="rounded-md border p-3 space-y-2">
           <p className="text-xs font-medium text-muted-foreground">Команды</p>
           <CmdLine cmd="xkeen -uk" label="— обновить XKeen" />

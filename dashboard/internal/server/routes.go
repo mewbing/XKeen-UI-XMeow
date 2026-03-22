@@ -21,7 +21,7 @@ import (
 
 // NewRouter creates a chi.Mux with all route registrations.
 // The SPA is served by mihomo via external-ui; this server is API-only.
-func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Updater, termHub *terminal.Hub, relCache *releases.Cache, mihomoInst *releases.MihomoInstaller, xmeowInst *releases.XmeowInstaller, remoteStore *remote.Store, sshSrv *sshserver.Server) *chi.Mux {
+func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Updater, termHub *terminal.Hub, relCache *releases.Cache, mihomoInst *releases.MihomoInstaller, xmeowInst *releases.XmeowInstaller, remoteStore *remote.Store, directStore *remote.DirectStore, sshSrv *sshserver.Server) (*chi.Mux, *handler.RemoteHandler) {
 	r := chi.NewRouter()
 
 	// Global middleware
@@ -53,7 +53,7 @@ func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Upda
 	// Remote management handler (nil-safe — only created if store is available)
 	var rmt *handler.RemoteHandler
 	if remoteStore != nil {
-		rmt = handler.NewRemoteHandler(remoteStore, sshSrv, remote.NewProxy(sshSrv), cfg)
+		rmt = handler.NewRemoteHandler(remoteStore, directStore, sshSrv, remote.NewProxy(sshSrv, directStore), cfg)
 	}
 
 	// API routes
@@ -116,6 +116,7 @@ func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Upda
 					r.Get("/tokens", rmt.ListTokens)
 					r.Delete("/tokens/{id}", rmt.RevokeToken)
 					r.Delete("/agents/{id}", rmt.DeleteAgent)
+					r.Post("/direct", rmt.CreateDirect)
 
 					// Proxy to remote agent services (wildcard routes)
 					r.HandleFunc("/{agentID}/proxy/*", rmt.ProxyToAgent)
@@ -136,6 +137,10 @@ func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Upda
 	// Remote agent status WebSocket (has its own auth check in handler)
 	if rmt != nil {
 		r.Get("/ws/remote/status", rmt.WsRemoteStatus)
+
+		// Remote terminal WebSocket — SSH through tunnel, no xmeow-server required
+		wsRemoteTermHandler := handler.NewWsRemoteTerminalHandler(sshSrv, directStore, cfg)
+		r.Get("/ws/remote/{agentID}/terminal", wsRemoteTermHandler.ServeHTTP)
 	}
 
 	// Mihomo reverse proxy -- forwards /api/mihomo/* to mihomo external-controller
@@ -150,5 +155,5 @@ func NewRouter(cfg *config.AppConfig, logHub *logwatch.LogHub, upd *updater.Upda
 		json.NewEncoder(w).Encode(map[string]string{"error": "not found"})
 	})
 
-	return r
+	return r, rmt
 }

@@ -25,9 +25,16 @@ export interface AgentInfo {
   id: string
   name: string
   online: boolean
+  type?: 'tunnel' | 'direct'
   arch: string
   mihomo_ver: string
+  xkeen_ver?: string
+  agent_ver?: string
   ip: string
+  host?: string
+  mihomo_port?: number
+  server_port?: number
+  has_server?: boolean
   uptime_sec: number
   last_heartbeat: string
   created_at: string
@@ -104,6 +111,29 @@ export async function revokeToken(id: string): Promise<void> {
     const data = await res.json().catch(() => ({}))
     throw new Error(data.error || `Failed to revoke token: ${res.status}`)
   }
+}
+
+/**
+ * Add a direct agent connection (primarily to mihomo external-controller).
+ */
+export async function addDirectAgent(data: {
+  name: string
+  host: string
+  mihomo_port: number
+  server_port?: number
+  secret: string
+}): Promise<AgentInfo> {
+  const res = await fetch(`${getBaseUrl()}/api/remote/direct`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+    signal: AbortSignal.timeout(5000),
+  })
+  if (!res.ok) {
+    const d = await res.json().catch(() => ({}))
+    throw new Error(d.error || `Failed to add direct agent: ${res.status}`)
+  }
+  return res.json()
 }
 
 /**

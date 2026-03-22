@@ -57,6 +57,15 @@ func (s *Session) Connect(host string, port int, user, password string, cols, ro
 		User: user,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(password),
+			// Fallback: some SSH servers (e.g. dropbear on certain routers)
+			// only support keyboard-interactive, not plain password auth.
+			ssh.KeyboardInteractive(func(user, instruction string, questions []string, echos []bool) ([]string, error) {
+				answers := make([]string, len(questions))
+				for i := range questions {
+					answers[i] = password
+				}
+				return answers, nil
+			}),
 		},
 		// InsecureIgnoreHostKey is acceptable here: this connects to a home router
 		// on the local network (typically localhost or LAN IP).

@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Download, RotateCcw, Monitor, ChevronDown, ChevronUp, Loader2, Copy, CheckCircle2 } from 'lucide-react'
+import { Download, RotateCcw, Monitor, ChevronDown, ChevronUp, Loader2, Copy, CheckCircle2, Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useReleasesStore } from '@/stores/releases'
 import { useOverviewStore } from '@/stores/overview'
 import { useUpdateStore } from '@/stores/update'
 import { useBackendAvailable } from '@/hooks/useBackendAvailable'
+import { useRemoteStore } from '@/stores/remote'
+import { useTerminalStore } from '@/stores/terminal'
 import { upgradeUI } from '@/lib/mihomo-api'
 import { ReleasesList } from './ReleasesList'
 import { InstallProgress } from './InstallProgress'
@@ -60,6 +62,10 @@ export function DashboardTab({ active, onClose, onConfirm, onOverlay }: Dashboar
   const dashboardVersion = useOverviewStore((s) => s.dashboardVersion)
   const isExternalUI = useUpdateStore((s) => s.isExternalUI)
   const backendAvailable = useBackendAvailable()
+  const activeAgentId = useRemoteStore((s) => s.activeAgentId)
+  const agents = useRemoteStore((s) => s.agents)
+  const activeAgent = activeAgentId ? agents.find((a) => a.id === activeAgentId) : null
+  const isRemote = !!activeAgentId
 
   const xmeowReleases = useReleasesStore((s) => s.xmeowReleases) ?? []
   const xmeowLoading = useReleasesStore((s) => s.xmeowLoading)
@@ -194,7 +200,7 @@ export function DashboardTab({ active, onClose, onConfirm, onOverlay }: Dashboar
             <span className="font-mono font-medium text-muted-foreground/60">--</span>
           )}
         </div>
-        {!backendAvailable && (
+        {!backendAvailable && !isRemote && (
           <div className="rounded-md bg-muted/50 p-2.5 space-y-1.5 text-xs text-muted-foreground">
             <p className="font-medium text-foreground/80">Установка XMeow Server:</p>
             <div className="relative">
@@ -205,6 +211,40 @@ export function DashboardTab({ active, onClose, onConfirm, onOverlay }: Dashboar
             </div>
             <p>Скрипт установит серверную часть и настроит автозапуск.</p>
           </div>
+        )}
+
+        {/* Agent info — remote mode only */}
+        {isRemote && activeAgent && (
+          <>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Agent</span>
+              <span className="font-mono font-medium">{fmtVer(activeAgent.agent_ver || '')}</span>
+            </div>
+            {!backendAvailable && (
+              <div className="rounded-md bg-muted/50 p-2.5 space-y-1.5 text-xs text-muted-foreground">
+                <p className="font-medium text-foreground/80">Установка/обновление через терминал:</p>
+                <div className="relative">
+                  <code className="block bg-background/60 rounded pl-2 pr-7 py-1 text-[11px] font-mono select-all overflow-x-auto">
+                    curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh
+                  </code>
+                  <CopyButton text="curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh" />
+                </div>
+                <p>Установит или обновит сервер и агент на удалённом роутере.</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs mt-1"
+                  onClick={() => {
+                    onClose()
+                    useTerminalStore.getState().toggleOpen()
+                  }}
+                >
+                  <Terminal className="h-3 w-3 mr-1.5" />
+                  Открыть терминал
+                </Button>
+              </div>
+            )}
+          </>
         )}
 
         {latestNewer && (

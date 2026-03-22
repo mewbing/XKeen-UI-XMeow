@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/mewbing/XKeen-UI-XMeow/internal/config"
+	"github.com/mewbing/XKeen-UI-XMeow/internal/handler"
 	"github.com/mewbing/XKeen-UI-XMeow/internal/logwatch"
 	"github.com/mewbing/XKeen-UI-XMeow/internal/releases"
 	"github.com/mewbing/XKeen-UI-XMeow/internal/remote"
@@ -18,11 +20,12 @@ import (
 
 // Server wraps the HTTP server with config, router, LogHub, terminal Hub, and SSH server.
 type Server struct {
-	httpServer *http.Server
-	cfg        *config.AppConfig
-	logHub     *logwatch.LogHub
-	termHub    *terminal.Hub
-	sshServer  *sshserver.Server
+	httpServer    *http.Server
+	cfg           *config.AppConfig
+	logHub        *logwatch.LogHub
+	termHub       *terminal.Hub
+	sshServer     *sshserver.Server
+	remoteHandler *handler.RemoteHandler
 }
 
 // New creates a new Server with chi router, LogHub, Updater, and all middleware wired.
@@ -35,11 +38,15 @@ func New(cfg *config.AppConfig) *Server {
 	mihomoInst := releases.NewMihomoInstaller(cfg)
 	xmeowInst := releases.NewXmeowInstaller(cfg)
 
-	// Initialize remote management (SSH server + token store) if enabled
+	// Initialize remote management (SSH server + token store + direct store) if enabled
 	var sshSrv *sshserver.Server
 	var remoteStore *remote.Store
+	var directStore *remote.DirectStore
 	if cfg.RemoteEnabled {
 		remoteStore = remote.NewStore(cfg.AgentsFilePath)
+		directStore = remote.NewDirectStore(
+			filepath.Join(filepath.Dir(cfg.AgentsFilePath), "direct-agents.json"),
+		)
 		var err error
 		sshSrv, err = sshserver.NewServer(
 			cfg.SSHHostKeyPath,
@@ -51,20 +58,22 @@ func New(cfg *config.AppConfig) *Server {
 			cfg.RemoteEnabled = false
 			sshSrv = nil
 			remoteStore = nil
+			directStore = nil
 		}
 	}
 
-	router := NewRouter(cfg, logHub, upd, termHub, relCache, mihomoInst, xmeowInst, remoteStore, sshSrv)
+	router, remoteHandler := NewRouter(cfg, logHub, upd, termHub, relCache, mihomoInst, xmeowInst, remoteStore, directStore, sshSrv)
 
 	return &Server{
 		httpServer: &http.Server{
 			Addr:    fmt.Sprintf(":%d", cfg.Port),
 			Handler: router,
 		},
-		cfg:       cfg,
-		logHub:    logHub,
-		termHub:   termHub,
-		sshServer: sshSrv,
+		cfg:           cfg,
+		logHub:        logHub,
+		termHub:       termHub,
+		sshServer:     sshSrv,
+		remoteHandler: remoteHandler,
 	}
 }
 
@@ -88,6 +97,10 @@ func (s *Server) Start() error {
 
 // Shutdown gracefully shuts down the server, LogHub, terminal Hub, SSH server, and all WS connections.
 func (s *Server) Shutdown(ctx context.Context) error {
+	if s.remoteHandler != nil {
+		log.Printf("Shutting down remote handler...")
+		s.remoteHandler.Shutdown()
+	}
 	if s.sshServer != nil {
 		log.Printf("Shutting down SSH server...")
 		s.sshServer.Shutdown()

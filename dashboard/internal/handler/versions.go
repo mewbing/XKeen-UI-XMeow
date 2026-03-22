@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -40,6 +41,7 @@ func (h *Handlers) GetVersions(w http.ResponseWriter, r *http.Request) {
 		"dashboard": h.cfg.Version,
 		"xkeen":     xkeenVersion,
 		"mihomo":    mihomoVersion,
+		"arch":      runtime.GOARCH,
 	})
 }
 

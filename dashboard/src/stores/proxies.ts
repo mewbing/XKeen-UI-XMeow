@@ -68,6 +68,10 @@ export const useProxiesStore = create<ProxiesState>()((set, get) => ({
     try {
       const data = await fetchProxies()
       const proxies = data.proxies
+      if (!proxies) {
+        set({ proxyMap: {}, groupNames: [], loading: false })
+        return
+      }
 
       // Extract groups in GLOBAL config order
       const globalOrder = proxies['GLOBAL']?.all ?? []

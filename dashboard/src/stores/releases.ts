@@ -108,6 +108,11 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
     try {
       // Try Go backend first (cached, normalized)
       const data = await fetchMihomoReleases()
+      // Go backend may return "unknown" if its internal mihomo fetch failed —
+      // fall through to GitHub fallback which uses authoritative mihomo version
+      if (data.current_version === 'unknown' || !data.current_version) {
+        throw new Error('unknown version from backend')
+      }
       set({
         mihomoReleases: data.releases,
         mihomoCurrentVersion: data.current_version,
@@ -115,6 +120,7 @@ export const useReleasesStore = create<ReleasesState>()((set, get) => ({
       })
     } catch {
       // Fallback: fetch directly from GitHub API (no backend needed)
+      // Uses mihomoVersion from overview store (set by fetchMihomoVersion() before this call)
       try {
         const mihomoVer = useOverviewStore.getState().mihomoVersion
         const data = await fetchMihomoReleasesFromGitHub(mihomoVer)

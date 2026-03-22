@@ -11,6 +11,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useSettingsStore } from '@/stores/settings'
+import { useRemoteStore } from '@/stores/remote'
 
 interface UseTerminalWsOptions {
   enabled: boolean
@@ -31,8 +32,14 @@ export interface UseTerminalWsReturn {
 
 function getTerminalWsUrl(): string {
   const { configApiUrl, mihomoSecret } = useSettingsStore.getState()
+  const activeAgentId = useRemoteStore.getState().activeAgentId
+
   let base: string
-  if (configApiUrl) {
+  if (activeAgentId && configApiUrl) {
+    // Remote mode: SSH directly through tunnel/direct agent (no xmeow-server required).
+    // Master resolves SSH target from agentID (tunnel port 22 or direct host:22).
+    base = configApiUrl.replace(/^http/, 'ws') + `/ws/remote/${activeAgentId}/terminal`
+  } else if (configApiUrl) {
     base = configApiUrl.replace(/^http/, 'ws') + '/ws/terminal'
   } else {
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
@@ -58,6 +65,9 @@ export function useTerminalWs({
   const pingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const startTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [wsConnected, setWsConnected] = useState(false)
+
+  // Track active agent for reconnection on context switch
+  const activeAgentId = useRemoteStore((s) => s.activeAgentId)
 
   // Store callbacks in refs to avoid triggering reconnect on re-render
   const enabledRef = useRef(enabled)
@@ -118,6 +128,10 @@ export function useTerminalWs({
               case 'error':
                 onErrorRef.current(msg.message)
                 break
+              case 'exec_sent':
+                // Remote exec: command was typed into SSH session
+                console.log('[Terminal WS] Exec sent:', msg.message)
+                break
               case 'pong':
                 // Keepalive response -- ignore
                 break
@@ -172,7 +186,7 @@ export function useTerminalWs({
       }
       setWsConnected(false)
     }
-  }, [enabled])
+  }, [enabled, activeAgentId])
 
   const sendJson = useCallback((msg: object) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router'
 import {
   Home,
@@ -62,7 +62,7 @@ const mainMenuItems: MenuItem[] = [
   { title: 'Группы', icon: Users, path: '/groups' },
   { title: 'Провайдеры', icon: Database, path: '/providers' },
   { title: 'Геоданные', icon: Map, path: '/geodata' },
-  { title: 'Удалённые', icon: Radio, path: '/remote' },
+  { title: 'Удал. Управление', icon: Radio, path: '/remote' },
 ]
 
 function formatVersion(v: string): string {
@@ -115,6 +115,18 @@ export function AppSidebar() {
   const showRemotePage = useSettingsStore((s) => s.showRemotePage)
   const activeAgentId = useRemoteStore((s) => s.activeAgentId)
   const isRemote = activeAgentId !== null
+
+  // Initialize remote store: fetch agents + connect WS when remote page is enabled
+  const fetchAgents = useRemoteStore((s) => s.fetchAgents)
+  const connectWs = useRemoteStore((s) => s.connectWs)
+  const disconnectWs = useRemoteStore((s) => s.disconnectWs)
+
+  useEffect(() => {
+    if (!showRemotePage || !backendAvailable) return
+    fetchAgents()
+    connectWs()
+    return () => disconnectWs()
+  }, [showRemotePage, backendAvailable, fetchAgents, connectWs, disconnectWs])
 
   const [versionTab, setVersionTab] = useState<string | null>(null)
 

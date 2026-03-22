@@ -19,6 +19,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { UpdateOverlay } from '@/components/update/UpdateOverlay'
 import { useReleasesStore } from '@/stores/releases'
 import { useBackendAvailable } from '@/hooks/useBackendAvailable'
+import { useRemoteStore } from '@/stores/remote'
 import { XKeenTab } from './XKeenTab'
 import { MihomoTab } from './MihomoTab'
 import { DashboardTab } from './DashboardTab'
@@ -48,12 +49,14 @@ export function VersionsDialog({ open, defaultTab, onClose }: VersionsDialogProp
   const xmeowInstalling = useReleasesStore((s) => s.xmeowInstalling)
   const anyInstalling = mihomoInstalling || xmeowInstalling
   const backendAvailable = useBackendAvailable()
+  const isRemote = !!useRemoteStore((s) => s.activeAgentId)
+  const showXkeen = backendAvailable || isRemote
 
   // Sync tab to defaultTab when dialog opens
-  // If xkeen tab requested but backend unavailable, fall back to mihomo
+  // If xkeen tab requested but not available, fall back to mihomo
   useEffect(() => {
     if (open) {
-      const tab = (!backendAvailable && defaultTab === 'xkeen') ? 'mihomo' : defaultTab
+      const tab = (!showXkeen && defaultTab === 'xkeen') ? 'mihomo' : defaultTab
       setActiveTab(tab)
     } else {
       setPanelHeight(null)
@@ -138,7 +141,7 @@ export function VersionsDialog({ open, defaultTab, onClose }: VersionsDialogProp
             className="min-h-0"
           >
             <TabsList className="shrink-0 w-full">
-              {backendAvailable && (
+              {showXkeen && (
                 <TabsTrigger
                   value="xkeen"
                   className="flex-1"
@@ -169,7 +172,7 @@ export function VersionsDialog({ open, defaultTab, onClose }: VersionsDialogProp
               style={panelHeight !== null ? { height: panelHeight } : undefined}
             >
               <div ref={panelRef}>
-                {backendAvailable && (
+                {showXkeen && (
                   <TabsContent
                     value="xkeen"
                     forceMount

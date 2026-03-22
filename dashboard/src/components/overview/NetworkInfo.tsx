@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { useOverviewStore } from '@/stores/overview'
 import { useSettingsStore } from '@/stores/settings'
+import { useRemoteStore } from '@/stores/remote'
 import { useBackendAvailable } from '@/hooks/useBackendAvailable'
 import { fetchNetworkInfo, fetchProxyServers, type NetworkInfo as NetworkInfoData } from '@/lib/config-api'
 import { fetchProxyDelay } from '@/lib/mihomo-api'
@@ -165,6 +166,7 @@ function LatencyTargetsSettings() {
 
 export function NetworkInfoCard() {
   const backendAvailable = useBackendAvailable()
+  const activeAgentId = useRemoteStore((s) => s.activeAgentId)
   const [netData, setNetData] = useState<NetworkInfoData | null>(null)
   const [proxyServers, setProxyServers] = useState<Record<string, string>>({})
   const startTime = useOverviewStore((s) => s.startTime)
@@ -178,20 +180,23 @@ export function NetworkInfoCard() {
   const [testing, setTesting] = useState(false)
 
   // Fetch network info (requires Go backend)
+  // Reset on context switch to avoid showing stale local data in remote mode
   useEffect(() => {
+    setNetData(null)
     if (!backendAvailable) return
     fetchNetworkInfo().then(setNetData).catch(() => {})
     const interval = setInterval(() => {
       fetchNetworkInfo().then(setNetData).catch(() => {})
     }, 60000)
     return () => clearInterval(interval)
-  }, [backendAvailable])
+  }, [backendAvailable, activeAgentId])
 
   // Fetch proxy servers (requires Go backend)
   useEffect(() => {
+    setProxyServers({})
     if (!backendAvailable) return
     fetchProxyServers().then(setProxyServers).catch(() => {})
-  }, [backendAvailable])
+  }, [backendAvailable, activeAgentId])
 
   // Session timer
   useEffect(() => {

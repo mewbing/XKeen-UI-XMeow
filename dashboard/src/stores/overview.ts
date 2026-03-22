@@ -74,6 +74,9 @@ interface OverviewState {
     xkeen?: string
     server?: string
   }) => void
+
+  /** Reset all volatile data (used on context switch to avoid stale data) */
+  resetVolatile: () => void
 }
 
 export const useOverviewStore = create<OverviewState>()((set) => ({
@@ -157,5 +160,27 @@ export const useOverviewStore = create<OverviewState>()((set) => ({
       ...(v.dashboard !== undefined && { dashboardVersion: v.dashboard }),
       ...(v.xkeen !== undefined && { xkeenVersion: v.xkeen }),
       ...(v.server !== undefined && { serverVersion: v.server }),
+    }),
+
+  resetVolatile: () =>
+    set({
+      uploadSpeed: 0,
+      downloadSpeed: 0,
+      uploadTotal: 0,
+      downloadTotal: 0,
+      memoryInuse: 0,
+      systemMemTotal: 0,
+      systemMemUsed: 0,
+      activeConnections: 0,
+      cpuUsage: 0,
+      trafficHistory: EMPTY_TRAFFIC,
+      memoryHistory: EMPTY_MEMORY,
+      connectionsHistory: EMPTY_SINGLE,
+      cpuHistory: EMPTY_SINGLE,
+      connections: [],
+      startTime: null,
+      mihomoVersion: '',
+      xkeenVersion: '',
+      serverVersion: '',
     }),
 }))

@@ -3,9 +3,10 @@
  */
 
 import { useSettingsStore } from '@/stores/settings'
+import { getContextBaseUrl } from '@/hooks/useRemoteContext'
 
 function getBaseUrl(): string {
-  return useSettingsStore.getState().configApiUrl
+  return getContextBaseUrl().configApi
 }
 
 function authHeaders(): Record<string, string> {
@@ -311,11 +312,13 @@ export async function checkMihomoUpdateQuick(currentVersion?: string): Promise<b
   try {
     let version = currentVersion
     if (!version) {
-      const { mihomoApiUrl, mihomoSecret } = useSettingsStore.getState()
-      const headers: Record<string, string> = mihomoSecret
-        ? { Authorization: `Bearer ${mihomoSecret}` }
+      // Context-aware: in remote mode fetches from remote mihomo via tunnel
+      const mihomoApi = getContextBaseUrl().mihomoApi
+      const secret = useSettingsStore.getState().mihomoSecret
+      const headers: Record<string, string> = secret
+        ? { Authorization: `Bearer ${secret}` }
         : {}
-      const verRes = await fetch(`${mihomoApiUrl}/version`, {
+      const verRes = await fetch(`${mihomoApi}/version`, {
         headers,
         signal: AbortSignal.timeout(3000),
       })

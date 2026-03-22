@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { useOverviewStore } from '@/stores/overview'
+import { useRemoteStore } from '@/stores/remote'
 import { useMihomoWs } from '@/hooks/use-mihomo-ws'
 import { fetchConnectionsSnapshot } from '@/lib/mihomo-api'
 import { fetchCpuUsage, fetchSystemMemory } from '@/lib/config-api'
@@ -29,6 +30,7 @@ interface MemoryMessage {
 export default function OverviewPage() {
   const health = useHealthCheck({ requireMihomo: true, requireConfigApi: false })
   const backendAvailable = useBackendAvailable()
+  const activeAgentId = useRemoteStore((s) => s.activeAgentId)
 
   const updateTraffic = useOverviewStore((s) => s.updateTraffic)
   const updateMemory = useOverviewStore((s) => s.updateMemory)
@@ -49,6 +51,7 @@ export default function OverviewPage() {
   useMihomoWs<TrafficMessage>('/traffic', handleTraffic)
   useMihomoWs<MemoryMessage>('/memory', handleMemory)
 
+  // Re-fetch on mount AND on context switch (activeAgentId change)
   useEffect(() => {
     setStartTime(Date.now())
 
@@ -58,7 +61,7 @@ export default function OverviewPage() {
         setConnections(data.connections)
       })
       .catch(() => {})
-  }, [setStartTime, updateConnections, setConnections])
+  }, [setStartTime, updateConnections, setConnections, activeAgentId])
 
   // Initial backend fetch (CPU + system memory together)
   useEffect(() => {
@@ -67,7 +70,7 @@ export default function OverviewPage() {
     Promise.all([fetchCpuUsage(), fetchSystemMemory()])
       .then(([cpuData, memData]) => updateSystemPerf(cpuData.cpu, memData))
       .catch(() => {})
-  }, [backendAvailable, updateSystemPerf])
+  }, [backendAvailable, updateSystemPerf, activeAgentId])
 
   // Poll connections every 2s, CPU + system memory every 2s (only when backend available)
   useEffect(() => {
@@ -87,7 +90,7 @@ export default function OverviewPage() {
     }, 2000)
 
     return () => clearInterval(interval)
-  }, [updateConnections, setConnections, updateSystemPerf, backendAvailable])
+  }, [updateConnections, setConnections, updateSystemPerf, backendAvailable, activeAgentId])
 
   if (!isHealthy(health)) {
     return (

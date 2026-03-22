@@ -29,8 +29,13 @@ __pycache__
 *.sw?
 
 # Compiled Go binaries
-xmeow-server
-xmeow-server.exe
+/xmeow-server
+/xmeow-server.exe
+/xmeow-server-linux-*
+/xmeow-agent-linux-*
+/xmeow-agent.exe
+*.tar.gz
+checksums.txt
 
 # Test/debug data
 xkeen_rel.json

@@ -11,11 +11,14 @@ import (
 // HeartbeatData is the JSON payload sent periodically by the agent
 // via a custom "heartbeat" SSH global request.
 type HeartbeatData struct {
-	DeviceName string `json:"device_name"`
-	Arch       string `json:"arch"`
-	MihomoVer  string `json:"mihomo_ver"`
-	Uptime     int64  `json:"uptime_sec"`
-	IP         string `json:"ip"`
+	DeviceName   string `json:"device_name"`
+	Arch         string `json:"arch"`
+	MihomoVer    string `json:"mihomo_ver"`
+	XkeenVer     string `json:"xkeen_ver,omitempty"`
+	AgentVer     string `json:"agent_ver,omitempty"`
+	Uptime       int64  `json:"uptime_sec"`
+	IP           string `json:"ip"`
+	MihomoSecret string `json:"mihomo_secret,omitempty"`
 }
 
 // AgentInfo is the exported, JSON-safe representation of a connected agent.
@@ -25,6 +28,8 @@ type AgentInfo struct {
 	Name          string         `json:"name"`
 	Arch          string         `json:"arch"`
 	MihomoVer     string         `json:"mihomo_ver"`
+	XkeenVer      string         `json:"xkeen_ver,omitempty"`
+	AgentVer      string         `json:"agent_ver,omitempty"`
 	IP            string         `json:"ip"`
 	Uptime        int64          `json:"uptime_sec"`
 	Online        bool           `json:"online"`
@@ -39,8 +44,11 @@ type AgentConn struct {
 	Name          string
 	Arch          string
 	MihomoVer     string
+	XkeenVer      string
+	AgentVer      string
 	IP            string
 	Uptime        int64
+	mihomoSecret  string         // mihomo API secret (not exposed in AgentInfo)
 	conn          ssh.Conn
 	tunnelPorts   map[int]int    // remote port -> local forwarded port
 	listeners     []net.Listener // tracked for cleanup on disconnect
@@ -65,6 +73,8 @@ func (a *AgentConn) Info() AgentInfo {
 		Name:          a.Name,
 		Arch:          a.Arch,
 		MihomoVer:     a.MihomoVer,
+		XkeenVer:      a.XkeenVer,
+		AgentVer:      a.AgentVer,
 		IP:            a.IP,
 		Uptime:        a.Uptime,
 		Online:        true,
@@ -109,6 +119,13 @@ func (a *AgentConn) addListener(ln net.Listener, remotePort int, localPort int) 
 	a.tunnelPorts[remotePort] = localPort
 }
 
+// GetMihomoSecret returns the mihomo API secret received from the agent's heartbeat.
+func (a *AgentConn) GetMihomoSecret() string {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.mihomoSecret
+}
+
 // updateHeartbeat applies heartbeat data received from the agent.
 func (a *AgentConn) updateHeartbeat(hb HeartbeatData) {
 	a.mu.Lock()
@@ -117,7 +134,10 @@ func (a *AgentConn) updateHeartbeat(hb HeartbeatData) {
 	a.Name = hb.DeviceName
 	a.Arch = hb.Arch
 	a.MihomoVer = hb.MihomoVer
+	a.XkeenVer = hb.XkeenVer
+	a.AgentVer = hb.AgentVer
 	a.Uptime = hb.Uptime
 	a.IP = hb.IP
+	a.mihomoSecret = hb.MihomoSecret
 	a.lastHeartbeat = time.Now()
 }

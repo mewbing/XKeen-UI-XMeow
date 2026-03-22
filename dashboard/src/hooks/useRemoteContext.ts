@@ -22,7 +22,10 @@ export function useApiBaseUrl(): { configApi: string; mihomoApi: string; isRemot
     return { configApi: configApiUrl, mihomoApi: mihomoApiUrl, isRemote: false }
   }
 
-  // Remote mode: proxy through master backend
+  // Remote mode: proxy through master backend's SSH tunnel.
+  // mihomo API goes directly to remote mihomo (port 9090) via SSH tunnel.
+  // configApi goes through remote agent's Go backend (port 5000) — but may be unavailable
+  // if remote only runs xmeow-agent (no xmeow-server).
   return {
     configApi: `${configApiUrl}/api/remote/${activeAgentId}/proxy`,
     mihomoApi: `${configApiUrl}/api/remote/${activeAgentId}/mihomo`,
@@ -43,6 +46,7 @@ export function getContextBaseUrl(): { configApi: string; mihomoApi: string; isR
     return { configApi: configApiUrl, mihomoApi: mihomoApiUrl, isRemote: false }
   }
 
+  // Remote mode: mihomo API directly to port 9090 via SSH tunnel
   return {
     configApi: `${configApiUrl}/api/remote/${activeAgentId}/proxy`,
     mihomoApi: `${configApiUrl}/api/remote/${activeAgentId}/mihomo`,

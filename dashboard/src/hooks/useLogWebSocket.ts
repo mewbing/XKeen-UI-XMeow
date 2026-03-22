@@ -1,10 +1,13 @@
 /**
  * WebSocket hook for real-time log streaming.
  *
- * Connects to /ws/logs on the Flask backend.
+ * Connects to /ws/logs on the Go backend.
  * Auto-reconnects on disconnect (1s delay).
  * Ping/pong keepalive every 30s.
  * Supports: switchFile, reload, clearLog commands.
+ *
+ * Context-aware: in remote mode, connects through the Go backend
+ * HTTP reverse proxy (which supports WebSocket upgrade).
  *
  * Uses a 150ms startup delay to avoid React 18 Strict Mode
  * double-mount causing "closed before established" errors.
@@ -12,6 +15,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useSettingsStore } from '@/stores/settings'
+import { useRemoteStore } from '@/stores/remote'
 
 export interface WsLogLine {
   time: string | null
@@ -34,7 +38,19 @@ interface UseLogWebSocketReturn {
 }
 
 function getWsUrl(): string {
+  const activeAgentId = useRemoteStore.getState().activeAgentId
   const base = useSettingsStore.getState().configApiUrl
+
+  if (activeAgentId && base) {
+    // Remote mode: connect to remote xmeow-server's /ws/logs via proxy tunnel.
+    // This gives file-based logs (error.log, access.log) same as local mode.
+    const wsBase = base.replace(/^http/, 'ws')
+    const secret = useSettingsStore.getState().mihomoSecret
+    let url = wsBase + `/api/remote/${activeAgentId}/proxy/ws/logs`
+    if (secret) url += `?token=${encodeURIComponent(secret)}`
+    return url
+  }
+
   if (base) {
     return base.replace(/^http/, 'ws') + '/ws/logs'
   }
@@ -53,6 +69,9 @@ export function useLogWebSocket({
   const pingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const startTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [connected, setConnected] = useState(false)
+
+  // Track active agent for reconnection on context switch
+  const activeAgentId = useRemoteStore((s) => s.activeAgentId)
 
   // Store callbacks in refs to avoid triggering reconnect
   const enabledRef = useRef(enabled)
@@ -81,7 +100,6 @@ export function useLogWebSocket({
           ws.close()
           return
         }
-        console.log('[WS] Connected')
         setConnected(true)
 
         // Start ping/pong keepalive every 30s
@@ -96,6 +114,19 @@ export function useLogWebSocket({
         try {
           const data = JSON.parse(event.data)
           if (data.type === 'pong') return
+
+          // Mihomo native /logs format: {type: "info|warning|error|debug", payload: "message"}
+          // Convert to our WsLogLine format and append.
+          if (data.payload !== undefined) {
+            onAppendRef.current([{
+              time: null,
+              level: data.type,
+              msg: data.payload,
+            }])
+            return
+          }
+
+          // Go backend format: {type: "initial|append|clear", lines: [...]}
           switch (data.type) {
             case 'initial':
               onInitialRef.current(data.lines || [])
@@ -156,7 +187,7 @@ export function useLogWebSocket({
       }
       setConnected(false)
     }
-  }, [enabled])
+  }, [enabled, activeAgentId])
 
   const send = useCallback((msg: object) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {

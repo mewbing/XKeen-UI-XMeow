@@ -50,17 +50,35 @@ type termReply struct {
 // ServeHTTP validates auth, upgrades to WebSocket, and runs the terminal message loop.
 func (h *WsTerminalHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 1. Auth check BEFORE WebSocket upgrade
-	secret := config.GetMihomoSecret(h.cfg.MihomoConfigPath)
-	if secret != "" {
-		token := r.URL.Query().Get("token")
-		if token == "" {
-			token = strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	//
+	// Trust requests proxied through SSH tunnel from master backend.
+	// X-Tunnel-Auth is set by the master's remote proxy, and the connection
+	// comes from localhost via the SSH reverse tunnel.
+	tunnelAuthed := false
+	if r.Header.Get("X-Tunnel-Auth") == "true" {
+		remoteIP := r.RemoteAddr
+		if idx := strings.LastIndex(remoteIP, ":"); idx >= 0 {
+			remoteIP = remoteIP[:idx]
 		}
-		if token != secret {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Unauthorized"})
-			return
+		if remoteIP == "127.0.0.1" || remoteIP == "::1" || remoteIP == "[::1]" {
+			tunnelAuthed = true
+			r.Header.Del("X-Tunnel-Auth")
+		}
+	}
+
+	if !tunnelAuthed {
+		secret := config.GetMihomoSecret(h.cfg.MihomoConfigPath)
+		if secret != "" {
+			token := r.URL.Query().Get("token")
+			if token == "" {
+				token = strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+			}
+			if token != secret {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				json.NewEncoder(w).Encode(map[string]string{"error": "Unauthorized"})
+				return
+			}
 		}
 	}
 
