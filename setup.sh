@@ -580,22 +580,34 @@ XMEOW_EOF
     show_menu() {
         get_current_version
 
+        # Check agent version
+        AGENT_VER=""
+        if [ -x "$INSTALL_DIR/$AGENT_BIN" ]; then
+            AGENT_VER=$("$INSTALL_DIR/$AGENT_BIN" --version 2>/dev/null) || AGENT_VER="?"
+        fi
+
         printf "\n"
         if [ -n "$CUR_VER" ]; then
-            info "$(msg "Установленная версия: $CUR_VER" "Installed version: $CUR_VER")"
+            info "$(msg "Сервер: v$CUR_VER" "Server: v$CUR_VER")"
         else
-            info "$(msg "XMeow UI не установлен" "XMeow UI is not installed")"
+            info "$(msg "Сервер не установлен" "Server not installed")"
+        fi
+        if [ -n "$AGENT_VER" ]; then
+            info "$(msg "Агент:  v$AGENT_VER" "Agent:  v$AGENT_VER")"
+        else
+            info "$(msg "Агент не установлен" "Agent not installed")"
         fi
         printf "\n"
 
-        printf "  ${BOLD}1)${NC} $(msg "Установить" "Install")         $(msg "— полная установка" "— full installation")\n"
-        printf "  ${BOLD}2)${NC} $(msg "Обновить" "Update")            $(msg "— скачать последнюю версию" "— download latest version")\n"
-        printf "  ${BOLD}3)${NC} $(msg "Переустановить" "Reinstall")   $(msg "— удалить и установить заново" "— remove and install fresh")\n"
-        printf "  ${BOLD}4)${NC} $(msg "Удалить" "Uninstall")          $(msg "— полное удаление" "— complete removal")\n"
+        printf "  ${BOLD}1)${NC} $(msg "Установить сервер" "Install server")     $(msg "— сервер + дашборд" "— server + dashboard")\n"
+        printf "  ${BOLD}2)${NC} $(msg "Обновить сервер" "Update server")       $(msg "— скачать последнюю версию" "— download latest version")\n"
+        printf "  ${BOLD}3)${NC} $(msg "Переустановить" "Reinstall")            $(msg "— удалить и установить заново" "— remove and install fresh")\n"
+        printf "  ${BOLD}4)${NC} $(msg "Удалить" "Uninstall")                   $(msg "— полное удаление" "— complete removal")\n"
+        printf "  ${BOLD}5)${NC} $(msg "Установить агент" "Install agent")      $(msg "— для удалённого управления" "— for remote management")\n"
         printf "  ${BOLD}0)${NC} $(msg "Выход" "Exit")\n"
         printf "\n"
 
-        printf "$(msg "Выберите действие" "Select action") [0-4]: "
+        printf "$(msg "Выберите действие" "Select action") [0-5]: "
         read -r CHOICE < /dev/tty 2>/dev/null || CHOICE="0"
 
         case "$CHOICE" in
@@ -603,6 +615,7 @@ XMEOW_EOF
             2) do_update ;;
             3) do_reinstall ;;
             4) do_uninstall ;;
+            5) install_agent ;;
             0) msg "Выход." "Bye."; exit 0 ;;
             *) die "$(msg "Неверный выбор: $CHOICE" "Invalid choice: $CHOICE")" ;;
         esac
