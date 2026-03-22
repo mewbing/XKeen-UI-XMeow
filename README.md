@@ -9,13 +9,13 @@
 **Установка сервера + дашборда:**
 
 ```bash
-curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/main/setup.sh | sh
+curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh
 ```
 
 **Установка агента (для удалённого управления):**
 
 ```bash
-curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/main/setup.sh | sh -s -- --agent
+curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/master/setup.sh | sh -s -- --agent
 ```
 
 После установки дашборд доступен по адресу: `http://<router-ip>:9090/ui/`
