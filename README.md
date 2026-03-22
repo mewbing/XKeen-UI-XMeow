@@ -111,15 +111,20 @@ curl -sL https://raw.githubusercontent.com/mewbing/XKeen-UI-XMeow/main/setup.sh 
 ## Управление сервисом
 
 ```bash
-# Сервер
+# CLI-утилита (устанавливается автоматически)
+xmeow -start      # Запуск сервера
+xmeow -stop       # Остановка сервера
+xmeow -restart    # Перезапуск сервера
+xmeow -status     # Статус сервера
+
+xmeow -starta     # Запуск агента
+xmeow -stopa      # Остановка агента
+xmeow -restarta   # Перезапуск агента
+xmeow -statusa    # Статус агента
+
+# Init.d скрипты (альтернативно)
 /opt/etc/init.d/S99xmeow-ui start|stop|restart|status
-
-# Агент
 /opt/etc/init.d/S99xmeow-agent start|stop|restart|status
-
-# CLI-утилита
-xmeow status    # Статус всех компонентов
-xmeow restart   # Перезапуск
 ```
 
 ## external-ui-url
