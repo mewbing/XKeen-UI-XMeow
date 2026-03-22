@@ -151,9 +151,11 @@ main() {
                        "Checksum mismatch!\n  Expected: $EXPECTED\n  Got:      $ACTUAL")"
         fi
 
-        # Extract binary
-        tar -xzf "$TMP_DIR/$ARCHIVE_NAME" -C "$TMP_DIR" "$BIN_NAME" || \
+        # Extract binary (inside archive: xmeow-server-linux-arm64, etc.)
+        INNER_NAME="${BIN_NAME}-linux-${ARCH}"
+        tar -xzf "$TMP_DIR/$ARCHIVE_NAME" -C "$TMP_DIR" "$INNER_NAME" || \
             die "$(msg "Не удалось распаковать архив" "Failed to extract archive")"
+        mv "$TMP_DIR/$INNER_NAME" "$TMP_DIR/$BIN_NAME"
 
         success "$(msg "Контрольная сумма OK" "Checksum OK")"
     }
@@ -666,9 +668,11 @@ XMEOW_EOF
                         "Agent checksum not found -- skipping verification")"
         fi
 
-        # Extract and install binary
-        tar -xzf "$TMP_DIR/$AGENT_ARCHIVE" -C "$TMP_DIR" "$AGENT_BIN" || \
+        # Extract and install binary (inside archive: xmeow-agent-linux-arm64, etc.)
+        AGENT_INNER="${AGENT_BIN}-linux-${ARCH}"
+        tar -xzf "$TMP_DIR/$AGENT_ARCHIVE" -C "$TMP_DIR" "$AGENT_INNER" || \
             die "$(msg "Не удалось распаковать архив" "Failed to extract archive")"
+        mv "$TMP_DIR/$AGENT_INNER" "$TMP_DIR/$AGENT_BIN"
 
         mkdir -p "$INSTALL_DIR"
         cp "$TMP_DIR/$AGENT_BIN" "$INSTALL_DIR/$AGENT_BIN"
