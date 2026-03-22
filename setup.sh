@@ -121,7 +121,7 @@ main() {
         # Strip leading 'v' for version number
         VERSION=$(printf '%s' "$TAG" | sed 's/^v//')
 
-        ARCHIVE_NAME="${BIN_NAME}_${VERSION}_${SUFFIX}.tar.gz"
+        ARCHIVE_NAME="${BIN_NAME}-${SUFFIX}.tar.gz"
         BINARY_URL="https://github.com/$REPO/releases/download/$TAG/$ARCHIVE_NAME"
         CHECKSUM_URL="https://github.com/$REPO/releases/download/$TAG/checksums.txt"
         DISTUI_URL="https://github.com/$REPO/releases/download/$TAG/dist.tar.gz"
@@ -637,7 +637,7 @@ XMEOW_EOF
         [ -z "$TAG" ] && die "$(msg "Не удалось определить версию" "Failed to determine version")"
         VERSION=$(printf '%s' "$TAG" | sed 's/^v//')
 
-        AGENT_ARCHIVE="${AGENT_BIN}-linux-${ARCH}.tar.gz"
+        AGENT_ARCHIVE="${AGENT_BIN}-${SUFFIX}.tar.gz"
         AGENT_URL="https://github.com/$REPO/releases/download/$TAG/$AGENT_ARCHIVE"
         CHECKSUM_URL="https://github.com/$REPO/releases/download/$TAG/checksums.txt"
 
